@@ -25,10 +25,16 @@ data class Player(
     var goldFind: Int = 1,
     var playerIsOnLowHealth: Int = 20, // hp threshold for glow/guard
     var techniqueBloodLustIsLearned: Boolean = false,
+    var TechniqueSwiftIsLearned: Boolean = false,
+    var TechniqueRoarIsLearned: Boolean = false,
+    var TechniqueDivineIsLearned: Boolean = false,
+    var TechniqueGuardIsLearned: Boolean = false,
     var numberOfDragonEggsInInventory: Int = 0,
 
     // Roar buff
     var isRoarActive: Boolean = false,
+    var roarBuffDodge: Int = 10,
+    var roarBuffCrit: Int = 5,
     var roarBuffCountdown: Int = 0,
 
     // Guard buff
@@ -52,13 +58,15 @@ data class Player(
 
     fun turnOnRoarBuff() {
         isRoarActive = true
-        // TODO: apply roar's stat bonus (original likely buffed damage or crit here)
+        dodgeChance += roarBuffDodge
+        critChance += roarBuffCrit
     }
 
     fun turnOffRoarBuff() {
         isRoarActive = false
         roarBuffCountdown = 0
-        // TODO: remove roar's stat bonus
+        dodgeChance -= roarBuffDodge
+        critChance -= roarBuffCrit
     }
 
     fun resetRoarBuff() {
@@ -73,12 +81,15 @@ data class Player(
         }
     }
 
-    fun levelUp() {
-        while (experience >= xpNeededToLevelUp) {
-            level++
-            experience = 0
-            maxHealth += level + (level / 2)
-            currentHealth = maxHealth // this heals the player to full hp on level-up
+    fun levelUp(): Boolean {
+        if (experience < xpNeededToLevelUp) {
+            return false
         }
+        level++
+        experience = 0
+        maxHealth += level + (level / 2)
+        currentHealth = maxHealth // this heals the player to full hp on level-up
+
+        return true
     }
 }

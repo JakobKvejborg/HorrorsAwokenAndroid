@@ -35,7 +35,6 @@ class GameViewModel(
     )
 
     val uiState: StateFlow<GameUiState> = _uiState
-
     private val monsterContainer = MonsterContainer()
 
     private var encounterItems: List<Item> = emptyList()
@@ -43,6 +42,7 @@ class GameViewModel(
 
     var totalMonstersDefeated = 0
         private set
+
 
     // ------------------------------------------------------------
     // ATTACK MOVES
@@ -443,7 +443,12 @@ class GameViewModel(
         // LEVEL UP
         // --------------------------------------------------------
 
-        updatedPlayer.levelUp()
+        val didLevelUp =
+            updatedPlayer.levelUp()
+
+        if (didLevelUp) {
+            sounds.playLevelUp()
+        }
 
         // --------------------------------------------------------
         // REGENERATION
@@ -589,12 +594,13 @@ class GameViewModel(
         _uiState.update {
             it.copy(
                 monsterDefeated = false,
-                monster = null
-            )
+                monster = null,
+
+                )
+
         }
 
-        // TODO:
-        // Navigate to Town screen.
+
     }
 
     // ------------------------------------------------------------

@@ -12,4 +12,10 @@ data class GameUiState(
     val hpPopupText: String? = null,       // null = hidden
     val lootAvailable: Boolean = false,
     val monsterDefeated: Boolean = false,
+
 )
+
+enum class GameScreen {
+    Combat,
+    Town
+}

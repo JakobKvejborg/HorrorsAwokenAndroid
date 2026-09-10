@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
@@ -38,7 +39,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.focusModifier
 import com.example.horrorsawokenandroid.R
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.sp
+import com.example.horrorsawokenandroid.game.model.Player
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.TextStyle
 
 @Composable
 fun CombatScreen(viewModel: GameViewModel = viewModel()) {
@@ -193,10 +201,9 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(
-                        text = "${state.player.goldInPocket} G",
-                        color = Color(0xFFFFD54F)
-                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    PlayerStatsPanel(player = state.player)
                 }
 
 
@@ -207,9 +214,17 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 ) {
                     Text(
                         text = state.monster?.name ?: "",
+                        fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFE53935),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        style = TextStyle(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFF090909), // black
+                                    Color(0xFF8B0000)  // blood red
+                                )
+                            )
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -254,12 +269,13 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // COMBAT LOG
+            // COMBAT ENCOUNTER LOG
+            Spacer(modifier = Modifier.weight(1f))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
 //                    .weight(1f) // This will make the box take the remaining space
-                    .height(120.dp)
+                    .weight(1f)
                     .background(
                         Color(0xFF151515).copy(alpha = 0.5f),
                         RoundedCornerShape(10.dp)
@@ -288,17 +304,21 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
+
             // ATTACK BUTTONS
+            CombatButton(
+                text = "ATTACK",
+                modifier = Modifier.fillMaxWidth(),
+                onClick = viewModel::normalAttack
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // SECOND ROW
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                CombatButton(
-                    text = "ATTACK",
-                    modifier = Modifier.weight(1f),
-                    onClick = viewModel::normalAttack
-                )
-
                 if (state.player.techniqueBloodLustIsLearned) {
                     CombatButton(
                         text = "BLOOD LUST",
@@ -306,38 +326,47 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         onClick = viewModel::bloodLustAttack
                     )
                 }
+
+
+                if (state.player.TechniqueSwiftIsLearned) {
+                    CombatButton(
+                        text = "SWIFT",
+                        modifier = Modifier.weight(1f),
+                        onClick = viewModel::swiftAttack
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(6.dp))
 
+            // THIRD ROW
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                CombatButton(
-                    text = "SWIFT",
-                    modifier = Modifier.weight(1f),
-                    onClick = viewModel::swiftAttack,
-                    highlighted = state.playerDodgedFlag
-                )
+                if (state.player.TechniqueRoarIsLearned) {
+                    CombatButton(
+                        text = "ROAR",
+                        modifier = Modifier.weight(1f),
+                        onClick = viewModel::roarAttack
+                    )
+                }
 
-                CombatButton(
-                    text = "ROAR",
-                    modifier = Modifier.weight(1f),
-                    onClick = viewModel::roarAttack
-                )
+                if (state.player.TechniqueDivineIsLearned) {
+                    CombatButton(
+                        text = "DIVINE",
+                        modifier = Modifier.weight(1f),
+                        onClick = viewModel::divineAttack
+                    )
+                }
 
-                CombatButton(
-                    text = "DIVINE",
-                    modifier = Modifier.weight(1f),
-                    onClick = viewModel::divineAttack
-                )
-
-                CombatButton(
-                    text = "GUARD",
-                    modifier = Modifier.weight(1f),
-                    onClick = viewModel::guardAttack
-                )
+                if (state.player.TechniqueGuardIsLearned) {
+                    CombatButton(
+                        text = "GUARD",
+                        modifier = Modifier.weight(1f),
+                        onClick = viewModel::guardAttack
+                    )
+                }
             }
         }
 
@@ -359,7 +388,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 ) {
                     Text(
                         text = "<< TOWN",
-                        color = Color.Blue,
+                        color = Color(0xFFADD8E6),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -393,23 +422,150 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 private fun CombatButton(
     text: String,
     modifier: Modifier = Modifier,
-    highlighted: Boolean = false,
     onClick: () -> Unit
 ) {
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        colors = if (highlighted) {
-            ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF7B1FA2)
+    Box(
+        modifier = modifier
+            .height(48.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF3E3E3E),
+                        Color(0xFF151515)
+                    )
+                )
             )
-        } else {
-            ButtonDefaults.buttonColors()
-        }
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.ExtraBold,
+            color = Color.White
+        )
+    }
+}
+
+@Composable
+private fun PlayerStatsPanel(player: Player) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                Color(0xFF111111).copy(alpha = 0.35f),
+                RoundedCornerShape(8.dp)
+            )
+            .padding(8.dp)
+    ) {
+        Text(
+            text = "Lvl ${player.level}",
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            StatItem(
+                label = "Dmg",
+                value = "${player.damage}",
+                modifier = Modifier.weight(1f)
+            )
+
+            StatItem(
+                label = "Strgth",
+                value = "${player.strength}",
+                modifier = Modifier.weight(1f)
+            )
+
+            StatItem(
+                label = "Armor",
+                value = "${player.armor}",
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            StatItem(
+                label = "Crit%",
+                value = "${player.critChance}%",
+                modifier = Modifier.weight(1f)
+            )
+
+            StatItem(
+                label = "CrtDmg",
+                value = "${player.critDamage}%",
+                modifier = Modifier.weight(1f)
+            )
+
+            StatItem(
+                label = "Dodge",
+                value = "${player.dodgeChance}%",
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            StatItem(
+                label = "LifeSt",
+                value = "${player.lifesteal}%",
+                modifier = Modifier.weight(1f)
+            )
+
+            StatItem(
+                label = "Regen",
+                value = "${player.regeneration}",
+                modifier = Modifier.weight(1f)
+            )
+
+            StatItem(
+                label = "Gold",
+                value = "${player.goldInPocket}",
+                textColor = Color(0xFFFFD54F),
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun StatItem(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    textColor: Color = Color.White
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = label,
+            color = Color.LightGray,
+            fontSize = MaterialTheme.typography.labelSmall.fontSize
+        )
+
+        Text(
+            text = value,
+            color = textColor,
+            fontWeight = FontWeight.Bold,
+            fontSize = MaterialTheme.typography.bodyMedium.fontSize
         )
     }
 }
