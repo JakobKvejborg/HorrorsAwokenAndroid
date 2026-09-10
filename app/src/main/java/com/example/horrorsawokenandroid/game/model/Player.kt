@@ -35,6 +35,9 @@ data class Player(
     var guardBuffIsActive: Boolean = false,
     var guardBuffArmor: Int = 0,
 ) {
+
+    val xpNeededToLevelUp: Int get() = (10 * (level + level)) + (level * level) - 1
+
     companion object {
         fun newHero() = Player(
             name = "Hero", maxHealth = 40, currentHealth = 40, damage = 1, strength = 3,
@@ -71,8 +74,7 @@ data class Player(
     }
 
     fun levelUp() {
-        val xpNeeded = ((10 * (level + level)) + (level * level) - 1)
-        while (experience >= xpNeeded) {
+        while (experience >= xpNeededToLevelUp) {
             level++
             experience = 0
             maxHealth += level + (level / 2)

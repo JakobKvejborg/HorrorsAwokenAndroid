@@ -14,6 +14,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.random.Random
 
+/*
+FORMAT: CTRL + ALT + L
+COMMENT CODE: CTRL + / (on the numpad)
+SEARCH ENTIRE PROJECT: CTRL + SHIFT + F
+*/
+
+/*
+GameViewModel contains all the logic that is going on in the game.
+Which enemies are encountered etc.
+ */
+
 class GameViewModel(
     startingPlayer: Player = Player.newHero(),
     private val sounds: SoundPlayer = NoOpSoundPlayer,
@@ -255,9 +266,7 @@ class GameViewModel(
                 player = player,
                 monster = monster,
                 encounterLog =
-                    it.encounterLog +
-                            "\n" +
-                            attackText
+                    attackText
             )
         }
 
@@ -386,6 +395,7 @@ class GameViewModel(
         if (
             _uiState.value.player.currentHealth <= 0
         ) {
+            sounds.playDeathGameOverSound()
             // TODO:
             // Port CheckIfPlayerIsDefeated from C#
             // and implement the game-over screen.
@@ -552,6 +562,39 @@ class GameViewModel(
         }
 
         droppedItem = null
+    }
+
+    // ------------------------------------------------------------
+    // CONTINUE OR GO TO TOWN
+    // ------------------------------------------------------------
+
+    fun continueAfterMonsterDefeated() {
+
+        _uiState.update {
+            it.copy(
+                monsterDefeated = false,
+                lootAvailable = false
+            )
+        }
+
+        startEncounter(
+            // TODO super important, items not working and monsters not working
+            monsterPool = monsterContainer.listOfMonsters1,
+            itemPool = emptyList()
+        )
+    }
+
+    fun goToTown() {
+
+        _uiState.update {
+            it.copy(
+                monsterDefeated = false,
+                monster = null
+            )
+        }
+
+        // TODO:
+        // Navigate to Town screen.
     }
 
     // ------------------------------------------------------------
