@@ -590,18 +590,18 @@ class GameViewModel(
     }
 
     fun goToTown() {
-
         _uiState.update {
             it.copy(
+                currentScreen = GameScreen.Town,
                 monsterDefeated = false,
                 monster = null,
-
-                )
-
+            )
         }
-
-
+                sounds.playAct1TownMusic()
     }
+
+
+
 
     // ------------------------------------------------------------
     // POPUPS

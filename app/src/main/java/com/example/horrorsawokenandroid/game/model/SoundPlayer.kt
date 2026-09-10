@@ -320,6 +320,13 @@ class AndroidSoundPlayer(
     // ---------------------------------------------------------
     // Town / area music
     // ---------------------------------------------------------
+    fun playThunder() {
+        act1ThunderPlayer = playMusic(
+            "thunder.wav",
+            act1ThunderPlayer,
+            true
+        )
+    }
 
     override fun playAct1TownMusic() {
         act1TownPlayer = playMusic(

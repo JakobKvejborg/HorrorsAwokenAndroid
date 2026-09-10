@@ -12,10 +12,6 @@ data class GameUiState(
     val hpPopupText: String? = null,       // null = hidden
     val lootAvailable: Boolean = false,
     val monsterDefeated: Boolean = false,
+    val currentScreen: GameScreen = GameScreen.Combat, // TODO important this makes the game start in combat
 
 )
-
-enum class GameScreen {
-    Combat,
-    Town
-}

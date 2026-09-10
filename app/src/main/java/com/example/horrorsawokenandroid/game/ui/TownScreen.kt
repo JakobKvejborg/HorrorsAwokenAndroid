@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -55,15 +56,15 @@ fun TownScreen(
 
             Text(
                 text = "HORRORS AWOKEN",
-                fontSize = 30.sp,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color(0xFFB71C1C)
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "THE TOWN",
+                text = "Overgrown Town",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -71,12 +72,6 @@ fun TownScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = "Welcome to the town.",
-                fontSize = 18.sp,
-                color = Color.LightGray,
-                textAlign = TextAlign.Center
-            )
 
             Spacer(modifier = Modifier.weight(1f))
 
