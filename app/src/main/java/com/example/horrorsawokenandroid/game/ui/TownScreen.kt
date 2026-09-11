@@ -20,6 +20,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.horrorsawokenandroid.R
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.scale
 
 @Composable
 fun TownScreen(
@@ -32,14 +38,25 @@ fun TownScreen(
             .background(Color(0xFF090909))
     ) {
 
-        // --------------------------------------------------------
-        // BACKGROUND
-        // --------------------------------------------------------
+        // TOWN BACKGROUND
+        val backgroundScale = remember { Animatable(1f) }
+
+        LaunchedEffect(Unit) {
+            backgroundScale.animateTo(
+                targetValue = 1.15f,
+                animationSpec = tween(
+                    durationMillis = 60000,
+                    easing = LinearEasing
+                )
+            )
+        }
 
         Image(
             painter = painterResource(id = R.drawable.act1townbackground),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .scale(backgroundScale.value),
             contentScale = ContentScale.Crop
         )
 

@@ -2,7 +2,7 @@ package com.example.horrorsawokenandroid.game.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.horrorsawokenandroid.game.model.Item
+import com.example.horrorsawokenandroid.game.model.Items
 import com.example.horrorsawokenandroid.game.model.Monster
 import com.example.horrorsawokenandroid.game.model.MonsterContainer
 import com.example.horrorsawokenandroid.game.model.NoOpSoundPlayer
@@ -36,9 +36,8 @@ class GameViewModel(
 
     val uiState: StateFlow<GameUiState> = _uiState
     private val monsterContainer = MonsterContainer()
-
-    private var encounterItems: List<Item> = emptyList()
-    private var droppedItem: Item? = null
+    private val items = Items()
+    private var droppedItem: Items.Item? = null
 
     var totalMonstersDefeated = 0
         private set
@@ -75,8 +74,7 @@ class GameViewModel(
 
     init {
         startEncounter(
-            monsterPool = monsterContainer.listOfMonsters1,
-            itemPool = emptyList()
+            monsterPool = monsterContainer.listOfMonsters1
         )
     }
 
@@ -113,13 +111,11 @@ class GameViewModel(
     // ------------------------------------------------------------
 
     fun startEncounter(
-        monsterPool: List<Monster>,
-        itemPool: List<Item>
+        monsterPool: List<Monster>
     ) {
         if (monsterPool.isEmpty()) return
 
         droppedItem = null
-        encounterItems = itemPool
 
         val encountered =
             monsterPool[
@@ -275,7 +271,7 @@ class GameViewModel(
         // --------------------------------------------------------
 
         if (monster.currentHealth > 0) {
-            delay(200)
+            delay(175)
             monsterAttacks()
         } else {
             checkIfMonsterDefeated()
@@ -305,10 +301,7 @@ class GameViewModel(
         }
     }
 
-    // ------------------------------------------------------------
-    // MONSTER ATTACK
-    // ------------------------------------------------------------
-
+   // This function handles when a monster attacks the player
     private suspend fun monsterAttacks() {
 
         val monster =
@@ -386,10 +379,7 @@ class GameViewModel(
         checkIfPlayerDefeated()
     }
 
-    // ------------------------------------------------------------
-    // PLAYER DEFEATED
-    // ------------------------------------------------------------
-
+    // Function to check if the player is dead
     private fun checkIfPlayerDefeated() {
 
         if (
@@ -402,16 +392,14 @@ class GameViewModel(
         }
     }
 
-    // ------------------------------------------------------------
-    // MONSTER DEFEATED
-    // ------------------------------------------------------------
 
+    // Function to check if the monster fought is dead
     private fun checkIfMonsterDefeated() {
 
         val monster =
             _uiState.value.monster ?: return
 
-        if (monster.currentHealth > 0) return
+        if (monster.currentHealth > 0) return // Functions stops if the monster has more than 0 health, e.g. is still alive
 
         val player =
             _uiState.value.player
@@ -420,72 +408,18 @@ class GameViewModel(
         player.resetRoarBuff()
         player.resetGuardBuff()
 
-        // --------------------------------------------------------
-        // EXPERIENCE / GOLD
-        // --------------------------------------------------------
+        val (expGained, goldGained, updatedPlayer) = playerGainsXPandGold(monster, player) // player gains xp and gold after a battle
 
-        val expGained =
-            monster.monsterExperience
+        checkIfPlayerLevelsUp(updatedPlayer) // check if player levels up after a battle
 
-        val goldGained =
-            monster.monsterGold * player.goldFind
+        playerRegeneratesHealthBasedOnRegen(player, updatedPlayer)
 
-        val updatedPlayer =
-            player.copy(
-                experience =
-                    player.experience + expGained,
-
-                goldInPocket =
-                    player.goldInPocket + goldGained
-            )
-
-        // --------------------------------------------------------
-        // LEVEL UP
-        // --------------------------------------------------------
-
-        val didLevelUp =
-            updatedPlayer.levelUp()
-
-        if (didLevelUp) {
-            sounds.playLevelUp()
-        }
-
-        // --------------------------------------------------------
-        // REGENERATION
-        // --------------------------------------------------------
-
-        if (
-            player.regeneration > 0 &&
-            updatedPlayer.currentHealth < updatedPlayer.maxHealth
-        ) {
-            updatedPlayer.currentHealth =
-                (
-                        updatedPlayer.currentHealth +
-                                player.regeneration
-                        ).coerceAtMost(
-                        updatedPlayer.maxHealth
-                    )
-        }
-
-        // --------------------------------------------------------
-        // GOLD SOUND
-        // --------------------------------------------------------
-
-        if (goldGained > 0) {
-            sounds.playCoin()
-        }
-
-        // --------------------------------------------------------
-        // ITEM DROP
-        // --------------------------------------------------------
-
-        generateItemFoundOnMonster(monster)
-
-        totalMonstersDefeated++
+        generateItemFoundOnMonster(monster) // This function is always called when a monster is defeated. Items.kt handles the drop chance, and CombatScreen handles if the loot image should be shown or not
 
         // --------------------------------------------------------
         // UPDATE STATE
         // --------------------------------------------------------
+        totalMonstersDefeated++
 
         _uiState.update {
             it.copy(
@@ -511,68 +445,99 @@ class GameViewModel(
         }
     }
 
+    // Function to regenerate some of the player's health after a monster is defeated
+    private fun playerRegeneratesHealthBasedOnRegen(
+        player: Player,
+        updatedPlayer: Player
+    ) {
+        if (
+            player.regeneration > 0 &&
+            updatedPlayer.currentHealth < updatedPlayer.maxHealth
+        ) {
+            updatedPlayer.currentHealth =
+                (
+                        updatedPlayer.currentHealth +
+                                player.regeneration
+                        ).coerceAtMost(
+                        updatedPlayer.maxHealth
+                    )
+        }
+    }
+
+    private fun checkIfPlayerLevelsUp(updatedPlayer: Player) {
+        val didLevelUp =
+            updatedPlayer.levelUp()
+
+        if (didLevelUp) {
+            sounds.playLevelUp()
+        }
+    }
+
+    private fun playerGainsXPandGold(
+        monster: Monster,
+        player: Player
+    ): Triple<Int, Int, Player> {
+        val expGained =
+            monster.monsterExperience
+
+        val goldGained =
+            monster.monsterGold * player.goldFind
+        if (goldGained > 0) {
+            sounds.playCoin()
+        }
+
+        val updatedPlayer =
+            player.copy(
+                experience =
+                    player.experience + expGained,
+
+                goldInPocket =
+                    player.goldInPocket + goldGained
+            )
+
+        return Triple(expGained, goldGained, updatedPlayer)
+    }
+
     // ------------------------------------------------------------
     // ITEM DROP
     // ------------------------------------------------------------
+    private fun generateItemFoundOnMonster(monster: Monster) {
 
-    private fun generateItemFoundOnMonster(
-        monster: Monster
-    ) {
-
-        // TODO:
-        // Port GetDragonEgg / GetFrozenLily
-        // special-case drops once Item/Player fields are final.
-
-        if (encounterItems.isEmpty()) {
-            return
-        }
-
-        val found =
-            encounterItems[
-                Random.nextInt(
-                    encounterItems.size
-                )
-            ].cloneItem()
+        val currentAct = getCurrentAct() // This method finds out which act the play currently is in
+        val found = items.generateLoot(currentAct)
 
         droppedItem = found
 
         _uiState.update {
             it.copy(
-                lootAvailable = true
+                lootAvailable = found != null, // TODO i don't understand this code
+                droppedItem = found
             )
         }
     }
 
-    // ------------------------------------------------------------
-    // LOOT
-    // ------------------------------------------------------------
+    // This function adds the dropped item to the player's inventory
+    fun playerCollectsLoot() {
 
-    fun lootItem() {
+        val loot = _uiState.value.droppedItem ?: return
+        val player = _uiState.value.player
 
-        val item =
-            droppedItem ?: return
+        player.inventory.add(loot)
+
+        droppedItem = null
 
         _uiState.update {
             it.copy(
-                encounterLog =
-                    it.encounterLog +
-                            "\nYou find an item on the horror's corpse: ${item.name}.",
-
-                lootAvailable = false
+                lootAvailable = false,
+                droppedItem = null,
+                encounterLog = "You find the item: ${loot.name}! " +
+                        "Player inventory now contains: " + player.inventory.joinToString(", ") {it.name} + ".", // TODO delete this, it's just for debugging
             )
-
-            // TODO:
-            // Add item to the real inventory once
-            // ItemContainer has been ported.
         }
 
-        droppedItem = null
     }
 
-    // ------------------------------------------------------------
-    // CONTINUE OR GO TO TOWN
-    // ------------------------------------------------------------
-
+    // This function allows the player to continue in combat
     fun continueAfterMonsterDefeated() {
 
         _uiState.update {
@@ -583,30 +548,49 @@ class GameViewModel(
         }
 
         startEncounter(
-            // TODO super important, items not working and monsters not working
+            // TODO super important, monsters not working
             monsterPool = monsterContainer.listOfMonsters1,
-            itemPool = emptyList()
         )
     }
 
+    // This functions allows the player to return to town
     fun goToTown() {
         _uiState.update {
             it.copy(
-                currentScreen = GameScreen.Town,
+                currentScreen = GameScreen.TownAct1,
                 monsterDefeated = false,
                 monster = null,
             )
         }
-                sounds.playAct1TownMusic()
+        sounds.playAct1TownMusic()
+        sounds.stopAct4Music() // TODO remove
     }
 
+    // This function finds out which act the play currently is in and returns it as an Int // TODO add more if the game expands
+    private fun getCurrentAct(): Int {
+        return when (_uiState.value.currentScreen) {
+            GameScreen.Menu -> 1
 
+            GameScreen.CombatAct1,
+            GameScreen.TownAct1 -> 1
 
+            GameScreen.CombatAct2,
+            GameScreen.TownAct2 -> 2
+
+            GameScreen.CombatAct3,
+            GameScreen.TownAct3 -> 3
+
+            GameScreen.CombatAct4,
+            GameScreen.TownAct4 -> 4
+
+            GameScreen.CombatAct5,
+            GameScreen.TownAct5 -> 5
+        }
+    }
 
     // ------------------------------------------------------------
     // POPUPS
     // ------------------------------------------------------------
-
     fun dismissGoldPopup() {
         _uiState.update {
             it.copy(

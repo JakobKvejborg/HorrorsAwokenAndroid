@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         soundPlayer.playThunder() // Background sound when starting the game
+        soundPlayer.playAct4Music() // TODO remove
 
         setContent {
             HorrorsAwokenAndroidTheme {
@@ -38,16 +39,20 @@ class MainActivity : ComponentActivity() {
                 val state by gameViewModel.uiState.collectAsState()
                 when (state.currentScreen) {
 
-                    GameScreen.Combat -> {
+                    GameScreen.CombatAct1 -> {
                         CombatScreen(
                             viewModel = gameViewModel
                         )
                     }
 
-                    GameScreen.Town -> {
+                    GameScreen.TownAct1 -> {
                         TownScreen(
                             viewModel = gameViewModel
                         )
+                    }
+
+                    else -> {
+                        // nothing TODO
                     }
                 }
             }

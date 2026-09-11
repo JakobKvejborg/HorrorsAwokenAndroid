@@ -22,6 +22,10 @@ data class Player(
     var regeneration: Int = 0,
     var critDamage: Int = 150,    // percent, e.g. 150 = 1.5x
 
+    // Inventory
+    val inventory: MutableList<Items.Item> = mutableListOf(),
+    val equippedItems: MutableMap<Items.ItemType, Items.Item> = mutableMapOf(),
+
     var goldFind: Int = 1,
     var playerIsOnLowHealth: Int = 20, // hp threshold for glow/guard
     var techniqueBloodLustIsLearned: Boolean = false,

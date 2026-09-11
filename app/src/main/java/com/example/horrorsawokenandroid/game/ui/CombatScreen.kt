@@ -31,22 +31,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.focus.focusModifier
 import com.example.horrorsawokenandroid.R
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.sp
 import com.example.horrorsawokenandroid.game.model.Player
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.TextStyle
+
+/*
+This class is handles the encounter screen and the logic during a battle with a monster
+ */
 
 @Composable
 fun CombatScreen(viewModel: GameViewModel = viewModel()) {
@@ -86,7 +82,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             contentScale = ContentScale.Fit
         )
 
-        // EVERYTHING ELSE GOES ON TOP
+        // Everything else goes on top of the background and hero image
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -127,13 +123,12 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                             .fillMaxWidth()
                             .height(24.dp)
                             .background(
-                                Color(0xFF1A1A1A),
+                                Color(0xFF000000), // player health bar background color
                                 RoundedCornerShape(5.dp)
                             ),
                         contentAlignment = Alignment.Center
                     ) {
 
-                        // RED FILLED HEALTH
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(
@@ -144,7 +139,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 )
                                 .height(24.dp)
                                 .background(
-                                    Color(0xFFB71C1C),
+                                    Color(0xFF891515), // foreground player health bar color
                                     RoundedCornerShape(5.dp)
                                 )
                                 .align(Alignment.CenterStart)
@@ -173,7 +168,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         contentAlignment = Alignment.Center
                     ) {
 
-                        // BLUE FILLED XP
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(
@@ -206,43 +200,83 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     PlayerStatsPanel(player = state.player)
                 }
 
-
-                // MONSTER
+                // MONSTER / LOOT
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = state.monster?.name ?: "",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        style = TextStyle(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    Color(0xFF090909), // black
-                                    Color(0xFF8B0000)  // blood red
+                    if (state.lootAvailable && state.droppedItem != null) {
+
+                        // LOOT
+                        Text(
+                            text = "",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        Color(0xFF090909),
+                                        Color(0xFFFFD700)
+                                    )
                                 )
                             )
                         )
-                    )
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(56.dp)) // how far down the loot image appears
 
-                    Box(
-                        modifier = Modifier
-                            .size(250.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        state.monster?.imageRes?.let { imageRes ->
-                            Image(
-                                painter = painterResource(id = imageRes),
-                                contentDescription = state.monster?.name,
-                                modifier = Modifier.size(250.dp),
-                                contentScale = ContentScale.Fit
+                        Box(
+                            modifier = Modifier.size(250.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.lootblood),
+                                    contentDescription = "loot",
+                                    modifier = Modifier
+                                        .size(152.dp) // size of the loot image
+                                        .clickable {
+                                            viewModel.playerCollectsLoot()
+                                        },
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
+                        }
+
+                     else {
+
+                        // MONSTER
+                        Text(
+                            text = state.monster?.name ?: "",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        Color(0xFF090909),
+                                        Color(0xFF8B0000)
+                                    )
+                                )
                             )
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Box(
+                            modifier = Modifier.size(250.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            state.monster?.imageRes?.let { imageRes ->
+                                Image(
+                                    painter = painterResource(id = imageRes),
+                                    contentDescription = state.monster?.name,
+                                    modifier = Modifier.size(250.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
                         }
                     }
+
 
                     Spacer(modifier = Modifier.height(6.dp))
 
@@ -291,19 +325,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-
-            // LOOT
-            if (state.lootAvailable) {
-                Button(
-                    onClick = viewModel::lootItem,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("LOOT ITEM")
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
 
             // ATTACK BUTTONS
             CombatButton(
