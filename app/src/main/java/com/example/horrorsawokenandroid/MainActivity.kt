@@ -13,8 +13,11 @@ import com.example.horrorsawokenandroid.game.ui.GameViewModel
 import com.example.horrorsawokenandroid.ui.theme.HorrorsAwokenAndroidTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.example.horrorsawokenandroid.game.ui.GameOverScreen
 import com.example.horrorsawokenandroid.game.ui.TownScreen
 import com.example.horrorsawokenandroid.game.ui.GameScreen
+import com.example.horrorsawokenandroid.game.ui.IntroMovieScreen
+import com.example.horrorsawokenandroid.game.ui.MenuScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -27,7 +30,6 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         soundPlayer.playThunder() // Background sound when starting the game
-        soundPlayer.playAct4Music() // TODO remove
 
         setContent {
             HorrorsAwokenAndroidTheme {
@@ -39,12 +41,27 @@ class MainActivity : ComponentActivity() {
                 val state by gameViewModel.uiState.collectAsState()
                 when (state.currentScreen) {
 
-                    GameScreen.CombatAct1 -> {
-                        CombatScreen(
+                    // TODO make this more simple
+                    GameScreen.Menu -> {
+                        MenuScreen(
                             viewModel = gameViewModel
                         )
                     }
-
+                    GameScreen.GameOver -> {
+                        GameOverScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.IntroMovie -> {
+                        IntroMovieScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.CombatAct1 -> {
+                        CombatScreen(
+                            viewModel = gameViewModel,
+                        )
+                    }
                     GameScreen.TownAct1 -> {
                         TownScreen(
                             viewModel = gameViewModel

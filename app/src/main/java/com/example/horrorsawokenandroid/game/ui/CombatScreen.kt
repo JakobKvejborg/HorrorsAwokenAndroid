@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,6 +37,21 @@ import androidx.compose.ui.unit.sp
 import com.example.horrorsawokenandroid.game.model.Player
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.offset
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -48,22 +61,46 @@ This class is handles the encounter screen and the logic during a battle with a 
 fun CombatScreen(viewModel: GameViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsState()
 
+    val monsterShake = remember { Animatable(0f) }
+
+    LaunchedEffect(state.monsterImageShake) {
+        if (state.monsterImageShake > 0) {
+
+            monsterShake.snapTo(0f)
+
+            monsterShake.animateTo(
+                targetValue = 2f, // the amount of shake the monster image on execute attack
+                animationSpec = tween(50)
+            )
+
+            monsterShake.animateTo(
+                targetValue = -2f,
+                animationSpec = tween(50)
+            )
+
+            monsterShake.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(50)
+            )
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF090909))
     ) {
 
-        // Act Background
+        // Background
         Image(
             painter = painterResource(
-                // TODO make the background depending on the current act
-//                id = when (state.currentAct) {
-//                    1 -> R.drawable.castle
-//                    2 -> R.drawable.act2background
-//                    3 -> R.drawable.act3background
-//                    else -> R.drawable.act4background
-                R.drawable.castle
+                id = when (viewModel.getCurrentAct()) {
+                    1 -> R.drawable.castle
+                    2 -> R.drawable.act2background
+                    3 -> R.drawable.act3background
+                    4 -> R.drawable.act4background
+                    else -> R.drawable.act5encounterbackground
+                }
             ),
             contentDescription = "Act background",
             modifier = Modifier.fillMaxSize(),
@@ -229,20 +266,18 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                             modifier = Modifier.size(250.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.lootblood),
-                                    contentDescription = "loot",
-                                    modifier = Modifier
-                                        .size(152.dp) // size of the loot image
-                                        .clickable {
-                                            viewModel.playerCollectsLoot()
-                                        },
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
+                            Image(
+                                painter = painterResource(id = R.drawable.lootblood),
+                                contentDescription = "loot",
+                                modifier = Modifier
+                                    .size(152.dp) // size of the loot image
+                                    .clickable {
+                                        viewModel.playerCollectsLoot()
+                                    },
+                                contentScale = ContentScale.Fit
+                            )
                         }
-
-                     else {
+                    } else {
 
                         // MONSTER
                         Text(
@@ -263,7 +298,9 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Box(
-                            modifier = Modifier.size(250.dp),
+                            modifier = Modifier
+                                .size(250.dp)
+                                .offset(x = monsterShake.value.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             state.monster?.imageRes?.let { imageRes ->
@@ -394,50 +431,84 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
         // TOWN / CONTINUE
         if (state.monsterDefeated) {
 
+            val arrowAnimation = rememberInfiniteTransition(label = "arrowAnimation")
+
+            val arrowOffset by arrowAnimation.animateFloat(
+                initialValue = 0f,
+                targetValue = 4f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(500), // The speed of the animation on the arrows (lower number = faster animation)
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "arrowOffset"
+            )
+
             // TOWN - LEFT SIDE
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 16.dp)
-            ) {
-                Button(
-                    onClick = viewModel::goToTown,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    elevation = null
+            if (state.totalMonstersDefeated >= 3) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .offset(y = 20.dp)
+                        .padding(start = 10.dp)
+                        .clickable {
+                            viewModel.goToTown()
+                        }
                 ) {
-                    Text(
-                        text = "<< TOWN",
-                        color = Color(0xFFADD8E6),
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "<<",
+                            color = Color(0xFFADD8E6),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.offset(
+                                x = (-arrowOffset).dp
+                            )
+                        )
+
+                        Text(
+                            text = " TOWN",
+                            color = Color(0xFFADD8E6),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
             // CONTINUE - RIGHT SIDE
+            if (state.totalMonstersDefeated < 3 || state.introMonstersAreCompleted)
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp)
+                    .offset(y = 20.dp)
+                    .padding(end = 10.dp)
+                    .clickable {
+                        viewModel.continueAfterMonsterDefeated()
+                    }
             ) {
-                Button(
-                    onClick = viewModel::continueAfterMonsterDefeated,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    elevation = null
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "CONTINUE >>",
+                        text = "CONTINUE ",
                         color = Color.Green,
                         fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = ">>",
+                        color = Color.Green,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.offset(
+                            x = arrowOffset.dp
+                        )
                     )
                 }
             }
         }
     }
 }
+
 
 @Composable
 private fun CombatButton(

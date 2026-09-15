@@ -26,11 +26,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.scale
+import androidx.compose.foundation.clickable
 
 @Composable
 fun TownScreen(
     viewModel: GameViewModel
 ) { val state by viewModel.uiState.collectAsState()
+    state.introMonstersAreCompleted = true
 
     Box(
         modifier = Modifier
@@ -51,12 +53,18 @@ fun TownScreen(
             )
         }
 
-        Image(
-            painter = painterResource(id = R.drawable.act1townbackground),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .scale(backgroundScale.value),
+        Image( // Background image
+            painter = painterResource(
+                id = when (viewModel.getCurrentAct()) {
+                    1 -> R.drawable.act1townbackground
+                    2 -> R.drawable.act2town
+                    3 -> R.drawable.act3town
+                    4 -> R.drawable.act4town
+                    else -> R.drawable.act5background
+                }
+            ),
+            contentDescription = "Act background",
+            modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
@@ -97,10 +105,10 @@ fun TownScreen(
             // --------------------------------------------------------
 
             TownButton(
-                text = "SHOP",
+                text = "LEARN TECHNIQUE",
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    // Shop later
+                    viewModel.playerLearnTechniques()
                 }
             )
 
@@ -130,7 +138,7 @@ fun TownScreen(
                 text = "RETURN TO COMBAT",
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    // Combat later
+                    viewModel.returnToCombat() // TODO just for debugging, need to be updated
                 }
             )
         }
@@ -154,7 +162,10 @@ private fun TownButton(
                     )
                 ),
                 shape = RoundedCornerShape(6.dp)
-            ),
+            )
+            .clickable {
+                onClick()
+            },
         contentAlignment = Alignment.Center
     ) {
         Text(

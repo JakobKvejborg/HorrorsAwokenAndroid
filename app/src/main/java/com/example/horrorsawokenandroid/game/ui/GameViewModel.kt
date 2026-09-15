@@ -35,12 +35,9 @@ class GameViewModel(
     )
 
     val uiState: StateFlow<GameUiState> = _uiState
-    private val monsterContainer = MonsterContainer()
+    internal val monsterContainer = MonsterContainer()
     private val items = Items()
     private var droppedItem: Items.Item? = null
-
-    var totalMonstersDefeated = 0
-        private set
 
 
     // ------------------------------------------------------------
@@ -261,8 +258,8 @@ class GameViewModel(
             it.copy(
                 player = player,
                 monster = monster,
-                encounterLog =
-                    attackText
+                encounterLog = attackText,
+                monsterImageShake = it.monsterImageShake + 1,
             )
         }
 
@@ -301,7 +298,7 @@ class GameViewModel(
         }
     }
 
-   // This function handles when a monster attacks the player
+    // This function handles when a monster attacks the player
     private suspend fun monsterAttacks() {
 
         val monster =
@@ -386,12 +383,9 @@ class GameViewModel(
             _uiState.value.player.currentHealth <= 0
         ) {
             sounds.playDeathGameOverSound()
-            // TODO:
-            // Port CheckIfPlayerIsDefeated from C#
-            // and implement the game-over screen.
+            setCurrentScreen(GameScreen.GameOver)
         }
     }
-
 
     // Function to check if the monster fought is dead
     private fun checkIfMonsterDefeated() {
@@ -408,7 +402,10 @@ class GameViewModel(
         player.resetRoarBuff()
         player.resetGuardBuff()
 
-        val (expGained, goldGained, updatedPlayer) = playerGainsXPandGold(monster, player) // player gains xp and gold after a battle
+        val (expGained, goldGained, updatedPlayer) = playerGainsXPandGold(
+            monster,
+            player
+        ) // player gains xp and gold after a battle
 
         checkIfPlayerLevelsUp(updatedPlayer) // check if player levels up after a battle
 
@@ -419,8 +416,6 @@ class GameViewModel(
         // --------------------------------------------------------
         // UPDATE STATE
         // --------------------------------------------------------
-        totalMonstersDefeated++
-
         _uiState.update {
             it.copy(
                 player = updatedPlayer,
@@ -440,7 +435,8 @@ class GameViewModel(
 
                 monsterDefeated = true,
 
-                playerDodgedFlag = false
+                playerDodgedFlag = false,
+                totalMonstersDefeated = it.totalMonstersDefeated + 1
             )
         }
     }
@@ -473,6 +469,15 @@ class GameViewModel(
         }
     }
 
+    fun restartGame() {
+        sounds.muteAllMusic()
+
+        _uiState.value = GameUiState(
+            player = Player.newHero(),
+            currentScreen = GameScreen.Menu
+        )
+    }
+
     private fun playerGainsXPandGold(
         monster: Monster,
         player: Player
@@ -498,9 +503,43 @@ class GameViewModel(
         return Triple(expGained, goldGained, updatedPlayer)
     }
 
-    // ------------------------------------------------------------
-    // ITEM DROP
-    // ------------------------------------------------------------
+    // Function to tech the player the different techniques based on which ones he already knows
+    internal fun playerLearnTechniques() {
+        val player = _uiState.value.player
+
+        if (!player.techniqueBloodLustIsLearned) {
+            player.techniqueBloodLustIsLearned = true
+
+        } else if (!player.TechniqueSwiftIsLearned) {
+            player.TechniqueSwiftIsLearned = true
+
+        } else if (!player.TechniqueRoarIsLearned) {
+            player.TechniqueRoarIsLearned = true
+
+        } else if (!player.TechniqueDivineIsLearned) {
+            player.TechniqueDivineIsLearned = true
+
+        } else if (!player.TechniqueGuardIsLearned) {
+            player.TechniqueGuardIsLearned = true
+        }
+    }
+
+    // This function returns the player to combat // TODO needs monsterpool to be based on the current Act/direction player goes
+    fun returnToCombat() {
+        setCurrentScreen(GameScreen.CombatAct1)
+        startEncounter(
+            monsterPool = monsterContainer.listOfMonsters1
+        )
+    }
+
+    // This function sets the current screen, like going from town to combat TODO needs to take parameter Act
+    fun setCurrentScreen(screen: GameScreen) {
+        _uiState.update {
+            it.copy(currentScreen = screen)
+        }
+    }
+
+    // Item drop
     private fun generateItemFoundOnMonster(monster: Monster) {
 
         val currentAct = getCurrentAct() // This method finds out which act the play currently is in
@@ -523,6 +562,7 @@ class GameViewModel(
         val player = _uiState.value.player
 
         player.inventory.add(loot)
+        sounds.playLootItemsSound() // plays a sound when the player loots an item
 
         droppedItem = null
 
@@ -531,7 +571,7 @@ class GameViewModel(
                 lootAvailable = false,
                 droppedItem = null,
                 encounterLog = "You find the item: ${loot.name}! " +
-                        "Player inventory now contains: " + player.inventory.joinToString(", ") {it.name} + ".", // TODO delete this, it's just for debugging
+                        "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ".", // TODO delete this, it's just for debugging
             )
         }
 
@@ -567,8 +607,11 @@ class GameViewModel(
     }
 
     // This function finds out which act the play currently is in and returns it as an Int // TODO add more if the game expands
-    private fun getCurrentAct(): Int {
+    internal fun getCurrentAct(): Int {
         return when (_uiState.value.currentScreen) {
+            GameScreen.GameOver -> 99
+            GameScreen.IntroMovie -> 0
+
             GameScreen.Menu -> 1
 
             GameScreen.CombatAct1,
@@ -586,6 +629,10 @@ class GameViewModel(
             GameScreen.CombatAct5,
             GameScreen.TownAct5 -> 5
         }
+    }
+
+    fun playAct4MusicAfterIntro() {
+        sounds.playAct4Music()
     }
 
     // ------------------------------------------------------------

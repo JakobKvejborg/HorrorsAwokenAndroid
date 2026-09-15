@@ -1,8 +1,10 @@
 package com.example.horrorsawokenandroid.game.ui
 
-// TODO add different game screens here like "menu"
+// TODO add different game screens here
 enum class GameScreen {
     Menu,
+    GameOver,
+    IntroMovie,
     CombatAct1,
     TownAct1,
     CombatAct2,

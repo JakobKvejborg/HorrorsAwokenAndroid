@@ -14,6 +14,10 @@ data class GameUiState(
     val lootAvailable: Boolean = false,
     val droppedItem: Items.Item? = null,
     val monsterDefeated: Boolean = false,
-    val currentScreen: GameScreen = GameScreen.CombatAct1, // TODO important this makes the game start in combat
-
+    val introMonstersDefeated: Int = 0,
+    var introMonstersAreCompleted: Boolean = false,
+    var totalMonstersDefeated: Int = 0,
+    val monsterImageShake: Int = 0,
+//    val currentScreen: GameScreen = GameScreen.CombatAct1, // TODO important this makes the game start in combat
+    val currentScreen: GameScreen = GameScreen.Menu,
 )
