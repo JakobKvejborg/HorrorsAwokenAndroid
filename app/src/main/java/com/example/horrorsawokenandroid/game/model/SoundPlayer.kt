@@ -389,34 +389,30 @@ class AndroidSoundPlayer(
     // ---------------------------------------------------------
 
     override fun playAct1BossSound() {
-        bossPlayer = playMusic(
+        bossPlayer = playEffectMusic(
             "act1boss.wav",
-            bossPlayer,
-            true
+            bossPlayer
         )
     }
 
     override fun playAct2BossSound() {
-        bossPlayer = playMusic(
+        bossPlayer = playEffectMusic(
             "act2boss.wav",
             bossPlayer,
-            true
         )
     }
 
     override fun playAct3Boss() {
-        bossPlayer = playMusic(
+        bossPlayer = playEffectMusic(
             "act3boss.wav",
             bossPlayer,
-            true
         )
     }
 
     override fun playAct2FrostfallenKing() {
-        bossPlayer = playMusic(
+        bossPlayer = playEffectMusic(
             "act2frostfallenking.wav",
             bossPlayer,
-            true
         )
     }
 

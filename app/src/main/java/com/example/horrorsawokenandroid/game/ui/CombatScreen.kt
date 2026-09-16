@@ -476,33 +476,34 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             }
 
             // CONTINUE - RIGHT SIDE
-            if (state.totalMonstersDefeated < 3 || state.introMonstersAreCompleted)
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .offset(y = 20.dp)
-                    .padding(end = 10.dp)
-                    .clickable {
-                        viewModel.continueAfterMonsterDefeated()
-                    }
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+            if (state.totalMonstersDefeated < 3 || state.introMonstersAreCompleted) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .offset(y = 20.dp)
+                        .padding(end = 10.dp)
+                        .clickable {
+                            viewModel.continueAfterMonsterDefeated()
+                        }
                 ) {
-                    Text(
-                        text = "CONTINUE ",
-                        color = Color.Green,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = ">>",
-                        color = Color.Green,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.offset(
-                            x = arrowOffset.dp
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "CONTINUE ",
+                            color = Color.Green,
+                            fontWeight = FontWeight.Bold
                         )
-                    )
+
+                        Text(
+                            text = ">>",
+                            color = Color.Green,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.offset(
+                                x = arrowOffset.dp
+                            )
+                        )
+                    }
                 }
             }
         }

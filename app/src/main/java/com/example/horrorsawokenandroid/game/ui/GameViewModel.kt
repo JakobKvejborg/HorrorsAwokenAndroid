@@ -127,13 +127,17 @@ class GameViewModel(
                 monsterDefeated = false,
                 playerDodgedFlag = false,
                 goldPopupText = null,
-                hpPopupText = null
+                hpPopupText = null,
+                monsterImageShake = 0, // This resets the monster image shake on a new encounter
             )
         }
     }
 
     private fun initialEncounterText(monster: Monster): String =
         when (monster.name) {
+
+            "Orc" ->
+                "You have encountered an ${monster.name}! Execute it."
 
             "Watchers" ->
                 "You have encountered some ${monster.name}! Kill them."
@@ -144,7 +148,7 @@ class GameViewModel(
                 "You have awakened ${monster.name}! Your end is near."
 
             "The Frostfallen King" ->
-                "You have shattered the ice tomb of ${monster.name}! A colossal figure rises from its crystalized prison."
+                "You have shattered the ice tomb of ${monster.name}! A colossal figure rises from its crystallized prison."
 
             "Ultimate Darkness" ->
                 "The Hero now faces the ${monster.name} - a final challenge."
@@ -175,48 +179,14 @@ class GameViewModel(
             )
         }
 
-        // --------------------------------------------------------
-        // ROAR BUFF COUNTDOWN
-        // --------------------------------------------------------
-
-        if (player.roarBuffCountdown > 0) {
-            player = player.copy(
-                roarBuffCountdown = player.roarBuffCountdown - 1
-            )
-        }
-
-        if (
-            player.isRoarActive &&
-            player.roarBuffCountdown == 0
-        ) {
-            player.turnOffRoarBuff()
-        }
+       // Roar buff countdown
+        player = countdownRoarBuff(player)
 
         // --------------------------------------------------------
         // LIFESTEAL
         // --------------------------------------------------------
 
-        if (
-            !noLifeSteal &&
-            player.lifesteal > 0
-        ) {
-            val healed =
-                (player.calculateTotalDamage() * player.lifesteal) / 100
-
-            player = player.copy(
-                currentHealth = (
-                        player.currentHealth + healed
-                        ).coerceAtMost(player.maxHealth)
-            )
-
-            if (healed > 0) {
-                _uiState.update {
-                    it.copy(
-                        hpPopupText = "+$healed"
-                    )
-                }
-            }
-        }
+        player = playerLifesteals(noLifeSteal, player)
 
         // --------------------------------------------------------
         // CRITICAL HIT
@@ -408,9 +378,7 @@ class GameViewModel(
         ) // player gains xp and gold after a battle
 
         checkIfPlayerLevelsUp(updatedPlayer) // check if player levels up after a battle
-
         playerRegeneratesHealthBasedOnRegen(player, updatedPlayer)
-
         generateItemFoundOnMonster(monster) // This function is always called when a monster is defeated. Items.kt handles the drop chance, and CombatScreen handles if the loot image should be shown or not
 
         // --------------------------------------------------------
@@ -460,6 +428,20 @@ class GameViewModel(
         }
     }
 
+    internal fun playerIsHealedByNPC() {
+        val player = _uiState.value.player
+
+        if (player.PriceToHeal > player.goldInPocket) {
+            sounds.playAct1HealingNoGold()
+            return
+        }
+
+        player.currentHealth = player.maxHealth
+        sounds.playAct1HealingMusic()
+        player.goldInPocket -= player.PriceToHeal
+        // TODO increase the price to heal
+    }
+
     private fun checkIfPlayerLevelsUp(updatedPlayer: Player) {
         val didLevelUp =
             updatedPlayer.levelUp()
@@ -507,6 +489,15 @@ class GameViewModel(
     internal fun playerLearnTechniques() {
         val player = _uiState.value.player
 
+        if (player.PriceToLearnTechnique > player.goldInPocket) {
+            sounds.playAct1ArtsTeacherNo()
+            return
+        }
+
+        player.goldInPocket -= player.PriceToLearnTechnique
+        player.PriceToLearnTechnique *= 3;
+        sounds.playAct1ArtsTeacher()
+
         if (!player.techniqueBloodLustIsLearned) {
             player.techniqueBloodLustIsLearned = true
 
@@ -524,15 +515,57 @@ class GameViewModel(
         }
     }
 
-    // This function returns the player to combat // TODO needs monsterpool to be based on the current Act/direction player goes
-    fun returnToCombat() {
-        setCurrentScreen(GameScreen.CombatAct1)
-        startEncounter(
-            monsterPool = monsterContainer.listOfMonsters1
-        )
+    fun whereToGoBasedOnTheDirection(direction: String) {
+        val currentAct = getCurrentAct()
+
+        println("DIRECTION = $direction")
+        println("CURRENT ACT = $currentAct")
+
+        if (direction == "SOUTH") { // TODO needs act 1 quest
+            when (currentAct) {
+                2 -> setCurrentScreen(GameScreen.TownAct1)
+                3 -> setCurrentScreen(GameScreen.TownAct2)
+                4 -> setCurrentScreen(GameScreen.TownAct3)
+                5 -> setCurrentScreen(GameScreen.TownAct4)
+            }
+            return
+        }
+
+        val monsterPoolBasedOnDirection = when (currentAct) {
+            1 -> when (direction) {
+                "WEST" -> monsterContainer.listOfMonsters1
+                "EAST" -> monsterContainer.listOfMonsters2
+                "NORTH" -> {
+                    sounds.playAct1BossSound()
+                    monsterContainer.listOfMonstersBossAct1
+                }
+                else -> { monsterContainer.listOfMonsters1 }
+            }
+
+            2 -> when (direction) {
+                "WEST" -> monsterContainer.listOfMonstersSnowGoldGoblin
+                "EAST" -> monsterContainer.listOfSnowMonsters1
+                "NORTH" -> monsterContainer.listOfMonstersBossAct2
+                else -> { monsterContainer.listOfSnowMonsters1 }
+            }
+
+            else -> { monsterContainer.listOfMonsters1 }
+        }
+
+        val combatScreen = when (currentAct) {
+            1 -> GameScreen.CombatAct1
+            2 -> GameScreen.CombatAct2
+            3 -> GameScreen.CombatAct3
+            4 -> GameScreen.CombatAct4
+            5 -> GameScreen.CombatAct5
+            else -> GameScreen.CombatAct1
+        }
+
+        setCurrentScreen(combatScreen)
+
+        startEncounter(monsterPool = monsterPoolBasedOnDirection)
     }
 
-    // This function sets the current screen, like going from town to combat TODO needs to take parameter Act
     fun setCurrentScreen(screen: GameScreen) {
         _uiState.update {
             it.copy(currentScreen = screen)
@@ -653,4 +686,43 @@ class GameViewModel(
             )
         }
     }
+}
+
+private fun GameViewModel.playerLifesteals(
+    noLifeSteal: Boolean,
+    player: Player
+): Player {
+    var player1 = player
+    if (
+        !noLifeSteal &&
+        player1.lifesteal > 0
+    ) {
+        val healed =
+            (player1.calculateTotalDamage() * player1.lifesteal) / 100
+
+        player1 = player1.copy(
+            currentHealth = (
+                    player1.currentHealth + healed
+                    ).coerceAtMost(player1.maxHealth)
+        )
+    }
+    // TODO maybe make a popup of the amount healed from lifesteal
+    return player1
+}
+
+private fun countdownRoarBuff(player: Player): Player {
+    var player1 = player
+    if (player1.roarBuffCountdown > 0) {
+        player1 = player1.copy(
+            roarBuffCountdown = player1.roarBuffCountdown - 1
+        )
+    }
+
+    if (
+        player1.isRoarActive &&
+        player1.roarBuffCountdown == 0
+    ) {
+        player1.turnOffRoarBuff()
+    }
+    return player1
 }

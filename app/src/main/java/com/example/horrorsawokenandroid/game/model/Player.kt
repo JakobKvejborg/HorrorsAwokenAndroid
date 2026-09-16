@@ -33,6 +33,8 @@ data class Player(
     var TechniqueRoarIsLearned: Boolean = false,
     var TechniqueDivineIsLearned: Boolean = false,
     var TechniqueGuardIsLearned: Boolean = false,
+    val PriceToHeal: Int = 2,
+    var PriceToLearnTechnique: Int = 10,
     var numberOfDragonEggsInInventory: Int = 0,
 
     // Roar buff

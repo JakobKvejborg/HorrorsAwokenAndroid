@@ -111,9 +111,8 @@ class MonsterContainer {
     )
 
 // ------------------------------------------------------------
-// ACT 1/2 - STRONGER NORMAL MONSTERS
+// ACT 1: 2 - STRONGER NORMAL MONSTERS
 // ------------------------------------------------------------
-
     val listOfMonsters2 = listOf(
         Monster(
             name = "Ghost",
@@ -123,7 +122,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 3,
             monsterExperience = 10,
-            monsterGold = 1
+            monsterGold = 1,
+            imageRes = R.drawable.ghost
         ),
         Monster(
             name = "Ghast",
@@ -133,7 +133,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 4,
             monsterExperience = 8,
-            monsterGold = 1
+            monsterGold = 1,
+            imageRes = R.drawable.ghast
         ),
         Monster(
             name = "Golem",
@@ -143,7 +144,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 15,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.golem
         ),
         Monster(
             name = "Knight",
@@ -153,7 +155,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 7,
             monsterExperience = 17,
-            monsterGold = 3
+            monsterGold = 3,
+            imageRes = R.drawable.knight
         ),
         Monster(
             name = "Horror",
@@ -163,7 +166,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 13,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.horror
         ),
         Monster(
             name = "Starved",
@@ -173,7 +177,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 7,
             monsterExperience = 19,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.starved
         ),
         Monster(
             name = "Bat",
@@ -183,7 +188,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 2,
             monsterExperience = 12,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.bat
         ),
         Monster(
             name = "Wood Horror",
@@ -193,7 +199,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 8,
             monsterExperience = 22,
-            monsterGold = 4
+            monsterGold = 4,
+            imageRes = R.drawable.woodhorror
         ),
         Monster(
             name = "Dead Troll",
@@ -203,7 +210,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 20,
-            monsterGold = 2
+            monsterGold = 2,
+            imageRes = R.drawable.deadtroll
         ),
         Monster(
             name = "Lost",
@@ -213,7 +221,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 1,
             monsterExperience = 2,
-            monsterGold = 4
+            monsterGold = 4,
+            imageRes = R.drawable.lost
         ),
         Monster(
             name = "Lizard",
@@ -223,7 +232,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 6,
             monsterExperience = 30,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.lizard
         )
     )
 
@@ -240,7 +250,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 7,
             monsterExperience = 40,
-            monsterGold = 5
+            monsterGold = 5,
+            imageRes = R.drawable.bossact1,
         )
     )
 
