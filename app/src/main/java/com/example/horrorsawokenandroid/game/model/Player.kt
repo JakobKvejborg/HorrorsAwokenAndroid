@@ -33,7 +33,7 @@ data class Player(
     var TechniqueRoarIsLearned: Boolean = false,
     var TechniqueDivineIsLearned: Boolean = false,
     var TechniqueGuardIsLearned: Boolean = false,
-    val PriceToHeal: Int = 2,
+    var PriceToHeal: Int = 2,
     var PriceToLearnTechnique: Int = 10,
     var numberOfDragonEggsInInventory: Int = 0,
 
@@ -52,7 +52,7 @@ data class Player(
 
     companion object {
         fun newHero() = Player(
-            name = "Hero", maxHealth = 40, currentHealth = 40, damage = 1, strength = 3,
+            name = "Hero", maxHealth = 40, currentHealth = 40, damage = 1000, strength = 3,
             lifesteal = 0, armor = 0, dodgeChance = 0, goldInPocket = 0, experience = 0,
             level = 1, critChance = 0, regeneration = 0, critDamage = 150,
         )

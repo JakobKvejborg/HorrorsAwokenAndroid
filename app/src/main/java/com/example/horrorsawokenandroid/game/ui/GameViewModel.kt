@@ -38,12 +38,11 @@ class GameViewModel(
     internal val monsterContainer = MonsterContainer()
     private val items = Items()
     private var droppedItem: Items.Item? = null
-
+    private var lastMusicAct: Int = -1
 
     // ------------------------------------------------------------
     // ATTACK MOVES
     // ------------------------------------------------------------
-
     private val attackMoves = AttackMoves(
         getState = {
             _uiState.value
@@ -65,10 +64,8 @@ class GameViewModel(
         scope = viewModelScope
     )
 
-    // ------------------------------------------------------------
-    // INITIAL SETUP
-    // ------------------------------------------------------------
 
+    // INITIAL SETUP / first encounter
     init {
         startEncounter(
             monsterPool = monsterContainer.listOfMonsters1
@@ -78,7 +75,6 @@ class GameViewModel(
     // ------------------------------------------------------------
     // ATTACK BUTTONS
     // ------------------------------------------------------------
-
     fun normalAttack() {
         attackMoves.normalAttack()
     }
@@ -106,11 +102,12 @@ class GameViewModel(
     // ------------------------------------------------------------
     // ENCOUNTER SETUP
     // ------------------------------------------------------------
-
     fun startEncounter(
         monsterPool: List<Monster>
     ) {
         if (monsterPool.isEmpty()) return
+
+        checkIfPlayerDefeated() // Start by checking if player is defeated (blood loss or damage over time effects etc)
 
         droppedItem = null
 
@@ -172,6 +169,7 @@ class GameViewModel(
         var monster = _uiState.value.monster ?: return
         var player = _uiState.value.player
         var damage = rawDamage
+        checkIfPlayerDefeated()
 
         _uiState.update {
             it.copy(
@@ -179,19 +177,13 @@ class GameViewModel(
             )
         }
 
-       // Roar buff countdown
+        // Roar buff countdown
         player = countdownRoarBuff(player)
 
-        // --------------------------------------------------------
         // LIFESTEAL
-        // --------------------------------------------------------
-
         player = playerLifesteals(noLifeSteal, player)
 
-        // --------------------------------------------------------
         // CRITICAL HIT
-        // --------------------------------------------------------
-
         val isCrit =
             player.critChance >= Random.nextInt(1, 101)
 
@@ -368,7 +360,7 @@ class GameViewModel(
         val player =
             _uiState.value.player
 
-        // Reset temporary combat buffs.
+        // Reset temporary combat buffs
         player.resetRoarBuff()
         player.resetGuardBuff()
 
@@ -407,6 +399,20 @@ class GameViewModel(
                 totalMonstersDefeated = it.totalMonstersDefeated + 1
             )
         }
+
+        setBossDefeatedFlags(monster)
+    }
+
+    private fun setBossDefeatedFlags(monster: Monster) {
+        val monsterName = monster.name
+
+        when (monsterName) {
+            "Aldrus Thornfell" -> uiState.value.isAct1BossDefeated = true
+            "Wintermaw" -> uiState.value.isAct2BossDefeated = true
+            "The Devouring Abyss" -> uiState.value.isAct3BossDefeated = true
+            "Awoken Horror" -> uiState.value.isAct5BossDefeated = true
+        }
+
     }
 
     // Function to regenerate some of the player's health after a monster is defeated
@@ -430,16 +436,25 @@ class GameViewModel(
 
     internal fun playerIsHealedByNPC() {
         val player = _uiState.value.player
+        val currentAct = uiState.value.currentAct
 
-        if (player.PriceToHeal > player.goldInPocket) {
+        // Guard clauses if player doesn't have enough gold
+        if (player.PriceToHeal > player.goldInPocket && currentAct == 1) {
             sounds.playAct1HealingNoGold()
             return
         }
+        if (player.PriceToHeal > player.goldInPocket) { return }
 
         player.currentHealth = player.maxHealth
-        sounds.playAct1HealingMusic()
         player.goldInPocket -= player.PriceToHeal
-        // TODO increase the price to heal
+        player.PriceToHeal += 2   // TODO increase the price to heal based on git (old code)
+
+        when (currentAct) {
+            1 -> sounds.playAct1HealingMusic()
+            2 -> sounds.playAct2HealingSound()
+            4 -> sounds.playAct4HealingSound()
+        }
+
     }
 
     private fun checkIfPlayerLevelsUp(updatedPlayer: Player) {
@@ -515,13 +530,30 @@ class GameViewModel(
         }
     }
 
+    // Inventory
+    fun openInventory() {
+        _uiState.update {
+            it.copy(inventoryOpen = true)
+        }
+    }
+
+    fun closeInventory() {
+        _uiState.update {
+            it.copy(inventoryOpen = false)
+        }
+    }
+
     fun whereToGoBasedOnTheDirection(direction: String) {
-        val currentAct = getCurrentAct()
+        val currentAct = uiState.value.currentAct
+        if (uiState.value.introMonstersAreCompleted) {
+            uiState.value.firstTimeTownVisitedMusic = false
+        }
 
-        println("DIRECTION = $direction")
-        println("CURRENT ACT = $currentAct")
-
-        if (direction == "SOUTH") { // TODO needs act 1 quest
+        // Player goes South
+        if (direction == "SOUTH") {
+            if (uiState.value.act1Quest1Started) {
+                // TODO needs act 1 quest
+            }
             when (currentAct) {
                 2 -> setCurrentScreen(GameScreen.TownAct1)
                 3 -> setCurrentScreen(GameScreen.TownAct2)
@@ -531,26 +563,40 @@ class GameViewModel(
             return
         }
 
-        val monsterPoolBasedOnDirection = when (currentAct) {
+        // Player goes North
+        when (currentAct) {
             1 -> when (direction) {
-                "WEST" -> monsterContainer.listOfMonsters1
-                "EAST" -> monsterContainer.listOfMonsters2
-                "NORTH" -> {
-                    sounds.playAct1BossSound()
-                    monsterContainer.listOfMonstersBossAct1
+                "NORTH" -> if (uiState.value.isAct1BossDefeated == true) {
+                    goToNextAct()
+                    return
                 }
-                else -> { monsterContainer.listOfMonsters1 }
             }
 
             2 -> when (direction) {
-                "WEST" -> monsterContainer.listOfMonstersSnowGoldGoblin
-                "EAST" -> monsterContainer.listOfSnowMonsters1
-                "NORTH" -> monsterContainer.listOfMonstersBossAct2
-                else -> { monsterContainer.listOfSnowMonsters1 }
+                "NORTH" -> if (uiState.value.isAct2BossDefeated == true) {
+                    goToNextAct()
+                    return
+                }
             }
 
-            else -> { monsterContainer.listOfMonsters1 }
+            3 -> when (direction) {
+                "NORTH" -> if (uiState.value.isAct3BossDefeated == true) {
+                    goToNextAct()
+                    return
+                }
+            }
+
+            5 -> when (direction) {
+                "NORTH" -> if (uiState.value.isAct5BossDefeated == true && uiState.value.sophiaIsDead) {
+                    // TODO make a "Sophia" game view
+                    return
+                }
+            }
         }
+
+        var monsterPoolBasedOnDirection =
+            whichListOfMonstersToFightBasedOnDirection(direction, currentAct) ?: return
+
 
         val combatScreen = when (currentAct) {
             1 -> GameScreen.CombatAct1
@@ -566,6 +612,97 @@ class GameViewModel(
         startEncounter(monsterPool = monsterPoolBasedOnDirection)
     }
 
+    private fun whichListOfMonstersToFightBasedOnDirection(
+        direction: String,
+        currentAct: Int
+    ): List<Monster>? {
+
+        val monsterPoolBasedOnDirection = when (currentAct) {
+            // Act 1
+            1 -> when (direction) {
+                "WEST" -> monsterContainer.listOfMonsters1
+                "EAST" -> monsterContainer.listOfMonsters2
+                "NORTH" -> {
+                    sounds.playAct1BossSound()
+                    monsterContainer.listOfMonstersBossAct1
+                }
+
+                else -> {
+                    monsterContainer.listOfMonsters1
+                }
+            }
+
+            // Act 2
+            2 -> when (direction) {
+                "WEST" -> monsterContainer.listOfMonstersSnowGoldGoblin
+                "EAST" -> monsterContainer.listOfSnowMonsters1
+                "NORTH" -> {
+                    if (uiState.value.isAct2BossDefeated == true) {
+                        goToNextAct()
+                        return null
+                    }
+                    sounds.playAct2BossSound()
+                    monsterContainer.listOfMonstersBossAct2
+                }
+
+                else -> {
+                    monsterContainer.listOfSnowMonsters1
+                }
+            }
+
+            // Act 3
+            3 -> when (direction) {
+                "WEST" -> monsterContainer.listOfMonstersAct3
+                "EAST" -> monsterContainer.listOfMonstersAct3
+                "NORTH" -> {
+                    if (uiState.value.isAct3BossDefeated == true) {
+                        goToNextAct()
+                        return null
+                    }
+                    sounds.playAct3Boss()
+                    monsterContainer.listOfMonstersBossAct3
+                }
+
+                else -> {
+                    monsterContainer.listOfMonstersAct3
+                }
+            }
+
+            // Act 4
+            4 -> when (direction) {
+                "WEST" -> monsterContainer.listOfMonstersAct4West
+                "EAST" -> monsterContainer.listOfDragonsAct4East
+                "NORTH" -> monsterContainer.listOfDragonEggAct4North
+                else -> {
+                    monsterContainer.listOfMonstersAct4West
+                }
+            }
+
+            // Act 5
+            5 -> when (direction) {
+                "WEST" -> monsterContainer.listOfAct5Monsters
+                "EAST" -> monsterContainer.listOfAct5Monsters
+                "NORTH" -> {
+                    if (!uiState.value.isAct5BossDefeated == true) {
+                        monsterContainer.listOfMonstersBossAct5
+                    } else {
+                        monsterContainer.listOfOptionalBossAct5
+                    }
+                }
+
+                else -> {
+                    monsterContainer.listOfAct5Monsters
+                }
+            }
+
+            else -> {
+                monsterContainer.listOfMonsters1
+            }
+        }
+
+        return monsterPoolBasedOnDirection
+    }
+
     fun setCurrentScreen(screen: GameScreen) {
         _uiState.update {
             it.copy(currentScreen = screen)
@@ -575,14 +712,15 @@ class GameViewModel(
     // Item drop
     private fun generateItemFoundOnMonster(monster: Monster) {
 
-        val currentAct = getCurrentAct() // This method finds out which act the play currently is in
+        val currentAct =
+            uiState.value.currentAct // This method finds out which act the play currently is in
         val found = items.generateLoot(currentAct)
 
         droppedItem = found
 
         _uiState.update {
             it.copy(
-                lootAvailable = found != null, // TODO i don't understand this code
+                lootAvailable = found != null, // found != null means "found contains something"
                 droppedItem = found
             )
         }
@@ -603,8 +741,8 @@ class GameViewModel(
             it.copy(
                 lootAvailable = false,
                 droppedItem = null,
-                encounterLog = "You find the item: ${loot.name}! " +
-                        "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ".", // TODO delete this, it's just for debugging
+                encounterLog = "You find the item: ${loot.name}! "
+//                        + "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ".", // for debugging
             )
         }
 
@@ -620,49 +758,118 @@ class GameViewModel(
             )
         }
 
-        startEncounter(
-            // TODO super important, monsters not working
-            monsterPool = monsterContainer.listOfMonsters1,
-        )
+        whereToGoBasedOnTheDirection(uiState.value.lastDirectionChosenByPlayer)
     }
 
-    // This functions allows the player to return to town
+    private fun goToNextAct() {
+        val currentAct = uiState.value.currentAct
+        uiState.value.firstTimeTownVisitedMusic = true
+
+        when (currentAct) {
+            1 -> {
+                uiState.value.currentAct = 2
+                setCurrentScreen(GameScreen.TownAct2)
+                sounds.act2TownMixer()
+                uiState.value.isAct1BossDefeated = false // Makes act 1 boss repeatable
+            }
+
+            2 -> {
+                uiState.value.currentAct = 3
+                setCurrentScreen(GameScreen.TownAct3)
+                sounds.act3TownMixer()
+            }
+
+            3 -> {
+                uiState.value.currentAct = 4
+                setCurrentScreen(GameScreen.TownAct4)
+                sounds.act4TownMixer()
+            }
+
+            4 -> {
+                uiState.value.currentAct = 5
+                setCurrentScreen(GameScreen.TownAct5)
+                sounds.act5TownMixer()
+            }
+        }
+
+        // sample code
+        /*
+        when {
+            currentAct == 2 && uiState.value.isAct2BossDefeated -> GameScreen.TownAct3
+        }
+        */
+
+    }
+
+    // This function allows the player to return to town
     fun goToTown() {
+
+        val currentAct = uiState.value.currentAct
+
+        val gameScreenBasedOnAct: GameScreen = when (currentAct) {
+            1 -> GameScreen.TownAct1
+            2 -> GameScreen.TownAct2
+            3 -> GameScreen.TownAct3
+            4 -> GameScreen.TownAct4
+            5 -> GameScreen.TownAct5
+            else -> GameScreen.TownAct1 // Fallback
+        }
+
         _uiState.update {
             it.copy(
-                currentScreen = GameScreen.TownAct1,
+                currentScreen = gameScreenBasedOnAct,
                 monsterDefeated = false,
                 monster = null,
             )
         }
-        sounds.playAct1TownMusic()
-        sounds.stopAct4Music() // TODO remove
+        playTownMusicBasedOnAct()
     }
 
-    // This function finds out which act the play currently is in and returns it as an Int // TODO add more if the game expands
-    internal fun getCurrentAct(): Int {
-        return when (_uiState.value.currentScreen) {
-            GameScreen.GameOver -> 99
-            GameScreen.IntroMovie -> 0
+    // This function returns the player to the previous act town AKA south
+    fun goToPreviousTown() {
+        val previousAct = (uiState.value.currentAct - 1).coerceAtLeast(1)
+        uiState.value.firstTimeTownVisitedMusic = true
 
-            GameScreen.Menu -> 1
-
-            GameScreen.CombatAct1,
-            GameScreen.TownAct1 -> 1
-
-            GameScreen.CombatAct2,
-            GameScreen.TownAct2 -> 2
-
-            GameScreen.CombatAct3,
-            GameScreen.TownAct3 -> 3
-
-            GameScreen.CombatAct4,
-            GameScreen.TownAct4 -> 4
-
-            GameScreen.CombatAct5,
-            GameScreen.TownAct5 -> 5
+        val previousTown = when (previousAct) {
+            1 -> GameScreen.TownAct1
+            2 -> GameScreen.TownAct2
+            3 -> GameScreen.TownAct3
+            4 -> GameScreen.TownAct4
+            5 -> GameScreen.TownAct5
+            else -> GameScreen.TownAct1
         }
+
+        _uiState.update {
+            it.copy(
+                currentAct = previousAct,
+                currentScreen = previousTown,
+                monsterDefeated = false,
+                monster = null
+            )
+        }
+
+        playTownMusicBasedOnAct()
     }
+
+    fun playTownMusicBasedOnAct() {
+        val currentAct = uiState.value.currentAct
+        val playMusicOrNot = uiState.value.firstTimeTownVisitedMusic
+
+        if (!playMusicOrNot) {
+            return
+        }
+
+        when (currentAct) {
+            1 -> sounds.act1TownMixer()
+            2 -> sounds.act2TownMixer()
+            3 -> sounds.act3TownMixer()
+            4 -> sounds.act4TownMixer()
+            5 -> sounds.act5TownMixer()
+        }
+
+        uiState.value.firstTimeTownVisitedMusic = false
+    }
+
 
     fun playAct4MusicAfterIntro() {
         sounds.playAct4Music()

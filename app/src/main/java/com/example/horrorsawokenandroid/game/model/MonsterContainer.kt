@@ -268,7 +268,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 11,
             monsterExperience = 30,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.hungrybeast
         )
     )
 
@@ -285,7 +286,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 22,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.snowdemon
         ),
         Monster(
             name = "Snow Antler",
@@ -295,7 +297,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 18,
-            monsterGold = 3
+            monsterGold = 3,
+            imageRes = R.drawable.snowantler
         ),
         Monster(
             name = "Snow Crazed",
@@ -305,7 +308,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 15,
-            monsterGold = 1
+            monsterGold = 1,
+            imageRes = R.drawable.snowcrazed
         ),
         Monster(
             name = "Snow Moose",
@@ -315,7 +319,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 3,
             monsterExperience = 20,
-            monsterGold = 3
+            monsterGold = 3,
+            imageRes = R.drawable.snowmoose
         ),
         Monster(
             name = "Snow Horror",
@@ -325,7 +330,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 6,
             monsterExperience = 25,
-            monsterGold = 5
+            monsterGold = 5,
+            imageRes = R.drawable.snowhorror
         ),
         Monster(
             name = "Snow Angel",
@@ -335,7 +341,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 11,
             monsterExperience = 21,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.snowangel
         )
     )
 
@@ -352,7 +359,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 10,
             monsterExperience = 0,
-            monsterGold = 9
+            monsterGold = 9,
+            imageRes = R.drawable.goldgoblin
         )
     )
 
@@ -369,7 +377,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 17,
             monsterExperience = 50,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.bossact2
         )
     )
 
@@ -386,7 +395,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 25,
             monsterExperience = 500,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.frostfallenking
         )
     )
 
@@ -403,7 +413,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 15,
             monsterExperience = 40,
-            monsterGold = 12
+            monsterGold = 12,
+            imageRes = R.drawable.seahorror
         ),
         Monster(
             name = "Sea Terror",
@@ -413,7 +424,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 20,
             monsterExperience = 50,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.seaterror
         ),
         Monster(
             name = "Ghost of the Sea",
@@ -423,7 +435,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 29,
             monsterExperience = 30,
-            monsterGold = 17
+            monsterGold = 17,
+            imageRes = R.drawable.seaghost
         ),
         Monster(
             name = "Monster of the Sea",
@@ -433,7 +446,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 3,
             monsterExperience = 38,
-            monsterGold = 20
+            monsterGold = 20,
+            imageRes = R.drawable.seamonster
         ),
         Monster(
             name = "Kraken",
@@ -443,7 +457,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 50,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.octopus
         ),
         Monster(
             name = "Lost Pirate",
@@ -453,7 +468,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 21,
             monsterExperience = 66,
-            monsterGold = 24
+            monsterGold = 24,
+            imageRes = R.drawable.lostpirate
         )
     )
 
@@ -487,7 +503,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 70,
-            monsterGold = 30
+            monsterGold = 30,
+            imageRes = R.drawable.burningskeleton
         ),
         Monster(
             name = "Burning Lizard",
@@ -497,7 +514,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 70,
-            monsterGold = 30
+            monsterGold = 30,
+            imageRes = R.drawable.burninglizard
         ),
         Monster(
             name = "Magma Frog",
@@ -507,7 +525,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 2,
             monsterExperience = 88,
-            monsterGold = 30
+            monsterGold = 30,
+            imageRes = R.drawable.magmafrog
         ),
         Monster(
             name = "Magma Horror",
@@ -517,7 +536,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 20,
-            monsterGold = 30
+            monsterGold = 30,
+            imageRes = R.drawable.magmahorror
         ),
         Monster(
             name = "Forgotten Prince",
@@ -527,7 +547,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 12,
             monsterExperience = 77,
-            monsterGold = 30
+            monsterGold = 30,
+            imageRes = R.drawable.forgottenprince
         ),
         Monster(
             name = "Fire Knight",
@@ -537,7 +558,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 66,
-            monsterGold = 30
+            monsterGold = 30,
+            imageRes = R.drawable.fireknight
         )
     )
 
@@ -554,7 +576,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 90,
-            monsterGold = 44
+            monsterGold = 44,
+            imageRes = R.drawable.casterdragon
         ),
         Monster(
             name = "Dragon King",
@@ -564,7 +587,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 14,
             monsterExperience = 100,
-            monsterGold = 30
+            monsterGold = 30,
+            imageRes = R.drawable.dragonking
         ),
         Monster(
             name = "Silver Dragon",
@@ -574,7 +598,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 20,
-            monsterGold = 60
+            monsterGold = 60,
+            imageRes = R.drawable.silverdragon
         ),
         Monster(
             name = "Dragon Hydra",
@@ -584,7 +609,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 8,
             monsterExperience = 79,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.dragonhydra
         ),
         Monster(
             name = "Golden Dragon",
@@ -594,7 +620,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 20,
-            monsterGold = 60
+            monsterGold = 60,
+            imageRes = R.drawable.goldendragon
         )
     )
 
@@ -611,7 +638,19 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 50,
             monsterExperience = 60,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.dragonnestwatcher
+        ),
+        Monster(
+            name = "Nest-Watcher Dragon",
+            maxHealth = 310,
+            currentHealth = 310,
+            minDamage = 13,
+            maxDamage = 0,
+            randomDamageModifier = 50,
+            monsterExperience = 60,
+            monsterGold = 0,
+            imageRes = R.drawable.dragonnestwatcher
         ),
         Monster(
             name = "Egg-Watcher Dragon",
@@ -621,14 +660,14 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 50,
             monsterExperience = 60,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.dragoneggwatcher
         )
     )
 
 // ------------------------------------------------------------
 // ACT 5
 // ------------------------------------------------------------
-
     val listOfAct5Monsters = listOf(
         Monster(
             name = "Shadow",
@@ -638,7 +677,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 66,
             monsterExperience = 80,
-            monsterGold = 120
+            monsterGold = 120,
+            imageRes = R.drawable.shadow
         ),
         Monster(
             name = "Jester",
@@ -648,7 +688,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 93,
             monsterExperience = 90,
-            monsterGold = 20
+            monsterGold = 20,
+            imageRes = R.drawable.jester
         ),
         Monster(
             name = "False Light Entity",
@@ -658,7 +699,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 150,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.entityoffalselight
         ),
         Monster(
             name = "Black Angel",
@@ -668,7 +710,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 39,
             monsterExperience = 120,
-            monsterGold = 120
+            monsterGold = 120,
+            imageRes = R.drawable.blackangel
         ),
         Monster(
             name = "Priest",
@@ -678,7 +721,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 67,
             monsterExperience = 50,
-            monsterGold = 180
+            monsterGold = 180,
+            imageRes = R.drawable.priest
         ),
         Monster(
             name = "Crow",
@@ -688,7 +732,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 89,
             monsterExperience = 77,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.crow
         ),
         Monster(
             name = "Void",
@@ -698,7 +743,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 40,
             monsterExperience = 99,
-            monsterGold = 160
+            monsterGold = 160,
+            imageRes = R.drawable.void1
         ),
         Monster(
             name = "Blood Void",
@@ -708,7 +754,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 58,
             monsterExperience = 77,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.bloodvoid
         ),
         Monster(
             name = "Death Angel",
@@ -718,7 +765,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 74,
             monsterExperience = 120,
-            monsterGold = 133
+            monsterGold = 133,
+            imageRes = R.drawable.deathangel
         ),
         Monster(
             name = "Dark Mage",
@@ -728,7 +776,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 45,
             monsterExperience = 150,
-            monsterGold = 60
+            monsterGold = 60,
+            imageRes = R.drawable.darkmage
         ),
         Monster(
             name = "Blood Horror",
@@ -738,7 +787,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 56,
             monsterExperience = 50,
-            monsterGold = 0
+            monsterGold = 0,
+            imageRes = R.drawable.bloodhorror
         )
     )
 
@@ -755,7 +805,8 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 80,
             monsterExperience = 1000,
-            monsterGold = 500
+            monsterGold = 500,
+            imageRes = R.drawable.awokenhorror
         )
     )
 

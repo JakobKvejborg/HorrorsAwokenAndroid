@@ -1,6 +1,7 @@
 
 package com.example.horrorsawokenandroid.game.model
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -208,8 +209,6 @@ class Items {
                 ItemType.Boots,
                 ItemType.Gloves,
                 ItemType.Leggings,
-                ItemType.Belt,
-                ItemType.Helmet,
                 ItemType.Shoulders,
                 ItemType.WeaponLeftHand
             )
@@ -217,7 +216,6 @@ class Items {
             2 -> listOf(
                 ItemType.WeaponRightHand,
                 ItemType.WeaponRightHand,
-                ItemType.WeaponLeftHand,
                 ItemType.Armor,
                 ItemType.Boots,
                 ItemType.Gloves,
@@ -238,7 +236,6 @@ class Items {
                 ItemType.Belt,
                 ItemType.Helmet,
                 ItemType.Shoulders,
-                ItemType.Amulet
             )
 
             4 -> listOf(

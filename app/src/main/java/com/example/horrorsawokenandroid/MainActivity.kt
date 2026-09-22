@@ -37,7 +37,6 @@ class MainActivity : ComponentActivity() {
                 val gameViewModel: GameViewModel = viewModel(
                     factory = GameViewModelFactory(soundPlayer)
                 )
-//                soundPlayer.playAct4Music()
                 val state by gameViewModel.uiState.collectAsState()
                 when (state.currentScreen) {
 
@@ -63,6 +62,46 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     GameScreen.TownAct1 -> {
+                        TownScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.CombatAct2 -> {
+                        CombatScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.TownAct2 -> {
+                        TownScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.CombatAct3 -> {
+                        CombatScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.TownAct3 -> {
+                        TownScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.CombatAct4 -> {
+                        CombatScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.TownAct4 -> {
+                        TownScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.CombatAct5 -> {
+                        CombatScreen(
+                            viewModel = gameViewModel
+                        )
+                    }
+                    GameScreen.TownAct5 -> {
                         TownScreen(
                             viewModel = gameViewModel
                         )

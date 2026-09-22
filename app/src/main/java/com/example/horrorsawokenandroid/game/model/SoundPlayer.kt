@@ -68,6 +68,12 @@ interface SoundPlayer {
     fun stopAct4Music()
     fun stopAct5Music()
 
+    fun act1TownMixer()
+    fun act2TownMixer()
+    fun act3TownMixer()
+    fun act4TownMixer()
+    fun act5TownMixer()
+
     fun muteAllMusic()
 
     fun release()
@@ -320,6 +326,37 @@ class AndroidSoundPlayer(
     // ---------------------------------------------------------
     // Town / area music
     // ---------------------------------------------------------
+    override fun act1TownMixer() {
+        stopAct4Music()
+        stopAct2TownMusic()
+        playAct1TownMusic()
+        stopAct3Music()
+    }
+
+    override fun act2TownMixer() {
+        stopAct3Waves()
+        stopAct3Music()
+        stopAct1TownMusic()
+        playAct2TownMusic()
+    }
+
+    override fun act3TownMixer() {
+        stopAct4Music()
+        stopAct2TownMusic()
+        playAct3Music()
+    }
+
+    override fun act4TownMixer() {
+        stopAct5Music()
+        stopAct3Music()
+        playAct4Music()
+    }
+
+    override fun act5TownMixer() {
+        stopAct4Music()
+        playAct5Music()
+    }
+
     fun playThunder() {
         act1ThunderPlayer = playMusic(
             "thunder.wav",
@@ -708,6 +745,11 @@ object NoOpSoundPlayer : SoundPlayer {
     override fun stopAct3Music() {}
     override fun stopAct4Music() {}
     override fun stopAct5Music() {}
+    override fun act1TownMixer() {}
+    override fun act2TownMixer() {}
+    override fun act3TownMixer() {}
+    override fun act4TownMixer() {}
+    override fun act5TownMixer() {}
 
     override fun muteAllMusic() {}
     override fun release() {}

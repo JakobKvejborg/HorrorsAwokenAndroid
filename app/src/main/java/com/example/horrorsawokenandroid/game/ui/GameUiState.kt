@@ -18,6 +18,16 @@ data class GameUiState(
     var introMonstersAreCompleted: Boolean = false,
     var totalMonstersDefeated: Int = 0,
     val monsterImageShake: Int = 0,
-//    val currentScreen: GameScreen = GameScreen.CombatAct1, // TODO important this makes the game start in combat
-    val currentScreen: GameScreen = GameScreen.Menu,
+    val inventoryOpen: Boolean = false,
+    val currentScreen: GameScreen = GameScreen.Menu, // This decides where the game begins (in menu, in combat e.g.)
+    var isAct1BossDefeated: Boolean = false,
+    var isAct2BossDefeated: Boolean = false,
+    var isAct3BossDefeated: Boolean = false,
+    var isAct5BossDefeated: Boolean = false,
+    var lastDirectionChosenByPlayer: String = "",
+    var act1Quest1Started: Boolean = false,
+    var act1Quest1IsFinished: Boolean = false,
+    var currentAct: Int = 1,
+    var firstTimeTownVisitedMusic: Boolean = true,
+    var sophiaIsDead: Boolean = true,
 )

@@ -43,15 +43,9 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.offset
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.material3.TextButton
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -94,10 +88,16 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
         // Background
         Image(
             painter = painterResource(
-                id = when (viewModel.getCurrentAct()) {
+                id = when (state.currentAct) {
                     1 -> R.drawable.castle
                     2 -> R.drawable.act2background
-                    3 -> R.drawable.act3background
+                    3 -> {
+                        if (state.monster?.name == "The Devouring Abyss" ) {
+                            R.drawable.act3boss
+                        } else {
+                            R.drawable.act3background
+                        }
+                    }
                     4 -> R.drawable.act4background
                     else -> R.drawable.act5encounterbackground
                 }
@@ -340,6 +340,19 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Inventory button // TODO make this better
+            TextButton(
+                onClick = {
+                    viewModel.openInventory()
+                }
+            ) {
+                Text(
+                    text = "INVENTORY",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
             // COMBAT ENCOUNTER LOG
             Spacer(modifier = Modifier.weight(1f))
             Box(
@@ -468,7 +481,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
                         Text(
                             text = " TOWN",
-                            color = Color(0xFFADD8E6),
+                            color = Color(0xFF67A4E2),
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -505,6 +518,16 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         )
                     }
                 }
+            }
+
+            // Inventory
+            if (state.inventoryOpen) {
+                InventoryOverlay(
+                    player = state.player,
+                    onClose = {
+                        viewModel.closeInventory()
+                    }
+                )
             }
         }
     }

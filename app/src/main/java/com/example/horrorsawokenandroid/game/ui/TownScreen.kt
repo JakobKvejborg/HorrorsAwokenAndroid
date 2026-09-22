@@ -6,10 +6,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,7 +40,7 @@ fun TownScreen(
     val state by viewModel.uiState.collectAsState()
     state.introMonstersAreCompleted = true
 
-    val currentAct = viewModel.getCurrentAct()
+    val currentAct = state.currentAct
 
 
     // BACKGROUND ZOOM
@@ -139,16 +135,19 @@ fun TownScreen(
 
             TownCompass(
                 onNorth = {
-                    viewModel.whereToGoBasedOnTheDirection("NORTH")
+                    state.lastDirectionChosenByPlayer = "NORTH"
+                    viewModel.whereToGoBasedOnTheDirection(state.lastDirectionChosenByPlayer)
                 },
                 onSouth = {
-                    // SOUTH TODO return to previous Act/start quest 1
+                    viewModel.goToPreviousTown()
                 },
                 onEast = {
-                    viewModel.whereToGoBasedOnTheDirection("EAST")
+                    state.lastDirectionChosenByPlayer = "EAST"
+                    viewModel.whereToGoBasedOnTheDirection(state.lastDirectionChosenByPlayer)
                 },
                 onWest = {
-                    viewModel.whereToGoBasedOnTheDirection("WEST")
+                    state.lastDirectionChosenByPlayer = "WEST"
+                    viewModel.whereToGoBasedOnTheDirection(state.lastDirectionChosenByPlayer)
                 }
             )
 
@@ -180,9 +179,7 @@ fun TownScreen(
                         ),
                         onClick = {
                             when (currentAct) {
-                                1, 2, 3, 4 -> {
-                                    viewModel.playerIsHealedByNPC()
-                                }
+                                1, 2, 4 -> viewModel.playerIsHealedByNPC()
                             }
                         }
                     )
@@ -208,15 +205,19 @@ fun TownScreen(
                                 1 -> {
                                     viewModel.playerLearnTechniques()
                                 }
+
                                 2 -> {
                                     // ACT 2 NPC 2
                                 }
+
                                 3 -> {
                                     // ACT 3 NPC 2
                                 }
+
                                 4 -> {
                                     // ACT 4 NPC 2
                                 }
+
                                 5 -> {
                                     // ACT 5 NPC 2
                                 }
@@ -409,6 +410,7 @@ private fun RightNPCBox(
         }
     }
 }
+
 // NPC IMAGES
 private fun getNpcImage(
     act: Int,
