@@ -46,6 +46,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.draw.shadow
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -92,12 +93,13 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     1 -> R.drawable.castle
                     2 -> R.drawable.act2background
                     3 -> {
-                        if (state.monster?.name == "The Devouring Abyss" ) {
+                        if (state.monster?.name == "The Devouring Abyss") {
                             R.drawable.act3boss
                         } else {
                             R.drawable.act3background
                         }
                     }
+
                     4 -> R.drawable.act4background
                     else -> R.drawable.act5encounterbackground
                 }
@@ -143,7 +145,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
                 // PLAYER
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(0.95f), // PLAYER WEIGHT How much of the left side of the screen the hero info should take up
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -159,9 +161,10 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(24.dp)
+                            .shadow(4.dp, RoundedCornerShape(5.dp))
                             .background(
                                 Color(0xFF000000), // player health bar background color
-                                RoundedCornerShape(5.dp)
+                                RoundedCornerShape(3.dp)
                             ),
                         contentAlignment = Alignment.Center
                     ) {
@@ -176,8 +179,14 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 )
                                 .height(24.dp)
                                 .background(
-                                    Color(0xFF891515), // foreground player health bar color
-                                    RoundedCornerShape(5.dp)
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color(0xFF7A1212), // health bar color at the top
+                                            Color(0xFF891515), // middle
+                                            Color(0xFF4A0000) // bottom
+                                        )
+                                    ),
+                                    RoundedCornerShape(3.dp)
                                 )
                                 .align(Alignment.CenterStart)
                         )
@@ -198,9 +207,10 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(24.dp)
+                            .shadow(4.dp, RoundedCornerShape(3.dp))
                             .background(
                                 Color(0xFF1A1A1A),
-                                RoundedCornerShape(5.dp)
+                                RoundedCornerShape(3.dp)
                             ),
                         contentAlignment = Alignment.Center
                     ) {
@@ -215,8 +225,14 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 )
                                 .height(24.dp)
                                 .background(
-                                    Color(0xFF1976D2),
-                                    RoundedCornerShape(5.dp)
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color(0xFF155799), // xp bar color at the top
+                                            Color(0xFF1976D2), // middle
+                                            Color(0xFF0D47A1) // bottom
+                                        )
+                                    ),
+                                    RoundedCornerShape(3.dp)
                                 )
                                 .align(Alignment.CenterStart)
                         )
@@ -239,7 +255,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
                 // MONSTER / LOOT
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1.05f), // MONSTER WEIGHT How much of the right side of the screen the monster image should take up
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (state.lootAvailable && state.droppedItem != null) {
@@ -260,7 +276,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                             )
                         )
 
-                        Spacer(modifier = Modifier.height(56.dp)) // how far down the loot image appears
+                        Spacer(modifier = Modifier.height(59.dp)) // how far down the loot image appears (higher = lower on the screen)
 
                         Box(
                             modifier = Modifier.size(250.dp),
@@ -270,7 +286,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 painter = painterResource(id = R.drawable.lootblood),
                                 contentDescription = "loot",
                                 modifier = Modifier
-                                    .size(152.dp) // size of the loot image
+                                    .size(143.dp) // size of the loot image
                                     .clickable {
                                         viewModel.playerCollectsLoot()
                                     },
@@ -282,7 +298,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         // MONSTER
                         Text(
                             text = state.monster?.name ?: "",
-                            fontSize = 28.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                             style = TextStyle(
@@ -295,11 +311,33 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                             )
                         )
 
-                        Spacer(modifier = Modifier.height(6.dp))
+                        // Monster health bar
+                        state.monster?.let { monster ->
+                            Text(
+                                text = "${monster.currentHealth}/${monster.maxHealth} HP",
+                                color = Color.White
+                            )
+
+                            LinearProgressIndicator(
+                                progress = {
+                                    if (monster.maxHealth > 0) {
+                                        monster.currentHealth /
+                                                monster.maxHealth.toFloat()
+                                    } else {
+                                        0f
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(5.dp), // How thick the monster health bar appears
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(1.dp)) // How far down the monster image appears on screen (higher value = lower image)
 
                         Box(
                             modifier = Modifier
-                                .size(250.dp)
+                                .size(300.dp)
                                 .offset(x = monsterShake.value.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -307,7 +345,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 Image(
                                     painter = painterResource(id = imageRes),
                                     contentDescription = state.monster?.name,
-                                    modifier = Modifier.size(250.dp),
+                                    modifier = Modifier.size(300.dp),
                                     contentScale = ContentScale.Fit
                                 )
                             }
@@ -315,26 +353,9 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     }
 
 
-                    Spacer(modifier = Modifier.height(6.dp))
+//                    Spacer(modifier = Modifier.height(1.dp)) // How far down the monster HP bar appears (higher value = lower image)
 
-                    state.monster?.let { monster ->
-                        Text(
-                            text = "${monster.currentHealth}/${monster.maxHealth} HP",
-                            color = Color.White
-                        )
 
-                        LinearProgressIndicator(
-                            progress = {
-                                if (monster.maxHealth > 0) {
-                                    monster.currentHealth /
-                                            monster.maxHealth.toFloat()
-                                } else {
-                                    0f
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
                 }
             }
 
@@ -620,7 +641,7 @@ private fun PlayerStatsPanel(player: Player) {
             )
 
             StatItem(
-                label = "CrtDmg",
+                label = "cDmg",
                 value = "${player.critDamage}%",
                 modifier = Modifier.weight(1f)
             )

@@ -447,7 +447,7 @@ class GameViewModel(
 
         player.currentHealth = player.maxHealth
         player.goldInPocket -= player.PriceToHeal
-        player.PriceToHeal += 2   // TODO increase the price to heal based on git (old code)
+        player.PriceToHeal += (player.PriceToHeal * 0.1 + 7).toInt() // TODO / ModifierProcessor.HealPriceReducedModifier
 
         when (currentAct) {
             1 -> sounds.playAct1HealingMusic()
