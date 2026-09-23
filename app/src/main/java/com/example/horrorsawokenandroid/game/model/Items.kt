@@ -1,7 +1,6 @@
 
 package com.example.horrorsawokenandroid.game.model
 
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -70,8 +69,8 @@ class Items {
     // ============================================================
 
     enum class ItemType {
-        WeaponLeftHand,
-        WeaponRightHand,
+        Hook,
+        Weapon,
         Armor,
         Boots,
         Helmet,
@@ -203,19 +202,15 @@ class Items {
         val pool = when (act) {
 
             1 -> listOf(
-                ItemType.WeaponRightHand,
-                ItemType.WeaponRightHand,
+                ItemType.Weapon,
                 ItemType.Armor,
                 ItemType.Boots,
                 ItemType.Gloves,
                 ItemType.Leggings,
-                ItemType.Shoulders,
-                ItemType.WeaponLeftHand
             )
 
             2 -> listOf(
-                ItemType.WeaponRightHand,
-                ItemType.WeaponRightHand,
+                ItemType.Weapon,
                 ItemType.Armor,
                 ItemType.Boots,
                 ItemType.Gloves,
@@ -226,9 +221,8 @@ class Items {
             )
 
             3 -> listOf(
-                ItemType.WeaponRightHand,
-                ItemType.WeaponRightHand,
-                ItemType.WeaponLeftHand,
+                ItemType.Weapon,
+                ItemType.Hook,
                 ItemType.Armor,
                 ItemType.Boots,
                 ItemType.Gloves,
@@ -239,9 +233,8 @@ class Items {
             )
 
             4 -> listOf(
-                ItemType.WeaponRightHand,
-                ItemType.WeaponRightHand,
-                ItemType.WeaponLeftHand,
+                ItemType.Weapon,
+                ItemType.Hook,
                 ItemType.Armor,
                 ItemType.Boots,
                 ItemType.Gloves,
@@ -253,9 +246,8 @@ class Items {
             )
 
             else -> listOf(
-                ItemType.WeaponRightHand,
-                ItemType.WeaponRightHand,
-                ItemType.WeaponLeftHand,
+                ItemType.Weapon,
+                ItemType.Hook,
                 ItemType.Armor,
                 ItemType.Boots,
                 ItemType.Gloves,
@@ -330,7 +322,7 @@ class Items {
 
         when (type) {
 
-            ItemType.WeaponRightHand ->
+            ItemType.Weapon ->
                 generateWeapon(
                     item,
                     quality.multiplier,
@@ -338,7 +330,7 @@ class Items {
                     act
                 )
 
-            ItemType.WeaponLeftHand ->
+            ItemType.Hook ->
                 generateLeftHandWeapon(
                     item,
                     quality.multiplier,
@@ -1053,7 +1045,7 @@ class Items {
 
         return when (type) {
 
-            ItemType.WeaponRightHand -> {
+            ItemType.Weapon -> {
 
                 when (act) {
 
@@ -1118,7 +1110,7 @@ class Items {
                 }
             }
 
-            ItemType.WeaponLeftHand -> {
+            ItemType.Hook -> {
 
                 when (act) {
 
@@ -1485,7 +1477,6 @@ class Items {
     // ============================================================
     // PREFIXES
     // ============================================================
-
     private val uniquePrefixes = listOf(
         "Fabled",
         "Mythic",
@@ -1522,13 +1513,9 @@ class Items {
     // ============================================================
     // SUFFIXES
     // ============================================================
-
     private val normalSuffixes = listOf(
         "of Health",
         "of Stamina",
-        "of Iron",
-        "of Bronze",
-        "of Leather",
         "of Defense",
         "of Protection",
         "of Stone",
@@ -1561,20 +1548,20 @@ class Items {
 
     private val rareSuffixes = listOf(
         "of Champions",
-        "of Valor",
         "of Fortitude",
         "of Precision",
         "of Berserk",
         "of Titans",
         "of Might",
-        "of Blood"
+        "of Blood",
+        "of Wisdom"
     )
 
     private val uniqueSuffixes = listOf(
         "of Gold",
         "of Power",
         "of Glory",
-        "of Wisdom"
+        "of Valor",
     )
 
     private val epicSuffixes = listOf(

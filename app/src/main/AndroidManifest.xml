@@ -12,13 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HorrorsAwokenAndroid"
         tools:targetApi="31" >
+
+        <!-- screenOrientation forces the app to run in portrait mode -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.HorrorsAwokenAndroid" >
+            android:screenOrientation="portrait"
+        android:theme="@style/Theme.HorrorsAwokenAndroid" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

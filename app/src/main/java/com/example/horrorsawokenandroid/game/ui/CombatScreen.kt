@@ -276,7 +276,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                             )
                         )
 
-                        Spacer(modifier = Modifier.height(59.dp)) // how far down the loot image appears (higher = lower on the screen)
+                        Spacer(modifier = Modifier.height(63.dp)) // how far down the loot image appears (higher = lower on the screen)
 
                         Box(
                             modifier = Modifier.size(250.dp),
@@ -286,7 +286,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 painter = painterResource(id = R.drawable.lootblood),
                                 contentDescription = "loot",
                                 modifier = Modifier
-                                    .size(143.dp) // size of the loot image
+                                    .size(137.dp) // size of the loot image
                                     .clickable {
                                         viewModel.playerCollectsLoot()
                                     },
@@ -540,17 +540,18 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     }
                 }
             }
-
-            // Inventory
-            if (state.inventoryOpen) {
-                InventoryOverlay(
-                    player = state.player,
-                    onClose = {
-                        viewModel.closeInventory()
-                    }
-                )
-            }
         }
+
+        // Inventory
+        if (state.inventoryOpen) {
+            InventoryOverlay(
+                player = state.player,
+                onClose = {
+                    viewModel.closeInventory()
+                }
+            )
+        }
+
     }
 }
 

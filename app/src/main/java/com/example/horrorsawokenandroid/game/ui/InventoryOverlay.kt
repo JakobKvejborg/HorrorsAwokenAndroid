@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,12 +33,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.horrorsawokenandroid.R
 import com.example.horrorsawokenandroid.game.model.Items
 import com.example.horrorsawokenandroid.game.model.Player
+import kotlinx.coroutines.withTimeoutOrNull
 
 @Composable
 fun InventoryOverlay(
@@ -51,51 +52,56 @@ fun InventoryOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF16181C).copy(alpha = 0.82f))
+//            .background(Color.Transparent)
             .padding(10.dp)
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    onClose() // This is empty - prevents the player from pressing buttons behind the inventory screen
+
+                }
+            },
+        contentAlignment = Alignment.Center
     ) {
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth(0.99f) // How wide the inventory screen is
+                .fillMaxHeight(0.92f) // How tall the inventory screen is
                 .background(
-                    color = Color(0xFF16181C).copy(alpha = 0.65f),
+                    color = Color(0xFF16181C).copy(alpha = 0.85f), // This sets the transparency of the inventory background (higher = more transparent)
                     shape = RoundedCornerShape(12.dp)
                 )
                 .padding(10.dp)
         ) {
 
-            // =====================================================
-            // HEADER
-            // =====================================================
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Text(
-                    text = "INVENTORY",
-                    modifier = Modifier.weight(1f),
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Black
-                )
-
-                TextButton(
-                    onClick = onClose
-                ) {
-                    Text(
-                        text = "CLOSE",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
+            // HEADER use this code if you want a header for the inventory
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//
+//                Text(
+//                    text = "", // This is where a header text like "INVENTORY" could be
+//                    modifier = Modifier.weight(1f),
+//                    color = Color.White,
+//                    fontSize = 22.sp,
+//                    fontWeight = FontWeight.Black
+//                )
+//
+//                TextButton(
+//                    onClick = onClose
+//                ) {
+//                    Text(
+//                        text = "CLOSE",
+//                        color = Color.White,
+//                        fontWeight = FontWeight.Bold
+//                    )
+//                }
+//            }
+//
+//            Spacer(
+//                modifier = Modifier.height(4.dp)
+//            )
 
             // =====================================================
             // EQUIPPED ITEMS
@@ -112,185 +118,174 @@ fun InventoryOverlay(
                 modifier = Modifier.height(6.dp)
             )
 
-            // TOP ROW
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+
+             // The equipped area has a FIXED height. This prevents the inventory section from moving down when the player looks at an item
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(232.dp)
             ) {
 
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.Helmet],
-                    iconRes = R.drawable.helmeticon,
-                    label = "Helmet",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.Amulet],
-                    iconRes = R.drawable.amuleticon,
-                    label = "Amulet",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.Shoulders],
-                    iconRes = R.drawable.shouldersicon,
-                    label = "Shoulders",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
-
-            // MIDDLE ROW
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.WeaponLeftHand],
-                    iconRes = R.drawable.hookicon,
-                    label = "Left Hand",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.Armor],
-                    iconRes = R.drawable.armoricon,
-                    label = "Armor",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.WeaponRightHand],
-                    iconRes = R.drawable.swordicon, // TODO sword icon
-                    label = "Right Hand",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
-
-            // BOTTOM ROW
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.Boots],
-                    iconRes = R.drawable.bootsicon,
-                    label = "Boots",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.Leggings],
-                    iconRes = R.drawable.leggingsicon,
-                    label = "Leggings",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.Gloves],
-                    iconRes = R.drawable.glovesicon,
-                    label = "Gloves",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-
-                EquipmentSlot(
-                    item = player.equippedItems[Items.ItemType.Belt],
-                    iconRes = R.drawable.belticon,
-                    label = "Belt",
-                    onItemHeld = {
-                        heldItem = it
-                    },
-                    onItemReleased = {
-                        heldItem = null
-                    }
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            // =====================================================
-            // HELD ITEM INFORMATION
-            // =====================================================
-            if (heldItem != null) {
-
-                ItemInfoPanel(
-                    item = heldItem!!
-                )
-
-            } else {
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .background(
-                            Color.Black.copy(alpha = 0.45f),
-                            RoundedCornerShape(8.dp)
-                        ),
-                    contentAlignment = Alignment.Center
+                Column(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Hold an equipped item to inspect it",
-                        color = Color.LightGray,
-                        fontSize = 13.sp,
-                        textAlign = TextAlign.Center
+
+                    // TOP ROW
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Helmet],
+                            iconRes = R.drawable.helmeticon,
+                            label = "Helmet",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Amulet],
+                            iconRes = R.drawable.amuleticon,
+                            label = "Amulet",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Shoulders],
+                            iconRes = R.drawable.shouldersicon,
+                            label = "Shoulders",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(4.dp)
+                    )
+
+                    // MIDDLE ROW
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Hook],
+                            iconRes = R.drawable.hookicon,
+                            label = "Left Hand",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Armor],
+                            iconRes = R.drawable.armoricon,
+                            label = "Armor",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Weapon],
+                            iconRes = R.drawable.swordicon,
+                            label = "Right Hand",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(4.dp)
+                    )
+
+                    // BOTTOM ROW
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Boots],
+                            iconRes = R.drawable.bootsicon,
+                            label = "Boots",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Leggings],
+                            iconRes = R.drawable.leggingsicon,
+                            label = "Leggings",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Gloves],
+                            iconRes = R.drawable.glovesicon,
+                            label = "Gloves",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+
+                        EquipmentSlot(
+                            item = player.equippedItems[Items.ItemType.Belt],
+                            iconRes = R.drawable.belticon,
+                            label = "Belt",
+                            onItemHeld = {
+                                heldItem = it
+                            },
+                            onItemReleased = {
+                                heldItem = null
+                            }
+                        )
+                    }
+                }
+
+
+                // This panel overlays the equipped pictures.
+                if (heldItem != null) {
+                    ItemInfoPanel(
+                        item = heldItem!!,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
@@ -361,6 +356,40 @@ fun InventoryOverlay(
                     }
                 }
             }
+
+            // Spacer between the inventory box and "Close" button
+//            Spacer(modifier = Modifier.height(1.dp))
+
+            // =====================================================
+            // FOOTER / CLOSE BUTTON
+            // =====================================================
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(35.dp), // Sets the total height of the footer
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "",
+                    modifier = Modifier.weight(1f),
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Black
+                )
+
+                TextButton(
+                    onClick = onClose,
+                    contentPadding = PaddingValues(vertical = 2.dp) // Shrinks the button height
+
+                ) {
+                    Text(
+                        text = "CLOSE",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
         }
     }
 }
@@ -369,7 +398,6 @@ fun InventoryOverlay(
 // ================================================================
 // EQUIPMENT SLOT
 // ================================================================
-
 @Composable
 private fun EquipmentSlot(
     item: Items.Item?,
@@ -413,48 +441,99 @@ private fun EquipmentSlot(
 // ================================================================
 // ITEM INFO
 // ================================================================
-
 @Composable
 private fun ItemInfoPanel(
-    item: Items.Item
+    item: Items.Item,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
+    val itemTypeIcon = getItemTypeIcon(item.type)
+
+    Box(
+        modifier = modifier
             .background(
-                Color.Black.copy(alpha = 0.65f),
-                RoundedCornerShape(8.dp)
+                Color.Black.copy(alpha = 0.48f),
+                RoundedCornerShape(10.dp)
             )
-            .padding(8.dp)
+            .padding(10.dp)
     ) {
 
-        Text(
-            text = item.name,
-            color = Color.White,
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Bold
-        )
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-        Spacer(
-            modifier = Modifier.height(3.dp)
-        )
+            // Item type icon
+            if (itemTypeIcon != null) {
+                Image(
+                    painter = painterResource(id = itemTypeIcon),
+                    contentDescription = item.type.name,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .padding(2.dp),
+                    contentScale = ContentScale.Fit
+                )
 
-        Text(
-            text = item.type.name,
-            color = Color.Gray,
-            fontSize = 12.sp
-        )
+                Spacer(
+                    modifier = Modifier.width(10.dp)
+                )
+            }
 
-        Spacer(
-            modifier = Modifier.height(5.dp)
-        )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
 
-        Text(
-            text = item.statText(),
-            color = Color.LightGray,
-            fontSize = 13.sp,
-            lineHeight = 17.sp
-        )
+                Text(
+                    text = item.name,
+                    color = Color.White,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(
+                    modifier = Modifier.height(2.dp)
+                )
+
+                Text(
+                    text = item.type.name,
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                )
+
+                Spacer(
+                    modifier = Modifier.height(5.dp)
+                )
+
+                Text(
+                    text = item.statText(),
+                    color = Color.LightGray,
+                    fontSize = 13.sp,
+                    lineHeight = 17.sp
+                )
+            }
+        }
+    }
+}
+
+
+// ================================================================
+// ITEM TYPE ICONS
+// ================================================================
+private fun getItemTypeIcon(
+    type: Items.ItemType
+): Int? {
+    return when (type) {
+        Items.ItemType.Helmet -> R.drawable.helmeticon
+        Items.ItemType.Amulet -> R.drawable.amuleticon
+        Items.ItemType.Shoulders -> R.drawable.shouldersicon
+        Items.ItemType.Hook -> R.drawable.hookicon
+        Items.ItemType.Armor -> R.drawable.armoricon
+        Items.ItemType.Weapon -> R.drawable.swordicon
+        Items.ItemType.Boots -> R.drawable.bootsicon
+        Items.ItemType.Leggings -> R.drawable.leggingsicon
+        Items.ItemType.Gloves -> R.drawable.glovesicon
+        Items.ItemType.Belt -> R.drawable.belticon
+        else -> null
     }
 }
 
@@ -462,7 +541,6 @@ private fun ItemInfoPanel(
 // ================================================================
 // INVENTORY ROW
 // ================================================================
-
 @Composable
 private fun InventoryItemRow(
     item: Items.Item,
@@ -479,14 +557,31 @@ private fun InventoryItemRow(
             .pointerInput(item) {
 
                 detectTapGestures(
+//                    onPress = {
+//
+//                        onItemHeld(item)
+//
+//                        try {
+//                            awaitRelease()
+//                        } finally {
+//                            onItemReleased()
+//                        }
+//                    }
                     onPress = {
+                        val releasedBeforeDelay =
+                            withTimeoutOrNull(50L) { // This is delay on "hold to see item info" on an item - how long the press should be before the info pops up
+                                awaitRelease()
+                                true
+                            } == true
 
-                        onItemHeld(item)
+                        if (!releasedBeforeDelay) {
+                            onItemHeld(item)
 
-                        try {
-                            awaitRelease()
-                        } finally {
-                            onItemReleased()
+                            try {
+                                awaitRelease()
+                            } finally {
+                                onItemReleased()
+                            }
                         }
                     }
                 )
