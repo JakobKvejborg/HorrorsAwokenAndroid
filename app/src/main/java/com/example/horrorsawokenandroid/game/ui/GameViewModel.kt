@@ -543,6 +543,53 @@ class GameViewModel(
         }
     }
 
+    fun equipItem(item: Items.Item) {
+        val player = _uiState.value.player
+
+        val newInventory = player.inventory.toMutableList()
+        val newEquipped = player.equippedItems.toMutableMap()
+
+        newInventory.remove(item)
+
+        // If something is already equipped there, put it back in inventory
+        val oldItem = newEquipped[item.type]
+        if (oldItem != null && oldItem != item) {
+            newInventory.add(oldItem)
+        }
+
+        newEquipped[item.type] = item
+
+        _uiState.update {
+            it.copy(
+                player = player.copy(
+                    inventory = newInventory,
+                    equippedItems = newEquipped
+                )
+            )
+        }
+    }
+
+    fun unequipItem(item: Items.Item) {
+        val player = _uiState.value.player
+
+        val newInventory = player.inventory.toMutableList()
+        val newEquipped = player.equippedItems.toMutableMap()
+
+        if (newEquipped[item.type] != item) return
+
+        newEquipped.remove(item.type)
+        newInventory.add(item)
+
+        _uiState.update {
+            it.copy(
+                player = player.copy(
+                    inventory = newInventory,
+                    equippedItems = newEquipped
+                )
+            )
+        }
+    }
+
     fun whereToGoBasedOnTheDirection(direction: String) {
         val currentAct = uiState.value.currentAct
         if (uiState.value.introMonstersAreCompleted) {

@@ -1159,7 +1159,7 @@ class Items {
                         "Cloak",
                         "Rags",
                         "Heavy Armor",
-                        "Damaged Armor",
+                        "Armor",
                         "Rusty Mail",
                         "Leather Armor"
                     ).random(random)
@@ -1250,7 +1250,7 @@ class Items {
                     1 -> listOf(
                         "Gloves",
                         "Leather Gloves",
-                        "Damaged Gloves",
+                        "Gloves",
                         "Worn Gloves"
                     ).random(random)
 

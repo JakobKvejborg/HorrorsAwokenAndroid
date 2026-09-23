@@ -2,6 +2,8 @@ package com.example.horrorsawokenandroid.game.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,14 +41,100 @@ import com.example.horrorsawokenandroid.R
 import com.example.horrorsawokenandroid.game.model.Items
 import com.example.horrorsawokenandroid.game.model.Player
 import kotlinx.coroutines.withTimeoutOrNull
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.zIndex
+import kotlin.math.roundToInt
 
 @Composable
 fun InventoryOverlay(
     player: Player,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    onEquipItem: (Items.Item) -> Unit,
+    onUnequipItem: (Items.Item) -> Unit
 ) {
     var heldItem by remember {
         mutableStateOf<Items.Item?>(null)
+    }
+
+    var draggedItem by remember {
+        mutableStateOf<Items.Item?>(null)
+    }
+
+    var draggedFromEquipment by remember {
+        mutableStateOf(false)
+    }
+
+    var dragPosition by remember {
+        mutableStateOf(Offset.Zero)
+    }
+
+    var inventoryBounds by remember {
+        mutableStateOf<Rect?>(null)
+    }
+
+    val equipmentBounds = remember {
+        mutableStateMapOf<Items.ItemType, Rect>()
+    }
+
+    fun startDrag(
+        item: Items.Item,
+        fromEquipment: Boolean,
+        position: Offset
+    ) {
+        // 1. Hide the item info card instantly when the drag starts
+        heldItem = null
+
+        // 2. Lock in the item data
+        draggedItem = item
+        draggedFromEquipment = fromEquipment
+
+        // 3. Set the initial draw location using the slot's absolute center position
+        dragPosition = position
+    }
+
+    fun updateDrag(delta: Offset) {
+        // Accumulate the finger movement changes to glide smoothly across the layout coordinate plane
+        dragPosition = Offset(
+            x = dragPosition.x + delta.x,
+            y = dragPosition.y + delta.y
+        )
+    }
+
+    fun finishDrag() {
+        val item = draggedItem ?: return
+
+        val equipmentTarget = equipmentBounds.entries
+            .firstOrNull {
+                val magneticDropZone = it.value.inflate(47f) // higher number = more magnetic
+                magneticDropZone.contains(dragPosition)
+//                it.value.contains(dragPosition)
+            }
+            ?.key
+
+        when {
+            // Inventory -> correct equipment slot
+            !draggedFromEquipment &&
+                    equipmentTarget == item.type -> {
+                onEquipItem(item)
+            }
+
+            // Equipment -> inventory
+            draggedFromEquipment &&
+                    inventoryBounds?.contains(dragPosition) == true -> {
+                onUnequipItem(item)
+            }
+        }
+
+        draggedItem = null
+        draggedFromEquipment = false
+        heldItem = null
     }
 
     Box(
@@ -56,8 +144,8 @@ fun InventoryOverlay(
             .padding(10.dp)
             .pointerInput(Unit) {
                 detectTapGestures {
-                    onClose() // This is empty - prevents the player from pressing buttons behind the inventory screen
-
+//                    // when this is empty it prevents the player from pressing buttons behind the inventory screen
+//                    onClose() // Insert this onClose() method to allow the player to close the inventory by pressing almost anywhere
                 }
             },
         contentAlignment = Alignment.Center
@@ -65,8 +153,8 @@ fun InventoryOverlay(
 
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.99f) // How wide the inventory screen is
-                .fillMaxHeight(0.92f) // How tall the inventory screen is
+                .fillMaxWidth(0.98f) // How wide the entire inventory screen is
+                .fillMaxHeight(0.90f) // How tall the entire inventory screen is
                 .background(
                     color = Color(0xFF16181C).copy(alpha = 0.85f), // This sets the transparency of the inventory background (higher = more transparent)
                     shape = RoundedCornerShape(12.dp)
@@ -99,14 +187,13 @@ fun InventoryOverlay(
 //                }
 //            }
 //
-//            Spacer(
-//                modifier = Modifier.height(4.dp)
-//            )
+            Spacer(
+                modifier = Modifier.height(19.dp)
+            )
 
             // =====================================================
             // EQUIPPED ITEMS
             // =====================================================
-
             Text(
                 text = "EQUIPPED",
                 color = Color.White,
@@ -118,12 +205,11 @@ fun InventoryOverlay(
                 modifier = Modifier.height(6.dp)
             )
 
-
              // The equipped area has a FIXED height. This prevents the inventory section from moving down when the player looks at an item
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(232.dp)
+                    .height(262.dp)
             ) {
 
                 Column(
@@ -138,38 +224,69 @@ fun InventoryOverlay(
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Helmet],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Helmet],
                             iconRes = R.drawable.helmeticon,
-                            label = "Helmet",
+                            label = "",
+                            slotType = Items.ItemType.Helmet,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Helmet   ,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Helmet] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
+
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Amulet],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Amulet],
                             iconRes = R.drawable.amuleticon,
-                            label = "Amulet",
+                            label = "",
+                            slotType = Items.ItemType.Amulet,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Amulet,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Amulet] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Shoulders],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Shoulders],
                             iconRes = R.drawable.shouldersicon,
-                            label = "Shoulders",
+                            label = "",
+                            slotType = Items.ItemType.Shoulders,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Shoulders,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Shoulders] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
                     }
 
@@ -185,38 +302,68 @@ fun InventoryOverlay(
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Hook],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Hook],
                             iconRes = R.drawable.hookicon,
-                            label = "Left Hand",
+                            label = "",
+                            slotType = Items.ItemType.Hook,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Hook,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Hook] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Armor],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Armor],
                             iconRes = R.drawable.armoricon,
-                            label = "Armor",
+                            label = "",
+                            slotType = Items.ItemType.Armor,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Armor,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Armor] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Weapon],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Weapon],
                             iconRes = R.drawable.swordicon,
-                            label = "Right Hand",
+                            label = "",
+                            slotType = Items.ItemType.Weapon,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Weapon,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Weapon] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
                     }
 
@@ -232,54 +379,93 @@ fun InventoryOverlay(
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Boots],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Boots],
                             iconRes = R.drawable.bootsicon,
-                            label = "Boots",
+                            label = "",
+                            slotType = Items.ItemType.Boots,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Boots,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Boots] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Leggings],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Leggings],
                             iconRes = R.drawable.leggingsicon,
-                            label = "Leggings",
+                            label = "",
+                            slotType = Items.ItemType.Leggings,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Leggings,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Leggings] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Gloves],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Gloves],
                             iconRes = R.drawable.glovesicon,
-                            label = "Gloves",
+                            label = "",
+                            slotType = Items.ItemType.Gloves,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Gloves,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Gloves] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
 
                         EquipmentSlot(
                             item = player.equippedItems[Items.ItemType.Belt],
+                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Belt],
                             iconRes = R.drawable.belticon,
-                            label = "Belt",
+                            label = "",
+                            slotType = Items.ItemType.Belt,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Belt,
+                            onBoundsChanged = {
+                                equipmentBounds[Items.ItemType.Belt] = it
+                            },
                             onItemHeld = {
                                 heldItem = it
                             },
                             onItemReleased = {
                                 heldItem = null
-                            }
+                            },
+                            onDragStart = ::startDrag,
+                            onDrag = ::updateDrag,
+                            onDragEnd = ::finishDrag,
+                            draggedItem = draggedItem,
                         )
                     }
                 }
-
 
                 // This panel overlays the equipped pictures.
                 if (heldItem != null) {
@@ -290,9 +476,9 @@ fun InventoryOverlay(
                 }
             }
 
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
+//            Spacer(
+//                modifier = Modifier.height(1.dp)
+//            )
 
             // =====================================================
             // INVENTORY
@@ -308,10 +494,13 @@ fun InventoryOverlay(
                 modifier = Modifier.height(4.dp)
             )
 
-            Box(
+            Box( // Inventory box
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
+                    .onGloballyPositioned {
+                        inventoryBounds = it.boundsInRoot()
+                    }
                     .background(
                         Color.Black.copy(alpha = 0.45f),
                         RoundedCornerShape(8.dp)
@@ -345,12 +534,17 @@ fun InventoryOverlay(
 
                             InventoryItemRow(
                                 item = item,
+                                isHeld = heldItem == item,
                                 onItemHeld = {
                                     heldItem = it
                                 },
                                 onItemReleased = {
                                     heldItem = null
-                                }
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                isBeingDragged = draggedItem == item
                             )
                         }
                     }
@@ -385,11 +579,50 @@ fun InventoryOverlay(
                     Text(
                         text = "CLOSE",
                         color = Color.White,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        style = androidx.compose.ui.text.TextStyle(
+                            shadow = androidx.compose.ui.graphics.Shadow(
+                                color = Color.White.copy(alpha = 0.60f), // Soft, light white opacity
+                                offset = Offset(0f, 0f), // Keeps the glow centered around the text
+                                blurRadius = 8f // Higher number = softer, wider glow spreading outward
+                            )
+                        )
                     )
                 }
             }
 
+        }
+
+        if (draggedItem != null) {
+            val icon = getItemTypeIcon(draggedItem!!.type)
+
+            if (icon != null) {
+                // 1. Force this wrapper box to fill the entire screen layout area
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(99f) // Keep it pushed completely above all screen text/panels
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .offset {
+                                IntOffset(
+                                    // 2. Subtract 36.dp to pull the exact center point right under your finger
+                                    x = dragPosition.x.roundToInt() - 36.dp.roundToPx(),
+                                    y = dragPosition.y.roundToInt() - 36.dp.roundToPx()
+                                )
+                            }
+                    ) {
+                        Image(
+                            painter = painterResource(id = icon),
+                            contentDescription = draggedItem!!.name,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -403,37 +636,82 @@ private fun EquipmentSlot(
     item: Items.Item?,
     iconRes: Int,
     label: String,
+    isHeld: Boolean,
+    slotType: Items.ItemType,
+    isDropTarget: Boolean,
+    onBoundsChanged: (Rect) -> Unit,
     onItemHeld: (Items.Item?) -> Unit,
-    onItemReleased: () -> Unit
+    onItemReleased: () -> Unit,
+    draggedItem: Items.Item?,
+    onDragStart: (Items.Item, Boolean, Offset) -> Unit,
+    onDrag: (Offset) -> Unit,
+    onDragEnd: () -> Unit
 ) {
+
+    var slotBounds by remember {
+        mutableStateOf<Rect?>(null)
+    }
+
     Box(
         modifier = Modifier
-            .size(72.dp)
+            .size(76.dp)
+            .onGloballyPositioned {
+                val bounds = it.boundsInRoot()
+                slotBounds = bounds
+                onBoundsChanged(bounds)
+            }
+            .background(
+                color = if (isDropTarget) Color(0xFF4CAF50).copy(alpha = 0.15f) else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            )
+            // Bright glowing green border around the box when the item box is a valid drop target
+            .border(
+                width = if (isDropTarget) 2.dp else 1.dp,
+                color = if (isDropTarget) Color(0xFF4CAF50) else Color.Gray.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .border(
+                width = if (isHeld) 2.dp else 0.dp,
+                color = if (isHeld) Color(0xFF4CAF50) else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            )
             .pointerInput(item) {
-
-                detectTapGestures(
-                    onPress = {
-
-                        onItemHeld(item)
-
-                        try {
-                            awaitRelease()
-                        } finally {
-                            onItemReleased()
-                        }
-                    }
-                )
-            },
+                if (item != null) {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = {
+                            onItemReleased() // Hide info panel instantly
+                            slotBounds?.let { bounds ->
+                                onDragStart(item, true, bounds.center) // 'true' because it IS equipment
+                            }
+                        },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            onDrag(dragAmount)
+                        },
+                        onDragEnd = { onDragEnd() },
+                        onDragCancel = { onDragEnd() }
+                    )
+                }
+            }
+            .clickable(
+                enabled = item != null,
+                onClick = {
+                    if (isHeld) onItemReleased() else onItemHeld(item)
+                }
+            ),
         contentAlignment = Alignment.Center
     ) {
-
-        Image(
-            painter = painterResource(id = iconRes),
-            contentDescription = label,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit,
-            alpha = if (item != null) 1f else 0.35f
-        )
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = label,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit,
+                alpha = when { // This sets the equipped item image to be transparent when dragged, fully visible when equipped, and transparent when no item is equipped
+                    item == null -> 0.35f
+                    item == draggedItem -> 0.35f
+                    else -> 1f
+                }
+            )
     }
 }
 
@@ -451,7 +729,7 @@ private fun ItemInfoPanel(
     Box(
         modifier = modifier
             .background(
-                Color.Black.copy(alpha = 0.48f),
+                Color.Black.copy(alpha = 0.58f), // This sets the transparency of the item info box
                 RoundedCornerShape(10.dp)
             )
             .padding(10.dp)
@@ -544,75 +822,81 @@ private fun getItemTypeIcon(
 @Composable
 private fun InventoryItemRow(
     item: Items.Item,
+    isHeld: Boolean,
     onItemHeld: (Items.Item?) -> Unit,
-    onItemReleased: () -> Unit
+    onItemReleased: () -> Unit,
+    isBeingDragged: Boolean,
+    onDragStart: (Items.Item, Boolean, Offset) -> Unit,
+    onDrag: (Offset) -> Unit,
+    onDragEnd: () -> Unit
 ) {
+    var rowBounds by remember {
+        mutableStateOf<Rect?>(null)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .onGloballyPositioned {
+                rowBounds = it.boundsInRoot()
+            }
             .background(
                 Color.White.copy(alpha = 0.06f),
                 RoundedCornerShape(6.dp)
             )
+            .border(
+                width = if (isHeld) 2.dp else 0.dp,
+                color = if (isHeld) Color(0xFF4CAF50) else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            )
             .pointerInput(item) {
-
-                detectTapGestures(
-//                    onPress = {
-//
-//                        onItemHeld(item)
-//
-//                        try {
-//                            awaitRelease()
-//                        } finally {
-//                            onItemReleased()
-//                        }
-//                    }
-                    onPress = {
-                        val releasedBeforeDelay =
-                            withTimeoutOrNull(50L) { // This is delay on "hold to see item info" on an item - how long the press should be before the info pops up
-                                awaitRelease()
-                                true
-                            } == true
-
-                        if (!releasedBeforeDelay) {
-                            onItemHeld(item)
-
-                            try {
-                                awaitRelease()
-                            } finally {
-                                onItemReleased()
-                            }
+                detectDragGesturesAfterLongPress(
+                    onDragStart = {
+                        onItemReleased() // Hide info panel instantly
+                        rowBounds?.let { bounds ->
+                            onDragStart(item, false, bounds.center) // false because it is NOT equipment
                         }
-                    }
+                    },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        onDrag(dragAmount)
+                    },
+                    onDragEnd = { onDragEnd() },
+                    onDragCancel = { onDragEnd() }
                 )
             }
+            .clickable(
+                onClick = {
+                    if (isHeld) onItemReleased() else onItemHeld(item)
+                }
+            )
             .padding(
                 horizontal = 8.dp,
                 vertical = 7.dp
             )
     ) {
+        if (!isBeingDragged) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.name,
+                    modifier = Modifier.weight(1f),
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
 
-            Text(
-                text = item.name,
-                modifier = Modifier.weight(1f),
-                color = Color.White,
-                fontSize = 14.sp
-            )
-
-            Spacer(
-                modifier = Modifier.width(8.dp)
-            )
-
-            Text(
-                text = item.type.name,
-                color = Color.Gray,
-                fontSize = 11.sp
-            )
+                Text(
+                    text = item.type.name,
+                    color = Color.Gray,
+                    fontSize = 11.sp
+                )
+            }
         }
     }
 }

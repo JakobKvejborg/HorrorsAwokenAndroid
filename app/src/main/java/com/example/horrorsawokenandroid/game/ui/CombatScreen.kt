@@ -47,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.font.FontFamily
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -181,9 +182,9 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 .background(
                                     Brush.verticalGradient(
                                         colors = listOf(
-                                            Color(0xFF7A1212), // health bar color at the top
-                                            Color(0xFF891515), // middle
-                                            Color(0xFF4A0000) // bottom
+                                            Color(0xFF1C0404), // health bar color at the top
+                                            Color(0xFFA61A1A), // middle
+                                            Color(0xFF1C0404) // bottom
                                         )
                                     ),
                                     RoundedCornerShape(3.dp)
@@ -502,8 +503,17 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
                         Text(
                             text = " TOWN",
-                            color = Color(0xFF67A4E2),
-                            fontWeight = FontWeight.Bold
+                            // 👇 FIX: Use a true Electric Cyan/Blue for that neon glow effect
+                            color = Color(0xFF00D2FF),
+                            fontWeight = FontWeight.Bold,
+                            style = TextStyle(
+                                fontSize = 17.sp,
+                                shadow = androidx.compose.ui.graphics.Shadow(
+                                    color = Color.White.copy(alpha = 0.70f),
+                                    offset = androidx.compose.ui.geometry.Offset(0f, 0f),
+                                    blurRadius = 8f
+                                )
+                            )
                         )
                     }
                 }
@@ -526,7 +536,15 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         Text(
                             text = "CONTINUE ",
                             color = Color.Green,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            style = TextStyle(
+                                fontSize = 17.sp,
+                                shadow = androidx.compose.ui.graphics.Shadow(
+                                    color = Color.White.copy(alpha = 0.60f), // Soft, light white opacity
+                                    offset = androidx.compose.ui.geometry.Offset(0f, 0f), // Keeps the glow centered around the text
+                                    blurRadius = 8f // Higher number = softer, wider glow spreading outward
+                                )
+                            )
                         )
 
                         Text(
@@ -548,7 +566,9 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 player = state.player,
                 onClose = {
                     viewModel.closeInventory()
-                }
+                },
+                onEquipItem = viewModel::equipItem,
+                onUnequipItem = viewModel::unequipItem
             )
         }
 
