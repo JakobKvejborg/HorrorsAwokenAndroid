@@ -110,6 +110,11 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             contentScale = ContentScale.Crop
         )
 
+        Image(
+            painter = painterResource(id = R.drawable.bag2), // The backpack inventory image
+            contentDescription = "Backpack"
+        )
+
         // Hero image in the background
         Image(
             painter = painterResource(id = R.drawable.hero),
@@ -365,7 +370,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             // Inventory button // TODO make this better
             TextButton(
                 onClick = {
-                    viewModel.openInventory()
+                    viewModel.openInventory() // This opens the inventory screen
                 }
             ) {
                 Text(

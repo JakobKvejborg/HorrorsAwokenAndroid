@@ -63,6 +63,14 @@ fun InventoryOverlay(
         mutableStateOf<Items.Item?>(null)
     }
 
+    fun openInventoryInfoBox(item: Items.Item) {
+        heldItem = item
+    }
+
+    fun closeInventoryInfoBox() {
+        heldItem = null
+    }
+
     var draggedItem by remember {
         mutableStateOf<Items.Item?>(null)
     }
@@ -143,7 +151,7 @@ fun InventoryOverlay(
 //            .background(Color.Transparent)
             .padding(10.dp)
             .pointerInput(Unit) {
-                detectTapGestures {
+                detectTapGestures { // What happens when there's pressed outside the inventory screen
 //                    // when this is empty it prevents the player from pressing buttons behind the inventory screen
 //                    onClose() // Insert this onClose() method to allow the player to close the inventory by pressing almost anywhere
                 }

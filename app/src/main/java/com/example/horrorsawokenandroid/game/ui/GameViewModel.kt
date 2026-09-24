@@ -535,6 +535,7 @@ class GameViewModel(
         _uiState.update {
             it.copy(inventoryOpen = true)
         }
+        sounds.playInventorySound()
     }
 
     fun closeInventory() {
@@ -545,6 +546,7 @@ class GameViewModel(
 
     fun equipItem(item: Items.Item) {
         val player = _uiState.value.player
+        soundsForEquippingItems()
 
         val newInventory = player.inventory.toMutableList()
         val newEquipped = player.equippedItems.toMutableMap()
@@ -571,6 +573,7 @@ class GameViewModel(
 
     fun unequipItem(item: Items.Item) {
         val player = _uiState.value.player
+        sounds.playLootItemsSound()
 
         val newInventory = player.inventory.toMutableList()
         val newEquipped = player.equippedItems.toMutableMap()
@@ -588,6 +591,11 @@ class GameViewModel(
                 )
             )
         }
+    }
+
+    // TODO maybe a sound for each different item type
+    fun soundsForEquippingItems() {
+        sounds.playEquipSound()
     }
 
     fun whereToGoBasedOnTheDirection(direction: String) {
