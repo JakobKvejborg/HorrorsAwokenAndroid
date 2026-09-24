@@ -364,10 +364,7 @@ class GameViewModel(
         player.resetRoarBuff()
         player.resetGuardBuff()
 
-        val (expGained, goldGained, updatedPlayer) = playerGainsXPandGold(
-            monster,
-            player
-        ) // player gains xp and gold after a battle
+        val (expGained, goldGained, updatedPlayer) = playerGainsXPandGold(monster, player) // player gains xp and gold after a battle
 
         checkIfPlayerLevelsUp(updatedPlayer) // check if player levels up after a battle
         playerRegeneratesHealthBasedOnRegen(player, updatedPlayer)
@@ -548,26 +545,31 @@ class GameViewModel(
         val player = _uiState.value.player
         soundsForEquippingItems()
 
-        val newInventory = player.inventory.toMutableList()
-        val newEquipped = player.equippedItems.toMutableMap()
+        val oldItem = player.equippedItems[item.type]
 
-        newInventory.remove(item)
+        val updatedPlayer = player.copy(
+            damage = player.damage - (oldItem?.damage ?: 0) + item.damage,
+            armor = player.armor - (oldItem?.armor ?: 0) + item.armor,
+            maxHealth = player.maxHealth - (oldItem?.health ?: 0) + item.health,
+            dodgeChance = player.dodgeChance - (oldItem?.dodgeChance ?: 0) + item.dodgeChance,
+            strength = player.strength - (oldItem?.strength ?: 0) + item.strength,
+            level = player.level - (oldItem?.skillLevel ?: 0) + item.skillLevel,
+            regeneration = player.regeneration - (oldItem?.regeneration ?: 0) + item.regeneration,
+            critChance = player.critChance - (oldItem?.critChance ?: 0) + item.critChance,
+            lifesteal = player.lifesteal - (oldItem?.lifesteal ?: 0) + item.lifesteal,
+            critDamage = player.critDamage - (oldItem?.critDamage ?: 0) + item.critDamage
+        )
 
-        // If something is already equipped there, put it back in inventory
-        val oldItem = newEquipped[item.type]
-        if (oldItem != null && oldItem != item) {
-            newInventory.add(oldItem)
+        updatedPlayer.inventory.remove(item)
+
+        if (oldItem != null) {
+            updatedPlayer.inventory.add(oldItem)
         }
 
-        newEquipped[item.type] = item
+        updatedPlayer.equippedItems[item.type] = item
 
         _uiState.update {
-            it.copy(
-                player = player.copy(
-                    inventory = newInventory,
-                    equippedItems = newEquipped
-                )
-            )
+            it.copy(player = updatedPlayer)
         }
     }
 
@@ -575,23 +577,29 @@ class GameViewModel(
         val player = _uiState.value.player
         sounds.playLootItemsSound()
 
-        val newInventory = player.inventory.toMutableList()
-        val newEquipped = player.equippedItems.toMutableMap()
+        if (player.equippedItems[item.type] != item) return
 
-        if (newEquipped[item.type] != item) return
+        val updatedPlayer = player.copy(
+            damage = player.damage - item.damage,
+            armor = player.armor - item.armor,
+            maxHealth = player.maxHealth - item.health,
+            dodgeChance = player.dodgeChance - item.dodgeChance,
+            strength = player.strength - item.strength,
+            level = player.level - item.skillLevel,
+            regeneration = player.regeneration - item.regeneration,
+            critChance = player.critChance - item.critChance,
+            lifesteal = player.lifesteal - item.lifesteal,
+            critDamage = player.critDamage - item.critDamage
+        )
 
-        newEquipped.remove(item.type)
-        newInventory.add(item)
+        updatedPlayer.equippedItems.remove(item.type)
+        updatedPlayer.inventory.add(item)
 
         _uiState.update {
-            it.copy(
-                player = player.copy(
-                    inventory = newInventory,
-                    equippedItems = newEquipped
-                )
-            )
+            it.copy(player = updatedPlayer)
         }
     }
+
 
     // TODO maybe a sound for each different item type
     fun soundsForEquippingItems() {

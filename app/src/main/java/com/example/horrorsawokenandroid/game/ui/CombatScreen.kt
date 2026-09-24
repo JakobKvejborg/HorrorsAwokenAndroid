@@ -110,11 +110,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             contentScale = ContentScale.Crop
         )
 
-        Image(
-            painter = painterResource(id = R.drawable.bag2), // The backpack inventory image
-            contentDescription = "Backpack"
-        )
-
         // Hero image in the background
         Image(
             painter = painterResource(id = R.drawable.hero),
@@ -125,6 +120,30 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 .align(Alignment.BottomStart)
                 .offset(x = (-20).dp, y = (-50).dp),
             contentScale = ContentScale.Fit
+        )
+
+        // Ruby dragon stone to upgrade the smith, given from Act4Quest1
+        if (state.act4QuestIsFinished && state.act4QuestRubyHasBeenGivenToSmith) {
+            Image(
+                painter = painterResource(id = R.drawable.ruby), // The backpack inventory image
+                contentDescription = "Ruby Dragon Stone",
+                modifier = Modifier
+                    .offset(y = 490.dp, x= 10.dp)
+                    .size(50.dp)
+                    .clickable {
+                    }
+            )
+        }
+
+        // Inventory backpack. Click on this image to open the Inventory screen
+        Image(
+            painter = painterResource(id = R.drawable.bag2), // The backpack inventory image
+            contentDescription = "Backpack",
+            modifier = Modifier
+                .offset(y = 490.dp, x = 80.dp)
+                .clickable {
+                    viewModel.openInventory()
+                }
         )
 
         // Everything else goes on top of the background and hero image
@@ -365,20 +384,8 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp)) // This forces the Encounter Log downwards on the screen
 
-            // Inventory button // TODO make this better
-            TextButton(
-                onClick = {
-                    viewModel.openInventory() // This opens the inventory screen
-                }
-            ) {
-                Text(
-                    text = "INVENTORY",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
 
             // COMBAT ENCOUNTER LOG
             Spacer(modifier = Modifier.weight(1f))
@@ -565,7 +572,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             }
         }
 
-        // Inventory
+        // Inventory overlay
         if (state.inventoryOpen) {
             InventoryOverlay(
                 player = state.player,

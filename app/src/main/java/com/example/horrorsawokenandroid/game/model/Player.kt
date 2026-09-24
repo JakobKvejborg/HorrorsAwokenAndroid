@@ -1,11 +1,10 @@
 package com.example.horrorsawokenandroid.game.model
 
-/**
- * Ported from Player.cs. Constructor order per your original:
- * Player(name, maxHealth, currentHealth, damage, strength, lifesteal, armor, dodge,
- *        gold, experience, level, crit, regen, critDamage)
- * e.g. Player("Hero", 40, 40, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 150)
- */
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
+
 data class Player(
     var name: String,
     var maxHealth: Int,
@@ -23,8 +22,8 @@ data class Player(
     var critDamage: Int = 150,    // percent, e.g. 150 = 1.5x
 
     // Inventory
-    val inventory: MutableList<Items.Item> = mutableListOf(),
-    val equippedItems: MutableMap<Items.ItemType, Items.Item> = mutableMapOf(),
+    val inventory: SnapshotStateList<Items.Item> = mutableStateListOf(),
+    val equippedItems: SnapshotStateMap<Items.ItemType, Items.Item> = mutableStateMapOf(),
 
     var goldFind: Int = 1,
     var playerIsOnLowHealth: Int = 20, // hp threshold for glow/guard
@@ -60,6 +59,63 @@ data class Player(
 
     fun calculateTotalDamage(): Int {
         return 1 + (damage / 2) + (strength / 6) * (level / 3)
+    }
+
+    fun equipItem(item: Items.Item) {
+        // Remove old item of the same type and subtract its bonuses
+        val oldItem = equippedItems[item.type]
+        val wasAtOneHealth = currentHealth < 2  // If the player has 1 HP, keep them at 1 HP after equipment changes
+
+        if (oldItem != null) {
+            damage -= oldItem.damage
+            armor -= oldItem.armor
+            maxHealth -= oldItem.health
+            currentHealth -= oldItem.health
+            dodgeChance -= oldItem.dodgeChance
+            strength -= oldItem.strength
+            level -= oldItem.skillLevel
+            regeneration -= oldItem.regeneration
+            critChance -= oldItem.critChance
+            lifesteal -= oldItem.lifesteal
+            critDamage -= oldItem.critDamage
+        }
+
+        // Apply new item bonuses
+        damage += item.damage
+        armor += item.armor
+        maxHealth += item.health
+        currentHealth += item.health
+        dodgeChance += item.dodgeChance
+        strength += item.strength
+        level += item.skillLevel
+        regeneration += item.regeneration
+        critChance += item.critChance
+        lifesteal += item.lifesteal
+        critDamage += item.critDamage
+
+        if (wasAtOneHealth) { currentHealth = 1 } // If the player was at 1 HP, they remain at exactly 1 HP
+    }
+
+    fun unequipItem(item: Items.Item) {
+        if (equippedItems[item.type] != item) return
+
+        val wasAtOneHealth = currentHealth < 2
+
+        damage -= item.damage
+        armor -= item.armor
+        maxHealth -= item.health
+        currentHealth -= item.health
+        dodgeChance -= item.dodgeChance
+        strength -= item.strength
+        level -= item.skillLevel
+        regeneration -= item.regeneration
+        critChance -= item.critChance
+        lifesteal -= item.lifesteal
+        critDamage -= item.critDamage
+
+        equippedItems.remove(item.type)
+
+        if (currentHealth < 1) { currentHealth = 1 }
     }
 
     fun turnOnRoarBuff() {

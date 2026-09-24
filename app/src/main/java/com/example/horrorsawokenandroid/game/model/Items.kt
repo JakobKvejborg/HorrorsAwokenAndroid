@@ -132,9 +132,7 @@ class Items {
         )
     }
 
-    /**
-     * Useful when a specific equipment slot is needed.
-     */
+     // Useful when a specific equipment slot is needed.
     fun generateLoot(
         act: Int,
         type: ItemType
@@ -153,10 +151,6 @@ class Items {
     // ============================================================
     // QUALITY
     // ============================================================
-
-    /**
-     * Exact same rarity chances as the old ImprovedRandomItem.
-     */
     private fun generateQuality(): Quality {
 
         val roll = random.nextDouble(0.0, 100.0)
@@ -190,15 +184,12 @@ class Items {
     // ============================================================
     // ITEM TYPE DISTRIBUTION
     // ============================================================
-
     private fun generateItemType(act: Int): ItemType {
-
         /*
          * The weapon pool is intentionally not dominant.
          * Armor pieces make up a large part of the loot pool,
          * just like the old game.
          */
-
         val pool = when (act) {
 
             1 -> listOf(

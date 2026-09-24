@@ -25,9 +25,13 @@ data class GameUiState(
     var isAct3BossDefeated: Boolean = false,
     var isAct5BossDefeated: Boolean = false,
     var lastDirectionChosenByPlayer: String = "",
+    var firstTimeTownVisitedMusic: Boolean = true,
+    var currentAct: Int = 1,
+
+    // Quests
     var act1Quest1Started: Boolean = false,
     var act1Quest1IsFinished: Boolean = false,
-    var currentAct: Int = 1,
-    var firstTimeTownVisitedMusic: Boolean = true,
+    var act4QuestIsFinished: Boolean = false,
+    var act4QuestRubyHasBeenGivenToSmith: Boolean = false,
     var sophiaIsDead: Boolean = true,
 )

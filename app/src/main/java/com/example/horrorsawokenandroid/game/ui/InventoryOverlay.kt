@@ -154,6 +154,7 @@ fun InventoryOverlay(
                 detectTapGestures { // What happens when there's pressed outside the inventory screen
 //                    // when this is empty it prevents the player from pressing buttons behind the inventory screen
 //                    onClose() // Insert this onClose() method to allow the player to close the inventory by pressing almost anywhere
+                    closeInventoryInfoBox()
                 }
             },
         contentAlignment = Alignment.Center
@@ -213,7 +214,7 @@ fun InventoryOverlay(
                 modifier = Modifier.height(6.dp)
             )
 
-             // The equipped area has a FIXED height. This prevents the inventory section from moving down when the player looks at an item
+            // The equipped area has a FIXED height. This prevents the inventory section from moving down when the player looks at an item
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -236,15 +237,17 @@ fun InventoryOverlay(
                             iconRes = R.drawable.helmeticon,
                             label = "",
                             slotType = Items.ItemType.Helmet,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Helmet   ,
+                            isDropTarget = draggedItem?.type == Items.ItemType.Helmet,
                             onBoundsChanged = {
                                 equipmentBounds[Items.ItemType.Helmet] = it
                             },
                             onItemHeld = {
-                                heldItem = it
+                                it?.let { item ->
+                                    openInventoryInfoBox(item)
+                                }
                             },
                             onItemReleased = {
-                                heldItem = null
+                                closeInventoryInfoBox()
                             },
                             onDragStart = ::startDrag,
                             onDrag = ::updateDrag,
@@ -687,9 +690,12 @@ private fun EquipmentSlot(
                 if (item != null) {
                     detectDragGesturesAfterLongPress(
                         onDragStart = {
-                            onItemReleased() // Hide info panel instantly
                             slotBounds?.let { bounds ->
-                                onDragStart(item, true, bounds.center) // 'true' because it IS equipment
+                                onDragStart(
+                                    item,
+                                    true,
+                                    bounds.center
+                                ) // 'true' because it IS equipment
                             }
                         },
                         onDrag = { change, dragAmount ->
@@ -703,23 +709,27 @@ private fun EquipmentSlot(
             }
             .clickable(
                 enabled = item != null,
-                onClick = {
-                    if (isHeld) onItemReleased() else onItemHeld(item)
+                onClick = { // This opens and closes the item info box when an equipped item is clicked
+                    if (isHeld) {
+                      onItemReleased()
+                    } else {
+                        onItemHeld(item)
+                    }
                 }
             ),
         contentAlignment = Alignment.Center
     ) {
-            Image(
-                painter = painterResource(id = iconRes),
-                contentDescription = label,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit,
-                alpha = when { // This sets the equipped item image to be transparent when dragged, fully visible when equipped, and transparent when no item is equipped
-                    item == null -> 0.35f
-                    item == draggedItem -> 0.35f
-                    else -> 1f
-                }
-            )
+        Image(
+            painter = painterResource(id = iconRes),
+            contentDescription = label,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Fit,
+            alpha = when { // This sets the equipped item image to be transparent when dragged, fully visible when equipped, and transparent when no item is equipped
+                item == null -> 0.35f
+                item == draggedItem -> 0.35f
+                else -> 1f
+            }
+        )
     }
 }
 
@@ -862,7 +872,11 @@ private fun InventoryItemRow(
                     onDragStart = {
                         onItemReleased() // Hide info panel instantly
                         rowBounds?.let { bounds ->
-                            onDragStart(item, false, bounds.center) // false because it is NOT equipment
+                            onDragStart(
+                                item,
+                                false,
+                                bounds.center
+                            ) // false because it is NOT equipment
                         }
                     },
                     onDrag = { change, dragAmount ->
@@ -875,7 +889,7 @@ private fun InventoryItemRow(
             }
             .clickable(
                 onClick = {
-                    if (isHeld) onItemReleased() else onItemHeld(item)
+                    if (isHeld) onItemReleased() else onItemHeld(item) // Open/close the inventory info box by clicking the item
                 }
             )
             .padding(
