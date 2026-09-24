@@ -50,6 +50,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.roundToInt
 
 @Composable
@@ -59,37 +60,17 @@ fun InventoryOverlay(
     onEquipItem: (Items.Item) -> Unit,
     onUnequipItem: (Items.Item) -> Unit
 ) {
-    var heldItem by remember {
-        mutableStateOf<Items.Item?>(null)
-    }
-
-    fun openInventoryInfoBox(item: Items.Item) {
-        heldItem = item
-    }
-
-    fun closeInventoryInfoBox() {
-        heldItem = null
-    }
-
-    var draggedItem by remember {
-        mutableStateOf<Items.Item?>(null)
-    }
-
-    var draggedFromEquipment by remember {
-        mutableStateOf(false)
-    }
-
-    var dragPosition by remember {
-        mutableStateOf(Offset.Zero)
-    }
-
-    var inventoryBounds by remember {
-        mutableStateOf<Rect?>(null)
-    }
-
-    val equipmentBounds = remember {
-        mutableStateMapOf<Items.ItemType, Rect>()
-    }
+    var heldItem by remember { mutableStateOf<Items.Item?>(null) }
+    fun openInventoryInfoBox(item: Items.Item) { heldItem = item }
+    fun closeInventoryInfoBox() { heldItem = null }
+    var draggedItem by remember { mutableStateOf<Items.Item?>(null) }
+    var draggedFromEquipment by remember { mutableStateOf(false) }
+    var dragPosition by remember { mutableStateOf(Offset.Zero) }
+    var inventoryBounds by remember { mutableStateOf<Rect?>(null) }
+    val equipmentBounds = remember { mutableStateMapOf<Items.ItemType, Rect>() }
+    var trashBounds by remember { mutableStateOf<Rect?>(null) }
+    val magneticDropZone = 47f
+    val isOverTrash = trashBounds?.inflate(magneticDropZone)?.contains(dragPosition) == true
 
     fun startDrag(
         item: Items.Item,
@@ -105,6 +86,10 @@ fun InventoryOverlay(
 
         // 3. Set the initial draw location using the slot's absolute center position
         dragPosition = position
+
+        if (item.levelRequirement > player.level) {
+            // TODO play a sound when item level requirement is higher than player level
+        }
     }
 
     fun updateDrag(delta: Offset) {
@@ -118,26 +103,32 @@ fun InventoryOverlay(
     fun finishDrag() {
         val item = draggedItem ?: return
 
+        // Trashcan. If the dragged item is positioned over the trash can, deletes/removes the item from inventory
+        if (trashBounds?.inflate(magneticDropZone)?.contains(dragPosition) == true) {
+            player.inventory.remove(item) // Remove the item from the inventory.
+
+            // Stop dragging.
+            draggedItem = null
+            heldItem = null
+            draggedFromEquipment = false
+
+            return
+        }
+
         val equipmentTarget = equipmentBounds.entries
             .firstOrNull {
-                val magneticDropZone = it.value.inflate(47f) // higher number = more magnetic
-                magneticDropZone.contains(dragPosition)
-//                it.value.contains(dragPosition)
+                it.value
+                    .inflate(magneticDropZone)
+                    .contains(dragPosition)
             }
             ?.key
 
-        when {
-            // Inventory -> correct equipment slot
-            !draggedFromEquipment &&
-                    equipmentTarget == item.type -> {
-                onEquipItem(item)
-            }
-
+        when { // Inventory -> correct equipment slot
+            !draggedFromEquipment && equipmentTarget == item.type && item.levelRequirement <= player.level
+                -> { onEquipItem(item) }
             // Equipment -> inventory
-            draggedFromEquipment &&
-                    inventoryBounds?.contains(dragPosition) == true -> {
-                onUnequipItem(item)
-            }
+            draggedFromEquipment && inventoryBounds?.contains(dragPosition) == true
+                -> { onUnequipItem(item) }
         }
 
         draggedItem = null
@@ -566,7 +557,7 @@ fun InventoryOverlay(
 //            Spacer(modifier = Modifier.height(1.dp))
 
             // =====================================================
-            // FOOTER / CLOSE BUTTON
+            // FOOTER / CLOSE BUTTON + TRASHCAN
             // =====================================================
             Row(
                 modifier = Modifier
@@ -574,6 +565,33 @@ fun InventoryOverlay(
                     .height(35.dp), // Sets the total height of the footer
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
+                // TRASH CAN - BOTTOM LEFT
+                Box(
+                    modifier = Modifier
+                        .size(35.dp)
+                        .offset(x = 10.dp)
+                        .onGloballyPositioned {
+                            trashBounds = it.boundsInRoot()
+                        }
+                        .pointerInput(Unit) {
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image( // trashcan image trash image
+                        painter = painterResource(id = R.drawable.trash),
+                        contentDescription = "Trash",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                // Pushes CLOSE all the way to the right
+                Spacer(
+                    modifier = Modifier.weight(1f)
+                )
+
+                // CLOSE BUTTON - BOTTOM RIGHT
                 Text(
                     text = "",
                     modifier = Modifier.weight(1f),
@@ -625,19 +643,26 @@ fun InventoryOverlay(
                                 )
                             }
                     ) {
-                        Image(
+                        Image( // The image of the dragged item
                             painter = painterResource(id = icon),
                             contentDescription = draggedItem!!.name,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
                         )
+                        // Red overlay if the item is held over the trash item image box
+                        if (isOverTrash && !draggedFromEquipment) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Red.copy(alpha = 0.25f))
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
-
 
 // ================================================================
 // EQUIPMENT SLOT

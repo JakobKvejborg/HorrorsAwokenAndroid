@@ -61,63 +61,6 @@ data class Player(
         return 1 + (damage / 2) + (strength / 6) * (level / 3)
     }
 
-    fun equipItem(item: Items.Item) {
-        // Remove old item of the same type and subtract its bonuses
-        val oldItem = equippedItems[item.type]
-        val wasAtOneHealth = currentHealth < 2  // If the player has 1 HP, keep them at 1 HP after equipment changes
-
-        if (oldItem != null) {
-            damage -= oldItem.damage
-            armor -= oldItem.armor
-            maxHealth -= oldItem.health
-            currentHealth -= oldItem.health
-            dodgeChance -= oldItem.dodgeChance
-            strength -= oldItem.strength
-            level -= oldItem.skillLevel
-            regeneration -= oldItem.regeneration
-            critChance -= oldItem.critChance
-            lifesteal -= oldItem.lifesteal
-            critDamage -= oldItem.critDamage
-        }
-
-        // Apply new item bonuses
-        damage += item.damage
-        armor += item.armor
-        maxHealth += item.health
-        currentHealth += item.health
-        dodgeChance += item.dodgeChance
-        strength += item.strength
-        level += item.skillLevel
-        regeneration += item.regeneration
-        critChance += item.critChance
-        lifesteal += item.lifesteal
-        critDamage += item.critDamage
-
-        if (wasAtOneHealth) { currentHealth = 1 } // If the player was at 1 HP, they remain at exactly 1 HP
-    }
-
-    fun unequipItem(item: Items.Item) {
-        if (equippedItems[item.type] != item) return
-
-        val wasAtOneHealth = currentHealth < 2
-
-        damage -= item.damage
-        armor -= item.armor
-        maxHealth -= item.health
-        currentHealth -= item.health
-        dodgeChance -= item.dodgeChance
-        strength -= item.strength
-        level -= item.skillLevel
-        regeneration -= item.regeneration
-        critChance -= item.critChance
-        lifesteal -= item.lifesteal
-        critDamage -= item.critDamage
-
-        equippedItems.remove(item.type)
-
-        if (currentHealth < 1) { currentHealth = 1 }
-    }
-
     fun turnOnRoarBuff() {
         isRoarActive = true
         dodgeChance += roarBuffDodge
@@ -153,5 +96,44 @@ data class Player(
         currentHealth = maxHealth // this heals the player to full hp on level-up
 
         return true
+    }
+
+    fun equipItem(item: Items.Item) {
+        val oldItem = equippedItems[item.type]
+
+        damage = damage - (oldItem?.damage ?: 0) + item.damage
+        armor = armor - (oldItem?.armor ?: 0) + item.armor
+        maxHealth = maxHealth - (oldItem?.health ?: 0) + item.health
+        dodgeChance = dodgeChance - (oldItem?.dodgeChance ?: 0) + item.dodgeChance
+        strength = strength - (oldItem?.strength ?: 0) + item.strength
+        level = level - (oldItem?.skillLevel ?: 0) + item.skillLevel
+        regeneration = regeneration - (oldItem?.regeneration ?: 0) + item.regeneration
+        critChance = critChance - (oldItem?.critChance ?: 0) + item.critChance
+        lifesteal = lifesteal - (oldItem?.lifesteal ?: 0) + item.lifesteal
+        critDamage = critDamage - (oldItem?.critDamage ?: 0) + item.critDamage
+
+        inventory.remove(item)
+
+        if (oldItem != null) { inventory.add(oldItem) } // If there already was an equipped item of the same type, add the item to inventory
+
+        equippedItems[item.type] = item
+    }
+
+    fun unEquipItem(item: Items.Item) {
+        if (equippedItems[item.type] != item) return
+
+        damage -= item.damage
+        armor -= item.armor
+        maxHealth -= item.health
+        dodgeChance -= item.dodgeChance
+        strength -= item.strength
+        level -= item.skillLevel
+        regeneration -= item.regeneration
+        critChance -= item.critChance
+        lifesteal -= item.lifesteal
+        critDamage -= item.critDamage
+
+        equippedItems.remove(item.type)
+        inventory.add(item)
     }
 }

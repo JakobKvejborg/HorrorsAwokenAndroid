@@ -543,63 +543,29 @@ class GameViewModel(
 
     fun equipItem(item: Items.Item) {
         val player = _uiState.value.player
+
         soundsForEquippingItems()
 
-        val oldItem = player.equippedItems[item.type]
-
-        val updatedPlayer = player.copy(
-            damage = player.damage - (oldItem?.damage ?: 0) + item.damage,
-            armor = player.armor - (oldItem?.armor ?: 0) + item.armor,
-            maxHealth = player.maxHealth - (oldItem?.health ?: 0) + item.health,
-            dodgeChance = player.dodgeChance - (oldItem?.dodgeChance ?: 0) + item.dodgeChance,
-            strength = player.strength - (oldItem?.strength ?: 0) + item.strength,
-            level = player.level - (oldItem?.skillLevel ?: 0) + item.skillLevel,
-            regeneration = player.regeneration - (oldItem?.regeneration ?: 0) + item.regeneration,
-            critChance = player.critChance - (oldItem?.critChance ?: 0) + item.critChance,
-            lifesteal = player.lifesteal - (oldItem?.lifesteal ?: 0) + item.lifesteal,
-            critDamage = player.critDamage - (oldItem?.critDamage ?: 0) + item.critDamage
-        )
-
-        updatedPlayer.inventory.remove(item)
-
-        if (oldItem != null) {
-            updatedPlayer.inventory.add(oldItem)
-        }
-
-        updatedPlayer.equippedItems[item.type] = item
+        val updatedPlayer = player.copy()
+        updatedPlayer.equipItem(item) // player stats are updated after equipping an item
 
         _uiState.update {
             it.copy(player = updatedPlayer)
         }
     }
 
-    fun unequipItem(item: Items.Item) {
+    fun unEquipItem(item: Items.Item) {
         val player = _uiState.value.player
+
         sounds.playLootItemsSound()
 
-        if (player.equippedItems[item.type] != item) return
-
-        val updatedPlayer = player.copy(
-            damage = player.damage - item.damage,
-            armor = player.armor - item.armor,
-            maxHealth = player.maxHealth - item.health,
-            dodgeChance = player.dodgeChance - item.dodgeChance,
-            strength = player.strength - item.strength,
-            level = player.level - item.skillLevel,
-            regeneration = player.regeneration - item.regeneration,
-            critChance = player.critChance - item.critChance,
-            lifesteal = player.lifesteal - item.lifesteal,
-            critDamage = player.critDamage - item.critDamage
-        )
-
-        updatedPlayer.equippedItems.remove(item.type)
-        updatedPlayer.inventory.add(item)
+        val updatedPlayer = player.copy()
+        updatedPlayer.unEquipItem(item) // player stats are updated after unequipping an item
 
         _uiState.update {
             it.copy(player = updatedPlayer)
         }
     }
-
 
     // TODO maybe a sound for each different item type
     fun soundsForEquippingItems() {

@@ -45,9 +45,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.text.font.FontFamily
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -364,13 +362,13 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                             modifier = Modifier
                                 .size(300.dp)
                                 .offset(x = monsterShake.value.dp),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.TopCenter
                         ) {
                             state.monster?.imageRes?.let { imageRes ->
                                 Image(
                                     painter = painterResource(id = imageRes),
                                     contentDescription = state.monster?.name,
-                                    modifier = Modifier.size(300.dp),
+                                    modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Fit
                                 )
                             }
@@ -495,7 +493,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.CenterStart)
-                        .offset(y = 20.dp)
+                        .offset(y = 25.dp) // Sets the height of the CONTINUE button
                         .padding(start = 10.dp)
                         .clickable {
                             viewModel.goToTown()
@@ -515,7 +513,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
                         Text(
                             text = " TOWN",
-                            // 👇 FIX: Use a true Electric Cyan/Blue for that neon glow effect
                             color = Color(0xFF00D2FF),
                             fontWeight = FontWeight.Bold,
                             style = TextStyle(
@@ -536,7 +533,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .offset(y = 20.dp)
+                        .offset(y = 25.dp) // Sets the height of the CONTINUE button
                         .padding(end = 10.dp)
                         .clickable {
                             viewModel.continueAfterMonsterDefeated()
@@ -580,7 +577,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     viewModel.closeInventory()
                 },
                 onEquipItem = viewModel::equipItem,
-                onUnequipItem = viewModel::unequipItem
+                onUnequipItem = viewModel::unEquipItem
             )
         }
 
