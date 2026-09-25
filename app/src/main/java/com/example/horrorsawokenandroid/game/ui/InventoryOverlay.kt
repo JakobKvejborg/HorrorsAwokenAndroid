@@ -571,83 +571,98 @@ fun InventoryOverlay(
             }
 
             // =====================================================
-            // UPGRADE AREA
+            // UPGRADE AREA (Only while talking to act 2 smith)
             // =====================================================
             if (state.act2SmithOverlayOpen) {
-                Text(
-                    text = "BLACKSMITH",
-                    color = Color.White,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold
-                )
 
                 Spacer(
-                    modifier = Modifier.height(6.dp)
+                    modifier = Modifier.height(40.dp)
                 )
 
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(262.dp)
-                        .onGloballyPositioned {
-                            upgradeBoxBounds = it.boundsInRoot()
-                        }
-                        .background(
-                            Color.Black.copy(alpha = 0.45f),
-                            RoundedCornerShape(8.dp)
-                        )
-                        .border(
-                            width = 1.dp,
-                            color = Color.Gray.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(8.dp)
-                        ),
+                    modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (upgradeItem == null) {
-                        Text(
-                            text = "DRAG AN EQUIPPED ITEM HERE",
-                            color = Color.Gray,
-                            fontSize = 13.sp
-                        )
-                    } else {
-                        val icon = getItemTypeIcon(upgradeItem!!.type)
-
-                        if (icon != null) {
-                            Image(
-                                painter = painterResource(id = icon),
-                                contentDescription = upgradeItem!!.name,
-                                modifier = Modifier.size(120.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                        }
-                    }
-                }
-
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
-
-                // =====================================================
-                // UPGRADE BUTTON
-                // =====================================================
-                Button(
-                    onClick = {
-                        upgradeCount++ // Each upgrade increases the next upgrade cost by 25 gold.
-                    },
-                    enabled = upgradeItem != null,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
                     Text(
-                        text = if (upgradeItem == null) {
-                            "UPGRADE + 0"
-                        } else {
-                            "UPGRADE ${upgradeItem!!.costToUpgradeItem + (upgradeCount * 25)}G"
-                        }
+                        text = "BLACKSMITH",
+                        color = Color.White,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
                 Spacer(
-                    modifier = Modifier.height(8.dp)
+                    modifier = Modifier.height(36.dp)
+                )
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally // Centers both the text and the box horizontally
+                ) {
+                    Text(
+                        text = "Drag an equipped item here",
+                        color = Color.Gray,
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(bottom = 8.dp) // Adds a small gap before the box
+                    )
+
+                    Box( // Upgrade item box
+                        modifier = Modifier
+                            .size(86.dp)
+                            .onGloballyPositioned {
+                                upgradeBoxBounds = it.boundsInRoot()
+                            }
+                            .background(
+                                Color.Black.copy(alpha = 0.45f),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = Color.Gray.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(8.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Render the item icon if one is placed inside
+                        if (upgradeItem != null) {
+                            val icon = getItemTypeIcon(upgradeItem!!.type)
+
+                            if (icon != null) {
+                                Image(
+                                    painter = painterResource(id = icon),
+                                    contentDescription = upgradeItem!!.name,
+                                    modifier = Modifier.size(120.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(16.dp)
+                    )
+
+                    // UPGRADE BUTTON
+
+                    Button(
+                        onClick = {
+                            upgradeCount++ // Each upgrade increases the next upgrade cost by 25 gold.
+                        },
+                        enabled = upgradeItem != null,
+                        shape = androidx.compose.ui.graphics.RectangleShape
+                    ) {
+                        Text(
+                            text = if (upgradeItem == null) {
+                                "UPGRADE"
+                            } else {
+                                "UPGRADE ${upgradeItem!!.costToUpgradeItem + (upgradeCount * 25)}G"
+                            }
+                        )
+                    }
+                }
+
+                Spacer(
+                    modifier = Modifier.height(28.dp)
                 )
 
             }
@@ -663,23 +678,25 @@ fun InventoryOverlay(
             ) {
 
                 // TRASH CAN - BOTTOM LEFT
-                Box(
-                    modifier = Modifier
-                        .size(35.dp)
-                        .offset(x = 10.dp)
-                        .onGloballyPositioned {
-                            trashBounds = it.boundsInRoot()
-                        }
-                        .pointerInput(Unit) {
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image( // trash can image
-                        painter = painterResource(id = R.drawable.trash),
-                        contentDescription = "Trash",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
+                if (!state.act2SmithOverlayOpen) {
+                    Box(
+                        modifier = Modifier
+                            .size(35.dp)
+                            .offset(x = 10.dp)
+                            .onGloballyPositioned {
+                                trashBounds = it.boundsInRoot()
+                            }
+                            .pointerInput(Unit) {
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image( // trash can image
+                            painter = painterResource(id = R.drawable.trash),
+                            contentDescription = "Trash",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
 
                 // Pushes CLOSE all the way to the right

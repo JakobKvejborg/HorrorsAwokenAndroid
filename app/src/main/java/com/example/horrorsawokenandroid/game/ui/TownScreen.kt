@@ -230,12 +230,22 @@ fun TownScreen(
             // ----------------------------------------------------
             // BOTTOM AREA
             // ----------------------------------------------------
-
             Spacer(
                 modifier = Modifier.height(18.dp)
             )
 
+        }
 
+        // Act 2 Smith overlay (modified inventory overlay)
+        if (state.inventoryOpen) {
+            InventoryOverlay(
+                player = state.player,
+                onClose = {
+                    viewModel.closeAct2SmithOverlay()
+                },
+                onEquipItem = viewModel::equipItem,
+                onUnequipItem = viewModel::unEquipItem
+            )
         }
     }
 }
