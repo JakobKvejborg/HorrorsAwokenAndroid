@@ -203,11 +203,11 @@ fun TownScreen(
                         onClick = {
                             when (currentAct) {
                                 1 -> {
-                                    viewModel.playerLearnTechniques()
+                                    viewModel.playerLearnTechniques() // ACT 1 NPC 2
                                 }
 
                                 2 -> {
-                                    viewModel.openAct2SmithOverlay()
+                                    viewModel.openAct2SmithOverlay() // ACT 2 NPC 2
                                 }
 
                                 3 -> {
@@ -449,7 +449,7 @@ private fun getNpcImage(
 
         4 -> when (npcNumber) {
             1 -> null
-            2 -> null
+            2 -> R.drawable.act4mage
             else -> null
         }
 

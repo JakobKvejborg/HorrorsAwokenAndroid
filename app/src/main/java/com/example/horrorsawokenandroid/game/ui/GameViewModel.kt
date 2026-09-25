@@ -2,6 +2,8 @@ package com.example.horrorsawokenandroid.game.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.horrorsawokenandroid.game.model.EncounterBattle
+import com.example.horrorsawokenandroid.game.model.ItemUpgrader
 import com.example.horrorsawokenandroid.game.model.Items
 import com.example.horrorsawokenandroid.game.model.Monster
 import com.example.horrorsawokenandroid.game.model.MonsterContainer
@@ -40,9 +42,28 @@ class GameViewModel(
     private var droppedItem: Items.Item? = null
     private var lastMusicAct: Int = -1
 
-    // ------------------------------------------------------------
+    // Encounter
+    internal val encounterBattle = EncounterBattle(
+        getState = { _uiState.value },
+        updateState = { transform -> _uiState.update(transform) },
+        sounds = sounds,
+        onMonsterDefeated = { monster ->
+            generateItemFoundOnMonster(monster)
+            setBossDefeatedFlags(monster)
+        },
+        onPlayerDefeated = {
+            setCurrentScreen(GameScreen.GameOver)
+        }
+    )
+
+    fun startEncounter(monsterPool: List<Monster>) {
+        encounterBattle.startEncounter(
+            monsterPool = monsterPool,
+            onEncounterStarted = { droppedItem = null }
+        )
+    }
+
     // ATTACK MOVES
-    // ------------------------------------------------------------
     private val attackMoves = AttackMoves(
         getState = {
             _uiState.value
@@ -53,7 +74,7 @@ class GameViewModel(
         },
 
         attackResolver = { rawDamage, noLifeSteal, noCrit ->
-            executeAttack(
+            encounterBattle.executeAttack(
                 rawDamage = rawDamage,
                 noLifeSteal = noLifeSteal,
                 noCrit = noCrit
@@ -64,17 +85,30 @@ class GameViewModel(
         scope = viewModelScope
     )
 
+    // ITEM UPGRADES
+    val itemUpgrader = ItemUpgrader(
+        getState = { _uiState.value },
+        updateState = { transform -> _uiState.update(transform) },
+        sounds = sounds,
+    )
+
+    fun upgradeItem(
+        item: Items.Item?,
+        onEquipItem: (Items.Item) -> Unit,
+        onUpgradeApplied: () -> Unit
+    ) {
+        itemUpgrader.upgradeItem(item, onEquipItem, onUpgradeApplied)
+    }
 
     // INITIAL SETUP / first encounter
     init {
-        startEncounter(
-            monsterPool = monsterContainer.listOfMonsters1
+        encounterBattle.startEncounter(
+            monsterPool = monsterContainer.listOfMonsters1,
+            onEncounterStarted = { droppedItem = null }
         )
     }
 
-    // ------------------------------------------------------------
     // ATTACK BUTTONS
-    // ------------------------------------------------------------
     fun normalAttack() {
         attackMoves.normalAttack()
     }
@@ -99,309 +133,6 @@ class GameViewModel(
         attackMoves.guardAttack()
     }
 
-    // ------------------------------------------------------------
-    // ENCOUNTER SETUP
-    // ------------------------------------------------------------
-    fun startEncounter(
-        monsterPool: List<Monster>
-    ) {
-        if (monsterPool.isEmpty()) return
-
-        checkIfPlayerDefeated() // Start by checking if player is defeated (blood loss or damage over time effects etc)
-
-        droppedItem = null
-
-        val encountered =
-            monsterPool[
-                Random.nextInt(monsterPool.size)
-            ].cloneMonster()
-
-        _uiState.update {
-            it.copy(
-                monster = encountered,
-                encounterLog = initialEncounterText(encountered),
-                lootAvailable = false,
-                monsterDefeated = false,
-                playerDodgedFlag = false,
-                goldPopupText = null,
-                hpPopupText = null,
-                monsterImageShake = 0, // This resets the monster image shake on a new encounter
-            )
-        }
-    }
-
-    private fun initialEncounterText(monster: Monster): String =
-        when (monster.name) {
-
-            "Orc" ->
-                "You have encountered an ${monster.name}! Execute it."
-
-            "Watchers" ->
-                "You have encountered some ${monster.name}! Kill them."
-
-            "Aldrus Thornfell",
-            "Wintermaw",
-            "The Devouring Abyss" ->
-                "You have awakened ${monster.name}! Your end is near."
-
-            "The Frostfallen King" ->
-                "You have shattered the ice tomb of ${monster.name}! A colossal figure rises from its crystallized prison."
-
-            "Ultimate Darkness" ->
-                "The Hero now faces the ${monster.name} - a final challenge."
-
-            "Awoken Horror" ->
-                "You stand before the ${monster.name} itself. This is where you die."
-
-            else ->
-                "You have encountered a ${monster.name}! Kill it."
-        }
-
-    // ------------------------------------------------------------
-    // SHARED ATTACK RESOLUTION
-    // ------------------------------------------------------------
-
-    private suspend fun executeAttack(
-        rawDamage: Int,
-        noLifeSteal: Boolean,
-        noCrit: Boolean
-    ) {
-        var monster = _uiState.value.monster ?: return
-        var player = _uiState.value.player
-        var damage = rawDamage
-        checkIfPlayerDefeated()
-
-        _uiState.update {
-            it.copy(
-                playerDodgedFlag = false
-            )
-        }
-
-        // Roar buff countdown
-        player = countdownRoarBuff(player)
-
-        // LIFESTEAL
-        player = playerLifesteals(noLifeSteal, player)
-
-        // CRITICAL HIT
-        val isCrit =
-            player.critChance >= Random.nextInt(1, 101)
-
-        if (
-            isCrit &&
-            !noCrit
-        ) {
-            damage =
-                (
-                        damage *
-                                (player.critDamage / 100.0)
-                        ).toInt()
-
-            sounds.playCrit()
-        }
-
-        // --------------------------------------------------------
-        // DAMAGE MONSTER
-        // --------------------------------------------------------
-
-        monster = monster.copy(
-            currentHealth = (
-                    monster.currentHealth - damage
-                    ).coerceAtLeast(0)
-        )
-
-        val attackText =
-            attackText(
-                monsterName = monster.name,
-                damage = damage
-            )
-
-        _uiState.update {
-            it.copy(
-                player = player,
-                monster = monster,
-                encounterLog = attackText,
-                monsterImageShake = it.monsterImageShake + 1,
-            )
-        }
-
-        // --------------------------------------------------------
-        // MONSTER TURN
-        // --------------------------------------------------------
-
-        if (monster.currentHealth > 0) {
-            delay(175)
-            monsterAttacks()
-        } else {
-            checkIfMonsterDefeated()
-        }
-    }
-
-    // ------------------------------------------------------------
-    // ATTACK TEXT
-    // ------------------------------------------------------------
-    private fun attackText(
-        monsterName: String,
-        damage: Int
-    ): String {
-
-        val bossNames = setOf(
-            "Aldrus Thornfell",
-            "Wintermaw",
-            "The Devouring Abyss",
-            "The Frostfallen King"
-        )
-
-        return if (monsterName in bossNames) {
-            "You attack $monsterName, and deal $damage damage."
-        } else {
-            "You attack the $monsterName, and deal $damage damage."
-        }
-    }
-
-    // This function handles when a monster attacks the player
-    private suspend fun monsterAttacks() {
-
-        val monster =
-            _uiState.value.monster ?: return
-
-        val player =
-            _uiState.value.player
-
-        if (player.currentHealth <= 0) {
-            checkIfPlayerDefeated()
-            return
-        }
-
-        // --------------------------------------------------------
-        // DODGE
-        // --------------------------------------------------------
-
-        val dodgeRoll =
-            Random.nextInt(1, 101)
-
-        if (dodgeRoll <= player.dodgeChance) {
-
-            sounds.playDodge()
-
-            _uiState.update {
-                it.copy(
-                    playerDodgedFlag = true,
-                    encounterLog =
-                        it.encounterLog +
-                                "\nYou dodged the horror's attack!"
-                )
-            }
-
-            checkIfPlayerDefeated()
-            return
-        }
-
-        // --------------------------------------------------------
-        // MONSTER DAMAGE
-        // --------------------------------------------------------
-
-        val monsterDamage =
-            monster.calculateMonsterDamage()
-
-        val armorBlocked =
-            minOf(
-                player.armor,
-                monsterDamage
-            )
-
-        val damageTaken =
-            (
-                    monsterDamage - armorBlocked
-                    ).coerceAtLeast(0)
-
-        _uiState.update {
-
-            val updatedPlayer =
-                it.player.copy(
-                    currentHealth =
-                        (
-                                it.player.currentHealth -
-                                        damageTaken
-                                ).coerceAtLeast(0)
-                )
-
-            it.copy(
-                player = updatedPlayer,
-                encounterLog =
-                    it.encounterLog +
-                            "\nThe horror attacks you back and deals $monsterDamage damage."
-            )
-        }
-
-        checkIfPlayerDefeated()
-    }
-
-    // Function to check if the player is dead
-    private fun checkIfPlayerDefeated() {
-
-        if (
-            _uiState.value.player.currentHealth <= 0
-        ) {
-            sounds.playDeathGameOverSound()
-            setCurrentScreen(GameScreen.GameOver)
-        }
-    }
-
-    // Function to check if the monster fought is dead
-    private fun checkIfMonsterDefeated() {
-
-        val monster =
-            _uiState.value.monster ?: return
-
-        if (monster.currentHealth > 0) return // Functions stops if the monster has more than 0 health, e.g. is still alive
-
-        val player =
-            _uiState.value.player
-
-        // Reset temporary combat buffs
-        player.resetRoarBuff()
-        player.resetGuardBuff()
-
-        val (expGained, goldGained, updatedPlayer) = playerGainsXPandGold(
-            monster,
-            player
-        ) // player gains xp and gold after a battle
-
-        checkIfPlayerLevelsUp(updatedPlayer) // check if player levels up after a battle
-        playerRegeneratesHealthBasedOnRegen(player, updatedPlayer)
-
-        // --------------------------------------------------------
-        // UPDATE STATE
-        // --------------------------------------------------------
-        _uiState.update {
-            it.copy(
-                player = updatedPlayer,
-
-                encounterLog =
-                    it.encounterLog +
-                            "\nYou have defeated the horror. You gain $expGained xp.",
-
-                goldPopupText =
-                    if (goldGained > 0) {
-                        "+${goldGained}G"
-                    } else {
-                        null
-                    },
-
-                monster = null,
-
-                monsterDefeated = true,
-
-                playerDodgedFlag = false,
-                totalMonstersDefeated = it.totalMonstersDefeated + 1
-            )
-        }
-
-        generateItemFoundOnMonster(monster) // This function is always called when a monster is defeated. Items.kt handles the drop chance, and CombatScreen handles if the loot image should be shown or not
-        setBossDefeatedFlags(monster)
-    }
-
     private fun setBossDefeatedFlags(monster: Monster) {
         val monsterName = monster.name
 
@@ -414,22 +145,13 @@ class GameViewModel(
 
     }
 
-    // Function to regenerate some of the player's health after a monster is defeated
-    private fun playerRegeneratesHealthBasedOnRegen(
-        player: Player,
-        updatedPlayer: Player
-    ) {
+    private fun checkIfPlayerDefeated() {
+
         if (
-            player.regeneration > 0 &&
-            updatedPlayer.currentHealth < updatedPlayer.maxHealth
+            _uiState.value.player.currentHealth <= 0
         ) {
-            updatedPlayer.currentHealth =
-                (
-                        updatedPlayer.currentHealth +
-                                player.regeneration
-                        ).coerceAtMost(
-                        updatedPlayer.maxHealth
-                    )
+            sounds.playDeathGameOverSound()
+            setCurrentScreen(GameScreen.GameOver)
         }
     }
 
@@ -591,14 +313,6 @@ class GameViewModel(
         sounds.playEquipSound()
     }
 
-    fun act2UpgradeSound() {
-        sounds.playSmithingSound()
-    }
-
-    fun smithDeclinesUpgradeSound() {
-        sounds.playAct2SmithNo()
-    }
-
     fun whereToGoBasedOnTheDirection(direction: String) {
         val currentAct = uiState.value.currentAct
         if (uiState.value.introMonstersAreCompleted) {
@@ -665,7 +379,10 @@ class GameViewModel(
 
         setCurrentScreen(combatScreen)
 
-        startEncounter(monsterPool = monsterPoolBasedOnDirection)
+        encounterBattle.startEncounter(
+            monsterPool = monsterPoolBasedOnDirection,
+            onEncounterStarted = { droppedItem = null }
+        )
     }
 
     private fun whichListOfMonstersToFightBasedOnDirection(
@@ -973,43 +690,4 @@ class GameViewModel(
             )
         }
     }
-}
-
-private fun GameViewModel.playerLifesteals(
-    noLifeSteal: Boolean,
-    player: Player
-): Player {
-    var player1 = player
-    if (
-        !noLifeSteal &&
-        player1.lifesteal > 0
-    ) {
-        val healed =
-            (player1.calculateTotalDamage() * player1.lifesteal) / 100
-
-        player1 = player1.copy(
-            currentHealth = (
-                    player1.currentHealth + healed
-                    ).coerceAtMost(player1.maxHealth)
-        )
-    }
-    // TODO maybe make a popup of the amount healed from lifesteal
-    return player1
-}
-
-private fun countdownRoarBuff(player: Player): Player {
-    var player1 = player
-    if (player1.roarBuffCountdown > 0) {
-        player1 = player1.copy(
-            roarBuffCountdown = player1.roarBuffCountdown - 1
-        )
-    }
-
-    if (
-        player1.isRoarActive &&
-        player1.roarBuffCountdown == 0
-    ) {
-        player1.turnOffRoarBuff()
-    }
-    return player1
 }

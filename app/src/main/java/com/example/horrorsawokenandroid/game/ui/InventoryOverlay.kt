@@ -53,6 +53,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.roundToInt
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
 
 @Composable
 fun InventoryOverlay(
@@ -73,7 +76,6 @@ fun InventoryOverlay(
     val magneticDropZone = 47f
     val isOverTrash = trashBounds?.inflate(magneticDropZone)?.contains(dragPosition) == true
     var itemToBeUpgraded by remember { mutableStateOf<Items.Item?>(null) }
-    var upgradeCount by remember { mutableStateOf(0) }
     var upgradeBoxBounds by remember { mutableStateOf<Rect?>(null) }
     var upgradeWasPressed by remember { mutableStateOf(false) }
 
@@ -167,26 +169,6 @@ fun InventoryOverlay(
         }
 
         itemIsNoLongerBeingDragged() // Stop dragging.
-    }
-
-    // TODO move this logic to a new class
-    fun upgradeItem() {
-        val item = itemToBeUpgraded ?: return // Do nothing if there is no item in the upgrade box
-
-        // Do nothing if the player doesn't have enough gold, or the item already has been upgraded
-        if (player.goldInPocket < item.costToUpgradeItem || item.name.contains("Upg.")) {
-            viewModel.smithDeclinesUpgradeSound()
-            return
-        }
-
-        viewModel.act2UpgradeSound()
-        upgradeWasPressed = true
-        item.name = "Upg. " + item.name
-        itemToBeUpgraded = null
-        player.goldInPocket -= item.costToUpgradeItem
-        item.costToUpgradeItem += upgradeCount
-        onEquipItem(item) // TODO important check if stats are working properly (damage, armor etc.)
-
     }
 
     Box(
@@ -683,16 +665,34 @@ fun InventoryOverlay(
                     // UPGRADE BUTTON
                     Button(
                         onClick = {
-                            upgradeItem()
+                            viewModel.upgradeItem(
+                                item = itemToBeUpgraded,
+                                onEquipItem = onEquipItem,
+                                onUpgradeApplied = {
+                                    itemToBeUpgraded = null
+                                    upgradeWasPressed = true
+                                }
+                            )
                         },
                         enabled = itemToBeUpgraded != null,
                         shape = androidx.compose.ui.graphics.RectangleShape
                     ) {
                         Text(
-                            text = if (itemToBeUpgraded == null) {
-                                "UPGRADE"
-                            } else {
-                                "UPGRADE ${itemToBeUpgraded!!.costToUpgradeItem}G"
+                            text = buildAnnotatedString {
+                                if (itemToBeUpgraded == null) {
+                                    withStyle(style = SpanStyle(color = Color.White)) {
+                                        append("UPGRADE")
+                                    }
+                                } else {
+                                    // This creates the multi-colored text when an item exists
+                                    withStyle(style = SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                                        append("UPGRADE ")
+                                    }
+                                    withStyle(style = SpanStyle(color = Color(0xFFFFD700))) {
+                                        append("${viewModel.itemUpgrader.costToUpgradeItem}G")
+                                    }
+                                }
+
                             }
                         )
                     }

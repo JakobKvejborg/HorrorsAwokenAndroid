@@ -33,7 +33,6 @@ class Items {
 
         // Upgrade/reforge items
         var isItemUpgraded: Boolean = false,
-        var costToUpgradeItem: Int = 40,
         var isItemReforged: Boolean = false,
 
     ) {
