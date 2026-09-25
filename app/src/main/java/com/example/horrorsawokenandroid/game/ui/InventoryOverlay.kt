@@ -40,12 +40,10 @@ import androidx.compose.ui.unit.sp
 import com.example.horrorsawokenandroid.R
 import com.example.horrorsawokenandroid.game.model.Items
 import com.example.horrorsawokenandroid.game.model.Player
-import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Button
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
@@ -74,9 +72,10 @@ fun InventoryOverlay(
     var trashBounds by remember { mutableStateOf<Rect?>(null) }
     val magneticDropZone = 47f
     val isOverTrash = trashBounds?.inflate(magneticDropZone)?.contains(dragPosition) == true
-    var upgradeItem by remember { mutableStateOf<Items.Item?>(null) } // TODO remove unused code
+    var itemToBeUpgraded by remember { mutableStateOf<Items.Item?>(null) }
     var upgradeCount by remember { mutableStateOf(0) }
     var upgradeBoxBounds by remember { mutableStateOf<Rect?>(null) }
+    var upgradeWasPressed by remember { mutableStateOf(false) }
 
     fun openInventoryInfoBox(item: Items.Item) {
         heldItem = item
@@ -111,6 +110,12 @@ fun InventoryOverlay(
         )
     }
 
+    fun itemIsNoLongerBeingDragged() {
+        draggedItem = null
+        heldItem = null
+        draggedFromEquipment = false
+    }
+
     fun finishDrag() {
         val item = draggedItem ?: return
 
@@ -118,10 +123,25 @@ fun InventoryOverlay(
         if (trashBounds?.inflate(magneticDropZone)?.contains(dragPosition) == true) {
             player.inventory.remove(item) // Remove the item from the inventory.
 
-            // Stop dragging.
-            draggedItem = null
-            heldItem = null
-            draggedFromEquipment = false
+            itemIsNoLongerBeingDragged() // Stop dragging.
+            return
+        }
+
+        // Upgrade box drag
+        if (
+            draggedFromEquipment && upgradeBoxBounds?.inflate(magneticDropZone)
+                ?.contains(dragPosition) == true
+        ) {
+            // Return the old upgrade item to its equipment slot if it's replaced by another item
+            itemToBeUpgraded?.let { oldItem ->
+                onEquipItem(oldItem)
+            }
+
+            itemToBeUpgraded = item
+            upgradeWasPressed = false
+            onUnequipItem(item) // Remove the item from equipment and put it back into inventory
+
+            itemIsNoLongerBeingDragged() // Stop dragging.
 
             return
         }
@@ -146,9 +166,27 @@ fun InventoryOverlay(
             }
         }
 
-        draggedItem = null
-        draggedFromEquipment = false
-        heldItem = null
+        itemIsNoLongerBeingDragged() // Stop dragging.
+    }
+
+    // TODO move this logic to a new class
+    fun upgradeItem() {
+        val item = itemToBeUpgraded ?: return // Do nothing if there is no item in the upgrade box
+
+        // Do nothing if the player doesn't have enough gold, or the item already has been upgraded
+        if (player.goldInPocket < item.costToUpgradeItem || item.name.contains("Upg.")) {
+            viewModel.smithDeclinesUpgradeSound()
+            return
+        }
+
+        viewModel.act2UpgradeSound()
+        upgradeWasPressed = true
+        item.name = "Upg. " + item.name
+        itemToBeUpgraded = null
+        player.goldInPocket -= item.costToUpgradeItem
+        item.costToUpgradeItem += upgradeCount
+        onEquipItem(item) // TODO important check if stats are working properly (damage, armor etc.)
+
     }
 
     Box(
@@ -624,13 +662,13 @@ fun InventoryOverlay(
                         contentAlignment = Alignment.Center
                     ) {
                         // Render the item icon if one is placed inside
-                        if (upgradeItem != null) {
-                            val icon = getItemTypeIcon(upgradeItem!!.type)
+                        if (itemToBeUpgraded != null) {
+                            val icon = getItemTypeIcon(itemToBeUpgraded!!.type)
 
                             if (icon != null) {
                                 Image(
                                     painter = painterResource(id = icon),
-                                    contentDescription = upgradeItem!!.name,
+                                    contentDescription = itemToBeUpgraded!!.name,
                                     modifier = Modifier.size(120.dp),
                                     contentScale = ContentScale.Fit
                                 )
@@ -643,19 +681,18 @@ fun InventoryOverlay(
                     )
 
                     // UPGRADE BUTTON
-
                     Button(
                         onClick = {
-                            upgradeCount++ // Each upgrade increases the next upgrade cost by 25 gold.
+                            upgradeItem()
                         },
-                        enabled = upgradeItem != null,
+                        enabled = itemToBeUpgraded != null,
                         shape = androidx.compose.ui.graphics.RectangleShape
                     ) {
                         Text(
-                            text = if (upgradeItem == null) {
+                            text = if (itemToBeUpgraded == null) {
                                 "UPGRADE"
                             } else {
-                                "UPGRADE ${upgradeItem!!.costToUpgradeItem + (upgradeCount * 25)}G"
+                                "UPGRADE ${itemToBeUpgraded!!.costToUpgradeItem}G"
                             }
                         )
                     }
@@ -714,7 +751,15 @@ fun InventoryOverlay(
                 )
 
                 TextButton(
-                    onClick = onClose,
+                    onClick = {
+                        if (itemToBeUpgraded != null && !upgradeWasPressed) {
+                            onEquipItem(itemToBeUpgraded!!)
+                        }
+
+                        itemToBeUpgraded = null
+                        upgradeWasPressed = false
+                        onClose()
+                    },
                     contentPadding = PaddingValues(vertical = 2.dp) // Shrinks the button height
 
                 ) {

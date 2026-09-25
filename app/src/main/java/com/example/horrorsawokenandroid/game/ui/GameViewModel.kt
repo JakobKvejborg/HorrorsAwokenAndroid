@@ -363,11 +363,13 @@ class GameViewModel(
         player.resetRoarBuff()
         player.resetGuardBuff()
 
-        val (expGained, goldGained, updatedPlayer) = playerGainsXPandGold(monster, player) // player gains xp and gold after a battle
+        val (expGained, goldGained, updatedPlayer) = playerGainsXPandGold(
+            monster,
+            player
+        ) // player gains xp and gold after a battle
 
         checkIfPlayerLevelsUp(updatedPlayer) // check if player levels up after a battle
         playerRegeneratesHealthBasedOnRegen(player, updatedPlayer)
-        generateItemFoundOnMonster(monster) // This function is always called when a monster is defeated. Items.kt handles the drop chance, and CombatScreen handles if the loot image should be shown or not
 
         // --------------------------------------------------------
         // UPDATE STATE
@@ -396,6 +398,7 @@ class GameViewModel(
             )
         }
 
+        generateItemFoundOnMonster(monster) // This function is always called when a monster is defeated. Items.kt handles the drop chance, and CombatScreen handles if the loot image should be shown or not
         setBossDefeatedFlags(monster)
     }
 
@@ -439,7 +442,9 @@ class GameViewModel(
             sounds.playAct1HealingNoGold()
             return
         }
-        if (player.PriceToHeal > player.goldInPocket) { return }
+        if (player.PriceToHeal > player.goldInPocket) {
+            return
+        }
 
         player.currentHealth = player.maxHealth
         player.goldInPocket -= player.PriceToHeal
@@ -584,6 +589,14 @@ class GameViewModel(
     // TODO maybe a sound for each different item type
     fun soundsForEquippingItems() {
         sounds.playEquipSound()
+    }
+
+    fun act2UpgradeSound() {
+        sounds.playSmithingSound()
+    }
+
+    fun smithDeclinesUpgradeSound() {
+        sounds.playAct2SmithNo()
     }
 
     fun whereToGoBasedOnTheDirection(direction: String) {
@@ -754,6 +767,9 @@ class GameViewModel(
 
     // Item drop
     private fun generateItemFoundOnMonster(monster: Monster) {
+        if (specialMonsterDrops(monster)) {
+            return
+        }
 
         val currentAct =
             uiState.value.currentAct // This method finds out which act the play currently is in
@@ -767,6 +783,27 @@ class GameViewModel(
                 droppedItem = found
             )
         }
+    }
+
+    private fun specialMonsterDrops(monster: Monster): Boolean {
+        if (monster.name == "Egg-Watcher Dragon") {
+            _uiState.update { state ->
+                state.copy(
+                    player = state.player.copy(
+                        numberOfDragonEggsInInventory =
+                            state.player.numberOfDragonEggsInInventory + 1
+                    )
+                )
+            }
+
+            return true
+        }
+
+        if (monster.name == "Gold Goblin" || monster.name == "Nest-Watcher Dragon") {
+            return true
+        }
+
+        return false
     }
 
     // This function adds the dropped item to the player's inventory
@@ -785,7 +822,7 @@ class GameViewModel(
                 lootAvailable = false,
                 droppedItem = null,
                 encounterLog = "You find the item: ${loot.name}! "
-                        + "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ". Player lowhealth number: ${ player.playerIsOnLowHealth }", // for debugging
+                        + "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ". Player dragonegg number: ${player.numberOfDragonEggsInInventory}", // for debugging
             )
         }
 
