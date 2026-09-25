@@ -31,8 +31,11 @@ class Items {
         var critChance: Int = 0,
         var critDamage: Int = 0,
 
+        // Upgrade/reforge items
         var isItemUpgraded: Boolean = false,
-        var isItemReforged: Boolean = false
+        var costToUpgradeItem: Int = 40,
+        var isItemReforged: Boolean = false,
+
     ) {
 
         fun cloneItem(): Item {

@@ -207,7 +207,7 @@ fun TownScreen(
                                 }
 
                                 2 -> {
-                                    // ACT 2 NPC 2
+                                    viewModel.openAct2SmithOverlay()
                                 }
 
                                 3 -> {

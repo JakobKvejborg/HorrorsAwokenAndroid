@@ -541,6 +541,21 @@ class GameViewModel(
         }
     }
 
+    fun openAct2SmithOverlay() {
+        _uiState.update {
+            it.copy(inventoryOpen = true)
+        }
+        uiState.value.act2SmithOverlayOpen = true
+        sounds.playAct2SmithOffer()
+    }
+
+    fun closeAct2SmithOverlay() {
+        _uiState.update {
+            it.copy(inventoryOpen = false)
+        }
+        uiState.value.act2SmithOverlayOpen = false
+    }
+
     fun equipItem(item: Items.Item) {
         val player = _uiState.value.player
 

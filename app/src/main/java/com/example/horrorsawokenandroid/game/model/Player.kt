@@ -24,6 +24,7 @@ data class Player(
     // Inventory
     val inventory: SnapshotStateList<Items.Item> = mutableStateListOf(),
     val equippedItems: SnapshotStateMap<Items.ItemType, Items.Item> = mutableStateMapOf(),
+    var numberOfDragonEggsInInventory: Int = 0,
 
     var goldFind: Int = 1,
     var playerIsOnLowHealth: Int = 20, // hp threshold for glow/guard
@@ -34,7 +35,6 @@ data class Player(
     var TechniqueGuardIsLearned: Boolean = false,
     var PriceToHeal: Int = 2,
     var PriceToLearnTechnique: Int = 10,
-    var numberOfDragonEggsInInventory: Int = 0,
 
     // Roar buff
     var isRoarActive: Boolean = false,
@@ -50,10 +50,10 @@ data class Player(
     val xpNeededToLevelUp: Int get() = (10 * (level + level)) + (level * level) - 1
 
     companion object {
-        fun newHero() = Player(
-            name = "Hero", maxHealth = 40, currentHealth = 40, damage = 1000, strength = 3,
+        fun newHero() = Player( // TODO, set dmg to 1, level to 1, and str to 3
+            name = "Hero", maxHealth = 40, currentHealth = 40, damage = 1000, strength = 10,
             lifesteal = 0, armor = 0, dodgeChance = 0, goldInPocket = 0, experience = 0,
-            level = 1, critChance = 0, regeneration = 0, critDamage = 150,
+            level = 15, critChance = 0, regeneration = 0, critDamage = 150,
         )
     }
 

@@ -43,6 +43,9 @@ import com.example.horrorsawokenandroid.game.model.Player
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.offset
+import androidx.compose.material3.Button
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
@@ -58,11 +61,11 @@ fun InventoryOverlay(
     player: Player,
     onClose: () -> Unit,
     onEquipItem: (Items.Item) -> Unit,
-    onUnequipItem: (Items.Item) -> Unit
+    onUnequipItem: (Items.Item) -> Unit,
+    viewModel: GameViewModel = viewModel()
 ) {
+    val state by viewModel.uiState.collectAsState()
     var heldItem by remember { mutableStateOf<Items.Item?>(null) }
-    fun openInventoryInfoBox(item: Items.Item) { heldItem = item }
-    fun closeInventoryInfoBox() { heldItem = null }
     var draggedItem by remember { mutableStateOf<Items.Item?>(null) }
     var draggedFromEquipment by remember { mutableStateOf(false) }
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
@@ -71,6 +74,17 @@ fun InventoryOverlay(
     var trashBounds by remember { mutableStateOf<Rect?>(null) }
     val magneticDropZone = 47f
     val isOverTrash = trashBounds?.inflate(magneticDropZone)?.contains(dragPosition) == true
+    var upgradeItem by remember { mutableStateOf<Items.Item?>(null) } // TODO remove unused code
+    var upgradeCount by remember { mutableStateOf(0) }
+    var upgradeBoxBounds by remember { mutableStateOf<Rect?>(null) }
+
+    fun openInventoryInfoBox(item: Items.Item) {
+        heldItem = item
+    }
+
+    fun closeInventoryInfoBox() {
+        heldItem = null
+    }
 
     fun startDrag(
         item: Items.Item,
@@ -87,9 +101,6 @@ fun InventoryOverlay(
         // 3. Set the initial draw location using the slot's absolute center position
         dragPosition = position
 
-        if (item.levelRequirement > player.level) {
-            // TODO play a sound when item level requirement is higher than player level
-        }
     }
 
     fun updateDrag(delta: Offset) {
@@ -103,7 +114,7 @@ fun InventoryOverlay(
     fun finishDrag() {
         val item = draggedItem ?: return
 
-        // Trashcan. If the dragged item is positioned over the trash can, deletes/removes the item from inventory
+        // Trash can. If the dragged item is positioned over the trash can, deletes/removes the item from inventory
         if (trashBounds?.inflate(magneticDropZone)?.contains(dragPosition) == true) {
             player.inventory.remove(item) // Remove the item from the inventory.
 
@@ -123,12 +134,16 @@ fun InventoryOverlay(
             }
             ?.key
 
-        when { // Inventory -> correct equipment slot
-            !draggedFromEquipment && equipmentTarget == item.type && item.levelRequirement <= player.level
-                -> { onEquipItem(item) }
+        when { // Inventory -> correct equipment slot - this also checks player strength and level requirement
+            !draggedFromEquipment && equipmentTarget == item.type && item.levelRequirement <= player.level && item.strengthRequirement <= player.strength
+                -> {
+                onEquipItem(item)
+            }
             // Equipment -> inventory
             draggedFromEquipment && inventoryBounds?.contains(dragPosition) == true
-                -> { onUnequipItem(item) }
+                -> {
+                onUnequipItem(item)
+            }
         }
 
         draggedItem = null
@@ -485,79 +500,160 @@ fun InventoryOverlay(
             // =====================================================
             // INVENTORY
             // =====================================================
-            Text(
-                text = "INVENTORY",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            if (!state.act2SmithOverlayOpen) {
+                Text(
+                    text = "INVENTORY",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
 
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
+                Spacer(
+                    modifier = Modifier.height(4.dp)
+                )
 
-            Box( // Inventory box
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .onGloballyPositioned {
-                        inventoryBounds = it.boundsInRoot()
-                    }
-                    .background(
-                        Color.Black.copy(alpha = 0.45f),
-                        RoundedCornerShape(8.dp)
-                    )
-            ) {
-
-                if (player.inventory.isEmpty()) {
-
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Inventory is empty",
-                            color = Color.Gray,
-                            fontSize = 14.sp
+                Box( // Inventory box
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .onGloballyPositioned {
+                            inventoryBounds = it.boundsInRoot()
+                        }
+                        .background(
+                            Color.Black.copy(alpha = 0.45f),
+                            RoundedCornerShape(8.dp)
                         )
-                    }
+                ) {
 
-                } else {
+                    if (player.inventory.isEmpty()) {
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(6.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-
-                        items(
-                            items = player.inventory
-                        ) { item ->
-
-                            InventoryItemRow(
-                                item = item,
-                                isHeld = heldItem == item,
-                                onItemHeld = {
-                                    heldItem = it
-                                },
-                                onItemReleased = {
-                                    heldItem = null
-                                },
-                                onDragStart = ::startDrag,
-                                onDrag = ::updateDrag,
-                                onDragEnd = ::finishDrag,
-                                isBeingDragged = draggedItem == item
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Inventory is empty",
+                                color = Color.Gray,
+                                fontSize = 14.sp
                             )
+                        }
+
+                    } else {
+
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+
+                            items(
+                                items = player.inventory
+                            ) { item ->
+
+                                InventoryItemRow(
+                                    item = item,
+                                    isHeld = heldItem == item,
+                                    onItemHeld = {
+                                        heldItem = it
+                                    },
+                                    onItemReleased = {
+                                        heldItem = null
+                                    },
+                                    onDragStart = ::startDrag,
+                                    onDrag = ::updateDrag,
+                                    onDragEnd = ::finishDrag,
+                                    isBeingDragged = draggedItem == item
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            // Spacer between the inventory box and "Close" button
-//            Spacer(modifier = Modifier.height(1.dp))
+            // =====================================================
+            // UPGRADE AREA
+            // =====================================================
+            if (state.act2SmithOverlayOpen) {
+                Text(
+                    text = "BLACKSMITH",
+                    color = Color.White,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(
+                    modifier = Modifier.height(6.dp)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(262.dp)
+                        .onGloballyPositioned {
+                            upgradeBoxBounds = it.boundsInRoot()
+                        }
+                        .background(
+                            Color.Black.copy(alpha = 0.45f),
+                            RoundedCornerShape(8.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = Color.Gray.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(8.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (upgradeItem == null) {
+                        Text(
+                            text = "DRAG AN EQUIPPED ITEM HERE",
+                            color = Color.Gray,
+                            fontSize = 13.sp
+                        )
+                    } else {
+                        val icon = getItemTypeIcon(upgradeItem!!.type)
+
+                        if (icon != null) {
+                            Image(
+                                painter = painterResource(id = icon),
+                                contentDescription = upgradeItem!!.name,
+                                modifier = Modifier.size(120.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                    }
+                }
+
+                Spacer(
+                    modifier = Modifier.height(6.dp)
+                )
+
+                // =====================================================
+                // UPGRADE BUTTON
+                // =====================================================
+                Button(
+                    onClick = {
+                        upgradeCount++ // Each upgrade increases the next upgrade cost by 25 gold.
+                    },
+                    enabled = upgradeItem != null,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (upgradeItem == null) {
+                            "UPGRADE + 0"
+                        } else {
+                            "UPGRADE ${upgradeItem!!.costToUpgradeItem + (upgradeCount * 25)}G"
+                        }
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+
+            }
 
             // =====================================================
-            // FOOTER / CLOSE BUTTON + TRASHCAN
+            // FOOTER / CLOSE BUTTON + TRASH CAN
             // =====================================================
             Row(
                 modifier = Modifier
@@ -578,7 +674,7 @@ fun InventoryOverlay(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Image( // trashcan image trash image
+                    Image( // trash can image
                         painter = painterResource(id = R.drawable.trash),
                         contentDescription = "Trash",
                         modifier = Modifier.fillMaxSize(),
@@ -622,11 +718,12 @@ fun InventoryOverlay(
 
         }
 
-        if (draggedItem != null) {
+        val itemBeingDragged = draggedItem
+        if (itemBeingDragged != null) {
             val icon = getItemTypeIcon(draggedItem!!.type)
 
             if (icon != null) {
-                // 1. Force this wrapper box to fill the entire screen layout area
+                // Force this wrapper box to fill the entire screen layout area
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -649,8 +746,8 @@ fun InventoryOverlay(
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
                         )
-                        // Red overlay if the item is held over the trash item image box
-                        if (isOverTrash && !draggedFromEquipment) {
+                        // Red overlay on the item if the item is held over the trash item image box, or the level/strength requirement of an item is higher than the player level
+                        if (player.level < itemBeingDragged.levelRequirement || isOverTrash && !draggedFromEquipment || player.strength < itemBeingDragged.strengthRequirement) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -668,7 +765,7 @@ fun InventoryOverlay(
 // EQUIPMENT SLOT
 // ================================================================
 @Composable
-private fun EquipmentSlot(
+internal fun EquipmentSlot(
     item: Items.Item?,
     iconRes: Int,
     label: String,
@@ -736,7 +833,7 @@ private fun EquipmentSlot(
                 enabled = item != null,
                 onClick = { // This opens and closes the item info box when an equipped item is clicked
                     if (isHeld) {
-                      onItemReleased()
+                        onItemReleased()
                     } else {
                         onItemHeld(item)
                     }
@@ -763,7 +860,7 @@ private fun EquipmentSlot(
 // ITEM INFO
 // ================================================================
 @Composable
-private fun ItemInfoPanel(
+internal fun ItemInfoPanel(
     item: Items.Item,
     modifier: Modifier = Modifier
 ) {
@@ -840,7 +937,7 @@ private fun ItemInfoPanel(
 // ================================================================
 // ITEM TYPE ICONS
 // ================================================================
-private fun getItemTypeIcon(
+internal fun getItemTypeIcon(
     type: Items.ItemType
 ): Int? {
     return when (type) {
@@ -863,7 +960,7 @@ private fun getItemTypeIcon(
 // INVENTORY ROW
 // ================================================================
 @Composable
-private fun InventoryItemRow(
+internal fun InventoryItemRow(
     item: Items.Item,
     isHeld: Boolean,
     onItemHeld: (Items.Item?) -> Unit,

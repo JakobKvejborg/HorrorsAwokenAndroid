@@ -19,6 +19,7 @@ data class GameUiState(
     var totalMonstersDefeated: Int = 0,
     val monsterImageShake: Int = 0,
     val inventoryOpen: Boolean = false,
+    var act2SmithOverlayOpen: Boolean = false,
     val currentScreen: GameScreen = GameScreen.Menu, // This decides where the game begins (in menu, in combat e.g.)
     var isAct1BossDefeated: Boolean = false,
     var isAct2BossDefeated: Boolean = false,
