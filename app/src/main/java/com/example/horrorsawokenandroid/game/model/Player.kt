@@ -27,7 +27,6 @@ data class Player(
     var numberOfDragonEggsInInventory: Int = 0,
 
     var goldFind: Int = 1,
-    var playerIsOnLowHealth: Int = 20, // hp threshold for glow/guard
     var techniqueBloodLustIsLearned: Boolean = false,
     var TechniqueSwiftIsLearned: Boolean = false,
     var TechniqueRoarIsLearned: Boolean = false,
@@ -47,6 +46,7 @@ data class Player(
     var guardBuffArmor: Int = 0,
 ) {
 
+    val playerIsOnLowHealth: Double get() = maxHealth * 0.35
     val xpNeededToLevelUp: Int get() = (10 * (level + level)) + (level * level) - 1
 
     companion object {

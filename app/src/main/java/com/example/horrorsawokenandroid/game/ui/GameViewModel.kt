@@ -240,7 +240,6 @@ class GameViewModel(
     // ------------------------------------------------------------
     // ATTACK TEXT
     // ------------------------------------------------------------
-
     private fun attackText(
         monsterName: String,
         damage: Int
@@ -786,7 +785,7 @@ class GameViewModel(
                 lootAvailable = false,
                 droppedItem = null,
                 encounterLog = "You find the item: ${loot.name}! "
-//                        + "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ".", // for debugging
+                        + "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ". Player lowhealth number: ${ player.playerIsOnLowHealth }", // for debugging
             )
         }
 
