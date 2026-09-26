@@ -28,6 +28,15 @@ data class GameUiState(
     var lastDirectionChosenByPlayer: String = "",
     var firstTimeTownVisitedMusic: Boolean = true,
     var currentAct: Int = 1,
+    var hasAct2BeenVisited: Boolean = false,
+    var hasAct3BeenVisited: Boolean = false,
+    var hasAct4BeenVisited: Boolean = false,
+    var hasAct5BeenVisited: Boolean = false,
+
+    // Attack animations
+    var bloodlustAnimation: Int = 0,
+    var divineAnimation: Int = 0,
+
 
     // Quests
     var act1Quest1Started: Boolean = false,

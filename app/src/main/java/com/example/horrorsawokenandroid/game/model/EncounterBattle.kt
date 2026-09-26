@@ -163,7 +163,7 @@ class EncounterBattle(
                 player = updatedPlayer,
                 encounterLog =
                     it.encounterLog +
-                            "\nThe horror attacks you back and deals $monsterDamage damage."
+                            " The horror attacks you back and deals $monsterDamage damage."
             )
         }
 
@@ -211,7 +211,7 @@ class EncounterBattle(
 
                 encounterLog =
                     it.encounterLog +
-                            "\nYou have defeated the horror. You gain $expGained xp.",
+                            " You have defeated the horror. You gain $expGained xp.",
 
                 goldPopupText =
                     if (goldGained > 0) {
@@ -376,6 +376,8 @@ class EncounterBattle(
                 goldPopupText = null,
                 hpPopupText = null,
                 monsterImageShake = 0,
+                bloodlustAnimation = 0,
+                divineAnimation = 0,
             )
         }
     }

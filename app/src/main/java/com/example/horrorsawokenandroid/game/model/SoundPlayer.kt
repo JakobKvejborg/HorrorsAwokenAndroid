@@ -58,6 +58,7 @@ interface SoundPlayer {
     fun playDeathGameOverSound()
     fun playLootItemsSound()
     fun playEquipSound()
+    fun playTrashSound()
 
     fun stopAct1TownMusic()
     fun stopAct2TownMusic()
@@ -139,6 +140,7 @@ class AndroidSoundPlayer(
         loadSound("act4healer")
         loadSound("act1healernogold")
         loadSound("equip")
+        loadSound("trash")
         loadSound("smithupgrade")
     }
 
@@ -165,6 +167,28 @@ class AndroidSoundPlayer(
             0,
             1f
         )
+    }
+
+    fun pauseMusic() {
+        act1TownPlayer?.pause()
+        act2TownPlayer?.pause()
+        act1ThunderPlayer?.pause()
+        act2WindPlayer?.pause()
+        act3WavesPlayer?.pause()
+        act3MusicPlayer?.pause()
+        act4MusicPlayer?.pause()
+        act5MusicPlayer?.pause()
+    }
+
+    fun resumeMusic() {
+        act1TownPlayer?.start()
+        act2TownPlayer?.start()
+        act1ThunderPlayer?.start()
+        act2WindPlayer?.start()
+        act3WavesPlayer?.start()
+        act3MusicPlayer?.start()
+        act4MusicPlayer?.start()
+        act5MusicPlayer?.start()
     }
 
     private fun playMusic(
@@ -321,6 +345,10 @@ class AndroidSoundPlayer(
 
     override fun playEquipSound() {
         playSound("equip")
+    }
+
+    override fun playTrashSound() {
+        playSound("trash")
     }
 
     // ---------------------------------------------------------
@@ -736,6 +764,7 @@ object NoOpSoundPlayer : SoundPlayer {
     override fun playDeathGameOverSound() {}
     override fun playLootItemsSound() {}
     override fun playEquipSound() {}
+    override fun playTrashSound() {}
 
     override fun stopAct1TownMusic() {}
     override fun stopAct2TownMusic() {}

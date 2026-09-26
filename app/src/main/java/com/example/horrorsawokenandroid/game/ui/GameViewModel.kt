@@ -114,6 +114,11 @@ class GameViewModel(
     }
 
     fun bloodLustAttack() {
+        _uiState.update {
+            it.copy(
+                bloodlustAnimation = it.bloodlustAnimation + 1
+            )
+        }
         attackMoves.bloodLustAttack()
     }
 
@@ -126,6 +131,11 @@ class GameViewModel(
     }
 
     fun divineAttack() {
+        _uiState.update {
+            it.copy(
+                divineAnimation = it.divineAnimation + 1
+            )
+        }
         attackMoves.divineAttack()
     }
 
@@ -227,7 +237,7 @@ class GameViewModel(
     internal fun playerLearnTechniques() {
         val player = _uiState.value.player
 
-        if (player.PriceToLearnTechnique > player.goldInPocket) {
+        if (player.PriceToLearnTechnique > player.goldInPocket || player.TechniqueGuardIsLearned) { // Function does nothing if player already knows Guard
             sounds.playAct1ArtsTeacherNo()
             return
         }
@@ -306,11 +316,6 @@ class GameViewModel(
         _uiState.update {
             it.copy(player = updatedPlayer)
         }
-    }
-
-    // TODO maybe a sound for each different item type
-    fun soundsForEquippingItems() {
-        sounds.playEquipSound()
     }
 
     fun whereToGoBasedOnTheDirection(direction: String) {
@@ -445,7 +450,14 @@ class GameViewModel(
             4 -> when (direction) {
                 "WEST" -> monsterContainer.listOfMonstersAct4West
                 "EAST" -> monsterContainer.listOfDragonsAct4East
-                "NORTH" -> monsterContainer.listOfDragonEggAct4North
+                "NORTH" ->
+                    if (uiState.value.player.numberOfDragonEggsInInventory < 4) {
+                        monsterContainer.listOfDragonEggAct4North
+                    } else {
+                        goToNextAct()
+                        return null
+                    }
+
                 else -> {
                     monsterContainer.listOfMonstersAct4West
                 }
@@ -568,24 +580,28 @@ class GameViewModel(
                 setCurrentScreen(GameScreen.TownAct2)
                 sounds.act2TownMixer()
                 uiState.value.isAct1BossDefeated = false // Makes act 1 boss repeatable
+                uiState.value.hasAct2BeenVisited == true
             }
 
             2 -> {
                 uiState.value.currentAct = 3
                 setCurrentScreen(GameScreen.TownAct3)
                 sounds.act3TownMixer()
+                uiState.value.hasAct3BeenVisited == true
             }
 
             3 -> {
                 uiState.value.currentAct = 4
                 setCurrentScreen(GameScreen.TownAct4)
                 sounds.act4TownMixer()
+                uiState.value.hasAct4BeenVisited == true
             }
 
             4 -> {
                 uiState.value.currentAct = 5
                 setCurrentScreen(GameScreen.TownAct5)
                 sounds.act5TownMixer()
+                uiState.value.hasAct5BeenVisited
             }
         }
 
@@ -670,6 +686,15 @@ class GameViewModel(
 
     fun playAct4MusicAfterIntro() {
         sounds.playAct4Music()
+    }
+
+    // TODO maybe a sound for each different item type
+    fun soundsForEquippingItems() {
+        sounds.playEquipSound()
+    }
+
+    fun playTrashSound() {
+        sounds.playTrashSound()
     }
 
     // ------------------------------------------------------------

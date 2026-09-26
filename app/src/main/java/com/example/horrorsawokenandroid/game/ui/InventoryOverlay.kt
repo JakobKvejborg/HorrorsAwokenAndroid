@@ -124,7 +124,7 @@ fun InventoryOverlay(
         // Trash can. If the dragged item is positioned over the trash can, deletes/removes the item from inventory
         if (trashBounds?.inflate(magneticDropZone)?.contains(dragPosition) == true) {
             player.inventory.remove(item) // Remove the item from the inventory.
-
+            viewModel.playTrashSound()
             itemIsNoLongerBeingDragged() // Stop dragging.
             return
         }
@@ -134,8 +134,7 @@ fun InventoryOverlay(
             draggedFromEquipment && upgradeBoxBounds?.inflate(magneticDropZone)
                 ?.contains(dragPosition) == true
         ) {
-            // Return the old upgrade item to its equipment slot if it's replaced by another item
-            itemToBeUpgraded?.let { oldItem ->
+            itemToBeUpgraded?.let { oldItem -> // Return the old upgrade item to its equipment slot if it's replaced by another item
                 onEquipItem(oldItem)
             }
 
@@ -669,6 +668,7 @@ fun InventoryOverlay(
                                 item = itemToBeUpgraded,
                                 onEquipItem = onEquipItem,
                                 onUpgradeApplied = {
+                                    player.inventory.remove(itemToBeUpgraded) // HACK
                                     itemToBeUpgraded = null
                                     upgradeWasPressed = true
                                 }

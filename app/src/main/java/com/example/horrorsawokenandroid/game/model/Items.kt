@@ -125,23 +125,7 @@ class Items {
         val safeAct = act.coerceIn(1, 5)
 
         val type = generateItemType(safeAct)
-        val quality = generateQuality()
-
-        return generateItem(
-            act = safeAct,
-            type = type,
-            quality = quality
-        )
-    }
-
-     // Useful when a specific equipment slot is needed.
-    fun generateLoot(
-        act: Int,
-        type: ItemType
-    ): Item {
-
-        val safeAct = act.coerceIn(1, 5)
-        val quality = generateQuality()
+        val quality = generateQuality(safeAct)
 
         return generateItem(
             act = safeAct,
@@ -153,26 +137,70 @@ class Items {
     // ============================================================
     // QUALITY
     // ============================================================
-    private fun generateQuality(): Quality {
+    private fun generateQuality(act: Int): Quality {
 
+        val safeAct = act.coerceIn(1, 5)
         val roll = random.nextDouble(0.0, 100.0)
+
+        val chances = when (safeAct) {
+
+            1 -> listOf(
+                Quality.Damaged to 35.0,
+                Quality.Normal to 55.0,
+                Quality.Magic to 7.0,
+                Quality.Strong to 2.5,
+                Quality.Rare to 0.5
+            )
+
+            2 -> listOf(
+                Quality.Damaged to 25.0,
+                Quality.Normal to 50.0,
+                Quality.Magic to 12.0,
+                Quality.Strong to 7.0,
+                Quality.Rare to 4.0,
+                Quality.Unique to 1.5,
+                Quality.Epic to 0.5
+            )
+
+            3 -> listOf(
+                Quality.Damaged to 15.0,
+                Quality.Normal to 45.0,
+                Quality.Magic to 15.0,
+                Quality.Strong to 10.0,
+                Quality.Rare to 8.0,
+                Quality.Unique to 4.0,
+                Quality.Epic to 2.0,
+                Quality.Legendary to 1.0
+            )
+
+            4 -> listOf(
+                Quality.Damaged to 10.0,
+                Quality.Normal to 40.0,
+                Quality.Magic to 17.0,
+                Quality.Strong to 12.0,
+                Quality.Rare to 10.0,
+                Quality.Unique to 6.0,
+                Quality.Epic to 3.0,
+                Quality.Legendary to 1.5,
+                Quality.Godly to 0.5
+            )
+
+            else -> listOf(
+                Quality.Damaged to 5.0,
+                Quality.Normal to 30.0,
+                Quality.Magic to 20.0,
+                Quality.Strong to 15.0,
+                Quality.Rare to 12.0,
+                Quality.Unique to 8.0,
+                Quality.Epic to 5.0,
+                Quality.Legendary to 3.5,
+                Quality.Godly to 1.5
+            )
+        }
 
         var total = 0.0
 
-        val chances = listOf(
-            Quality.Damaged to 24.0,
-            Quality.Normal to 51.0,
-            Quality.Magic to 8.0,
-            Quality.Strong to 6.0,
-            Quality.Rare to 5.0,
-            Quality.Unique to 4.0,
-            Quality.Epic to 1.4,
-            Quality.Legendary to 0.5,
-            Quality.Godly to 0.1
-        )
-
         for ((quality, chance) in chances) {
-
             total += chance
 
             if (roll < total) {
@@ -1184,7 +1212,7 @@ class Items {
                     else -> listOf(
                         "Abyssal Armor",
                         "Doomplate",
-                        "Armor of the Fallen",
+                        "Fallon's Armor",
                         "Apocalyptic Plate",
                         "Soulforged Armor"
                     ).random(random)

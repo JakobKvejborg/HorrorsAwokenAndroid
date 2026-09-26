@@ -32,7 +32,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.draw.scale
 import com.example.horrorsawokenandroid.R
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
 import com.example.horrorsawokenandroid.game.model.Player
 import androidx.compose.ui.graphics.Brush
@@ -42,10 +41,16 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.Animatable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.Path
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.draw.alpha
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -54,30 +59,17 @@ This class is handles the encounter screen and the logic during a battle with a 
 @Composable
 fun CombatScreen(viewModel: GameViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsState()
-
-    val monsterShake = remember { Animatable(0f) }
-
-    LaunchedEffect(state.monsterImageShake) {
-        if (state.monsterImageShake > 0) {
-
-            monsterShake.snapTo(0f)
-
-            monsterShake.animateTo(
-                targetValue = 2f, // the amount of shake the monster image on execute attack
-                animationSpec = tween(50)
-            )
-
-            monsterShake.animateTo(
-                targetValue = -2f,
-                animationSpec = tween(50)
-            )
-
-            monsterShake.animateTo(
-                targetValue = 0f,
-                animationSpec = tween(50)
-            )
-        }
+    val attackAnimations = remember {
+        AttackAnimations()
     }
+
+    // Animations
+    val monsterShake = attackAnimations.monsterShake(
+        trigger = state.monsterImageShake
+    )
+
+    val divineAttackImage = attackAnimations.divineAttackImage(state.divineAnimation)
+
 
     Box(
         modifier = Modifier
@@ -123,10 +115,10 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
         // Ruby dragon stone to upgrade the smith, given from Act4Quest1
         if (state.act4QuestIsFinished && state.act4QuestRubyHasBeenGivenToSmith) {
             Image(
-                painter = painterResource(id = R.drawable.ruby), // The backpack inventory image
+                painter = painterResource(id = R.drawable.ruby), // The ruby dragon stone image
                 contentDescription = "Ruby Dragon Stone",
                 modifier = Modifier
-                    .offset(y = 490.dp, x= 10.dp)
+                    .offset(y = 490.dp, x = 10.dp)
                     .size(50.dp)
                     .clickable {
                     }
@@ -134,15 +126,31 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
         }
 
         // Inventory backpack. Click on this image to open the Inventory screen
-        Image(
-            painter = painterResource(id = R.drawable.bag2), // The backpack inventory image
-            contentDescription = "Backpack",
+        Box(
             modifier = Modifier
-                .offset(y = 490.dp, x = 80.dp)
-                .clickable {
-                    viewModel.openInventory()
-                }
-        )
+                .offset(y = 480.dp, x = 82.dp)
+        ) {
+            // Backpack
+            Image(
+                painter = painterResource(id = R.drawable.bag2),
+                contentDescription = "Backpack",
+                modifier = Modifier
+                    .clickable {
+                        viewModel.openInventory()
+                    }
+            )
+
+            // "Open inventory" tutorial text on top of backpack
+            if (state.totalMonstersDefeated < 2) {
+                Text(
+                    text = "Open inventory",
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(x = -20.dp, y = -24.dp)
+                )
+            }
+        }
 
         // Everything else goes on top of the background and hero image
         Column(
@@ -281,6 +289,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     modifier = Modifier.weight(1.05f), // MONSTER WEIGHT How much of the right side of the screen the monster image should take up
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
                     if (state.lootAvailable && state.droppedItem != null) {
 
                         // LOOT
@@ -361,7 +370,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         Box(
                             modifier = Modifier
                                 .size(300.dp)
-                                .offset(x = monsterShake.value.dp),
+                                .offset(x = monsterShake.dp),
                             contentAlignment = Alignment.TopCenter
                         ) {
                             state.monster?.imageRes?.let { imageRes ->
@@ -371,22 +380,16 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                     modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Fit
                                 )
+
                             }
                         }
                     }
-
-
-//                    Spacer(modifier = Modifier.height(1.dp)) // How far down the monster HP bar appears (higher value = lower image)
-
-
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp)) // This forces the Encounter Log downwards on the screen
-
 
             // COMBAT ENCOUNTER LOG
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(0.7f))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -412,10 +415,10 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             CombatButton(
                 text = "ATTACK",
                 modifier = Modifier.fillMaxWidth(),
-                onClick = viewModel::normalAttack
+                onClick = { if (state.monster != null) viewModel.normalAttack() }
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // SECOND ROW
             Row(
@@ -426,7 +429,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "BLOOD LUST",
                         modifier = Modifier.weight(1f),
-                        onClick = viewModel::bloodLustAttack
+                        onClick = { if (state.monster != null) viewModel.bloodLustAttack() }
                     )
                 }
 
@@ -435,12 +438,12 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "SWIFT",
                         modifier = Modifier.weight(1f),
-                        onClick = viewModel::swiftAttack
+                        { if (state.monster != null) viewModel.swiftAttack() }
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // THIRD ROW
             Row(
@@ -451,7 +454,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "ROAR",
                         modifier = Modifier.weight(1f),
-                        onClick = viewModel::roarAttack
+                        { if (state.monster != null) viewModel.roarAttack() }
                     )
                 }
 
@@ -459,7 +462,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "DIVINE",
                         modifier = Modifier.weight(1f),
-                        onClick = viewModel::divineAttack
+                        { if (state.monster != null) viewModel.divineAttack() }
                     )
                 }
 
@@ -467,10 +470,13 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "GUARD",
                         modifier = Modifier.weight(1f),
-                        onClick = viewModel::guardAttack
+                        { if (state.monster != null) viewModel.guardAttack() }
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(5.dp))
+
         }
 
         // TOWN / CONTINUE
@@ -550,7 +556,10 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 fontSize = 17.sp,
                                 shadow = androidx.compose.ui.graphics.Shadow(
                                     color = Color.White.copy(alpha = 0.60f), // Soft, light white opacity
-                                    offset = androidx.compose.ui.geometry.Offset(0f, 0f), // Keeps the glow centered around the text
+                                    offset = androidx.compose.ui.geometry.Offset(
+                                        0f,
+                                        0f
+                                    ), // Keeps the glow centered around the text
                                     blurRadius = 8f // Higher number = softer, wider glow spreading outward
                                 )
                             )
@@ -569,6 +578,20 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             }
         }
 
+        attackAnimations.BloodLustGlow(
+            trigger = state.bloodlustAnimation
+        )
+
+        // Divine light — fullscreen, top of z-order, independent of all other layout
+        Image(
+            painter = painterResource(R.drawable.divinelight),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(divineAttackImage * 0.4f) // 0.5f = 50% as visible
+        )
+
         // Inventory overlay
         if (state.inventoryOpen) {
             InventoryOverlay(
@@ -584,33 +607,130 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
     }
 }
 
-
 @Composable
 private fun CombatButton(
     text: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
+
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val pressX by animateDpAsState(
+        targetValue = if (isPressed) 3.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = 0.65f,
+            stiffness = 800f
+        ),
+        label = "pressX"
+    )
+
+    val pressY by animateDpAsState(
+        targetValue = if (isPressed) 3.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = 0.65f,
+            stiffness = 800f
+        ),
+        label = "pressY"
+    )
+
     Box(
         modifier = modifier
-            .height(48.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .background(
-                Brush.linearGradient(
+            .height(55.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+    ) {
+        Canvas(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            val dx = 7.dp.toPx()
+            val dy = 7.dp.toPx()
+
+            val width = size.width - dx
+            val height = 48.dp.toPx()
+
+            // FIXED BOTTOM EXTRUSION
+            val bottomPath = Path().apply {
+                moveTo(pressX.toPx(), height)
+                // moveTo(0f, height) // old code
+                lineTo(width, height)
+                lineTo(width + dx, height + dy)
+                lineTo(dx, height + dy)
+                close()
+            }
+
+            drawPath(
+                path = bottomPath,
+                color = Color(0xFF252525)
+            )
+
+            // FIXED RIGHT EXTRUSION
+            val rightPath = Path().apply {
+                moveTo(width + pressX.toPx(), pressY.toPx())
+                // moveTo(width, 0f) // old code
+                lineTo(width + dx, dy)
+                lineTo(width + dx, height + dy)
+                lineTo(width, height)
+                close()
+            }
+
+            drawPath(
+                path = rightPath,
+                color = Color(0xFF303030)
+            )
+
+            // TOP FACE MOVES DIAGONALLY
+            val x = pressX.toPx()
+            val y = pressY.toPx()
+
+            val facePath = Path().apply {
+                moveTo(x, y)
+                lineTo(width + x, y)
+                lineTo(width + x, height + y)
+                lineTo(x, height + y)
+                close()
+            }
+
+            // Top of the button color
+            drawPath(
+                path = facePath,
+                brush = Brush.linearGradient(
                     colors = listOf(
-                        Color(0xFF3E3E3E),
-                        Color(0xFF151515)
+                        Color(0xFF38393D),
+                        Color(0xFF151619),
+                        Color(0xFF050506),
+                        Color(0xFF111216)
+//                        Color(0xFF4A4A4A),
+//                        Color(0xFF292929),
+//                        Color(0xFF151515)
                     )
                 )
             )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.White
-        )
+        }
+
+        // TEXT MOVES WITH THE TOP FACE
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .offset(
+                    x = pressX,
+                    y = pressY
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White
+            )
+        }
     }
 }
 

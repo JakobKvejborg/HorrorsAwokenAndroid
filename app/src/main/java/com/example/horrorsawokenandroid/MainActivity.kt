@@ -119,6 +119,19 @@ class MainActivity : ComponentActivity() {
         soundPlayer.release()
         super.onDestroy()
     }
+
+    // What to do when the app is minimized
+    override fun onPause() {
+        super.onPause()
+        soundPlayer.pauseMusic()
+    }
+
+    // What to do when the app not minimized anymore
+    override fun onResume() {
+        super.onResume()
+        soundPlayer.resumeMusic()
+    }
+
 }
 
 class GameViewModelFactory(
