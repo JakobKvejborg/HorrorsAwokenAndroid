@@ -51,9 +51,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.border
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.animateFloat
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -468,7 +465,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "ROAR",
                         glowColor = Color(0xFF00FFCC),
-                        isGlowing = state.player.isRoarActive,
+                        isGlowing = state.player.roarBuffActive,
                         modifier = Modifier.weight(1f),
                         onClick = { if (state.monster != null) viewModel.roarAttack() }
                     )
@@ -663,8 +660,6 @@ private fun CombatButton(
         MutableInteractionSource()
     }
 
-    val roarBuffColor = 0xFF00FFCC
-
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val pressX by animateDpAsState(
@@ -687,8 +682,8 @@ private fun CombatButton(
 
     val infiniteTransition = rememberInfiniteTransition(label = "buttonGlow")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.85f,
+        initialValue = 0.1f,
+        targetValue = 0.88f,
         animationSpec = infiniteRepeatable(
             animation = tween(650),
             repeatMode = RepeatMode.Reverse
@@ -845,6 +840,7 @@ private fun PlayerStatsPanel(player: Player) {
             StatItem(
                 label = "Armor",
                 value = "${player.armor}",
+                textColor = if (player.guardBuffIsActive) Color(0xFF00BFFF) else Color.White,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -858,6 +854,7 @@ private fun PlayerStatsPanel(player: Player) {
             StatItem(
                 label = "Crit%",
                 value = "${player.critChance}%",
+                textColor = if (player.roarBuffActive) Color(0xFF00FFCC) else Color.White,
                 modifier = Modifier.weight(1f)
             )
 
@@ -870,6 +867,7 @@ private fun PlayerStatsPanel(player: Player) {
             StatItem(
                 label = "Dodge",
                 value = "${player.dodgeChance}%",
+                textColor = if (player.roarBuffActive) Color(0xFF00FFCC) else Color.White,
                 modifier = Modifier.weight(1f)
             )
         }

@@ -27,16 +27,16 @@ data class Player(
     var numberOfDragonEggsInInventory: Int = 0,
 
     var goldFind: Int = 1,
-    var techniqueBloodLustIsLearned: Boolean = true,
+    var techniqueBloodLustIsLearned: Boolean = false,
     var TechniqueSwiftIsLearned: Boolean = false,
-    var TechniqueRoarIsLearned: Boolean = true,
+    var TechniqueRoarIsLearned: Boolean = false,
     var TechniqueDivineIsLearned: Boolean = false,
-    var TechniqueGuardIsLearned: Boolean = true,
+    var TechniqueGuardIsLearned: Boolean = false,
     var PriceToHeal: Int = 2,
     var PriceToLearnTechnique: Int = 10,
 
     // Roar buff
-    var isRoarActive: Boolean = false,
+    var roarBuffActive: Boolean = false,
     var roarBuffDodge: Int = 10,
     var roarBuffCrit: Int = 5,
     var roarBuffCountdown: Int = 0,
@@ -51,7 +51,7 @@ data class Player(
 
     companion object {
         fun newHero() = Player( // TODO important, set dmg to 1, level to 1, and str to 3, gold to 0, and maxhealth 40, currenthealth 40, critchance 0
-            name = "Hero", maxHealth = 400, currentHealth = 400, damage = 5, strength = 10,
+            name = "Hero", maxHealth = 400, currentHealth = 400, damage = 15, strength = 10,
             lifesteal = 0, armor = 0, dodgeChance = 40, goldInPocket = 11000, experience = 0,
             level = 15, critChance = 40, regeneration = 0, critDamage = 150,
         )
@@ -70,20 +70,20 @@ data class Player(
     }
 
     fun turnOnRoarBuff() {
-        isRoarActive = true
+        roarBuffActive = true
         dodgeChance += roarBuffDodge
         critChance += roarBuffCrit
     }
 
     fun turnOffRoarBuff() {
-        isRoarActive = false
+        roarBuffActive = false
         roarBuffCountdown = 0
         dodgeChance -= roarBuffDodge
         critChance -= roarBuffCrit
     }
 
     fun resetRoarBuff() {
-        if (isRoarActive) turnOffRoarBuff()
+        if (roarBuffActive) turnOffRoarBuff()
     }
 
     fun resetGuardBuff() {

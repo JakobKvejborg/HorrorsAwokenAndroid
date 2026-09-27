@@ -322,7 +322,7 @@ class EncounterBattle(
         }
 
         if (
-            player1.isRoarActive &&
+            player1.roarBuffActive &&
             player1.roarBuffCountdown == 0
         ) {
             player1.turnOffRoarBuff()

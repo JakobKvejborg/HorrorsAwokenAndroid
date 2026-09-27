@@ -195,11 +195,11 @@ class AttackAnimations {
                     animationSpec = tween(1) // fade in
                 )
 
-                delay(410) // How long the image stays fully visible
+                delay(450) // How long the image stays fully visible
 
                 alpha.animateTo(
                     targetValue = 0f,
-                    animationSpec = tween(250) // fade out
+                    animationSpec = tween(220) // fade out
                 )
             }
         }
@@ -229,7 +229,7 @@ class AttackAnimations {
 
                 glowAlpha.animateTo(
                     targetValue = 0f,
-                    animationSpec = tween(870) // Fade out timer
+                    animationSpec = tween(670) // Fade out timer
                 )
             }
         }
@@ -249,7 +249,7 @@ class AttackAnimations {
                                 colors = listOf(
                                     Color.Transparent,
                                     neonGreen.copy(
-                                        alpha = 0.15f * glowAlpha.value
+                                        alpha = 0.25f * glowAlpha.value
                                     )
                                 )
                             )
@@ -267,7 +267,7 @@ class AttackAnimations {
                                 colors = listOf(
                                     Color.Transparent,
                                     neonGreen.copy(
-                                        alpha = 0.15f * glowAlpha.value
+                                        alpha = 0.25f * glowAlpha.value
                                     )
                                 )
                             )

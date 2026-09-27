@@ -112,7 +112,7 @@ class AttackMoves(
 
         val damage = (state.player.calculateTotalDamage() * 0.1).toInt()
 
-        if (!state.player.isRoarActive) {
+        if (!state.player.roarBuffActive) {
             updateState {
                 val player = it.player.copy()
                 player.turnOnRoarBuff()
