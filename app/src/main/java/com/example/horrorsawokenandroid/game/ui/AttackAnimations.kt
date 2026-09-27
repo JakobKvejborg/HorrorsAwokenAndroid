@@ -17,6 +17,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.painterResource
+import com.example.horrorsawokenandroid.R
 
 class AttackAnimations {
 
@@ -68,11 +78,6 @@ class AttackAnimations {
 
                 heroShake.snapTo(0f)
 
-//                heroShake.animateTo(
-//                    targetValue = 2f,
-//                    animationSpec = tween(150)
-//                )
-
                 heroShake.animateTo(
                     targetValue = -4f,
                     animationSpec = tween(110)
@@ -115,6 +120,27 @@ class AttackAnimations {
         }
 
         return alpha.value
+    }
+
+    @Composable
+    fun BuffIcon(isActive: Boolean) {
+        if (!isActive) return
+
+        val infiniteTransition = rememberInfiniteTransition(label = "buffIconPulse")
+        val scale by infiniteTransition.animateFloat(
+            initialValue = 0.95f,
+            targetValue = 1.05f,
+            animationSpec = infiniteRepeatable(tween(800), RepeatMode.Reverse),
+            label = "buffIconScale"
+        )
+
+        Image(
+            painter = painterResource(R.drawable.guardshield4), // image of the buff icon
+            contentDescription = "Buff active",
+            modifier = Modifier
+                .size(28.dp)
+                .scale(scale)
+        )
     }
 
     @Composable
@@ -169,7 +195,7 @@ class AttackAnimations {
                     animationSpec = tween(1) // fade in
                 )
 
-                delay(380) // How long the image stays fully visible
+                delay(410) // How long the image stays fully visible
 
                 alpha.animateTo(
                     targetValue = 0f,
