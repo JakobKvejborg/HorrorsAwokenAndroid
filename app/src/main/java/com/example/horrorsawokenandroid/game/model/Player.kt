@@ -27,11 +27,11 @@ data class Player(
     var numberOfDragonEggsInInventory: Int = 0,
 
     var goldFind: Int = 1,
-    var techniqueBloodLustIsLearned: Boolean = false,
+    var techniqueBloodLustIsLearned: Boolean = true,
     var TechniqueSwiftIsLearned: Boolean = false,
     var TechniqueRoarIsLearned: Boolean = true,
     var TechniqueDivineIsLearned: Boolean = false,
-    var TechniqueGuardIsLearned: Boolean = false,
+    var TechniqueGuardIsLearned: Boolean = true,
     var PriceToHeal: Int = 2,
     var PriceToLearnTechnique: Int = 10,
 

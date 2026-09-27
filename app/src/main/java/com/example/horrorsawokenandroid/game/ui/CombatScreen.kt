@@ -50,6 +50,10 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.border
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.animateFloat
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -183,11 +187,17 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     modifier = Modifier.weight(0.95f), // PLAYER WEIGHT How much of the left side of the screen the hero info should take up
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "HERO",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = "HERO",
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        attackAnimations.BuffIcon(isActive = state.player.guardBuffIsActive)
+                    }
 
                     Spacer(modifier = Modifier.height(6.dp))
 
@@ -442,7 +452,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "SWIFT",
                         modifier = Modifier.weight(1f),
-                        { if (state.monster != null) viewModel.swiftAttack() }
+                        onClick = { if (state.monster != null) viewModel.swiftAttack() }
                     )
                 }
             }
@@ -457,8 +467,10 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 if (state.player.TechniqueRoarIsLearned) {
                     CombatButton(
                         text = "ROAR",
+                        glowColor = Color(0xFF00FFCC),
+                        isGlowing = state.player.isRoarActive,
                         modifier = Modifier.weight(1f),
-                        { if (state.monster != null) viewModel.roarAttack() }
+                        onClick = { if (state.monster != null) viewModel.roarAttack() }
                     )
                 }
 
@@ -466,15 +478,18 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "DIVINE",
                         modifier = Modifier.weight(1f),
-                        { if (state.monster != null) viewModel.divineAttack() }
+                        onClick = { if (state.monster != null) viewModel.divineAttack() }
                     )
                 }
 
                 if (state.player.TechniqueGuardIsLearned) {
+                    val playerLowHealth = state.player.currentHealth <= state.player.playerIsOnLowHealth
                     CombatButton(
                         text = "GUARD",
+                        glowColor = Color(0xFF00BFFF),
+                        isGlowing = playerLowHealth && state.monster != null && !state.player.guardBuffIsActive,
                         modifier = Modifier.weight(1f),
-                        { if (state.monster != null) viewModel.guardAttack() }
+                        onClick = { if (state.monster != null) viewModel.guardAttack() }
                     )
                 }
             }
@@ -587,11 +602,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             trigger = state.bloodLustAnimation
         )
 
-        attackAnimations.RoarBuffAura(
-            isActive = state.player.isRoarActive,
-            roundsRemaining = state.player.roarBuffCountdown
-        )
-
         attackAnimations.GuardHealGlow(
             trigger = state.guardAnimation
         )
@@ -603,7 +613,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
-                .alpha(guardAttackEffect * 0.6f) // 0.5f = 50% as visible
+                .alpha(guardAttackEffect * 0.7f) // 0.5f = 50% as visible
         )
 
         // Divine light image — fullscreen, top of z-order, independent of all other layout
@@ -645,11 +655,15 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 private fun CombatButton(
     text: String,
     modifier: Modifier = Modifier,
+    isGlowing: Boolean = false,
+    glowColor: Color = Color(0xFFFFC107), // fallback color
     onClick: () -> Unit
 ) {
     val interactionSource = remember {
         MutableInteractionSource()
     }
+
+    val roarBuffColor = 0xFF00FFCC
 
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -671,9 +685,37 @@ private fun CombatButton(
         label = "pressY"
     )
 
+    val infiniteTransition = rememberInfiniteTransition(label = "buttonGlow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.85f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(650),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowAlpha"
+    )
+
+    // Glow effect around button
     Box(
         modifier = modifier
             .height(55.dp)
+            .then(
+                if (isGlowing) {
+                    Modifier
+                        .shadow(
+                            elevation = 14.dp,
+                            shape = RoundedCornerShape(6.dp),
+                            ambientColor = glowColor.copy(alpha = glowAlpha),
+                            spotColor = glowColor.copy(alpha = glowAlpha)
+                        )
+                        .border(
+                            width = 2.dp,
+                            color = glowColor.copy(alpha = glowAlpha),
+                            shape = RoundedCornerShape(6.dp)
+                        )
+                } else Modifier
+            )
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -692,7 +734,6 @@ private fun CombatButton(
             // FIXED BOTTOM EXTRUSION
             val bottomPath = Path().apply {
                 moveTo(pressX.toPx(), height)
-                // moveTo(0f, height) // old code
                 lineTo(width, height)
                 lineTo(width + dx, height + dy)
                 lineTo(dx, height + dy)
@@ -707,7 +748,6 @@ private fun CombatButton(
             // FIXED RIGHT EXTRUSION
             val rightPath = Path().apply {
                 moveTo(width + pressX.toPx(), pressY.toPx())
-                // moveTo(width, 0f) // old code
                 lineTo(width + dx, dy)
                 lineTo(width + dx, height + dy)
                 lineTo(width, height)
@@ -740,9 +780,6 @@ private fun CombatButton(
                         Color(0xFF151619),
                         Color(0xFF050506),
                         Color(0xFF111216)
-//                        Color(0xFF4A4A4A),
-//                        Color(0xFF292929),
-//                        Color(0xFF151515)
                     )
                 )
             )

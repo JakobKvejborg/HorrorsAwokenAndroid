@@ -21,14 +21,12 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.painterResource
+import com.example.horrorsawokenandroid.R
 
 class AttackAnimations {
 
@@ -80,11 +78,6 @@ class AttackAnimations {
 
                 heroShake.snapTo(0f)
 
-//                heroShake.animateTo(
-//                    targetValue = 2f,
-//                    animationSpec = tween(150)
-//                )
-
                 heroShake.animateTo(
                     targetValue = -4f,
                     animationSpec = tween(110)
@@ -130,79 +123,24 @@ class AttackAnimations {
     }
 
     @Composable
-    fun RoarBuffAura(
-        isActive: Boolean,
-        roundsRemaining: Int
-    ) {
+    fun BuffIcon(isActive: Boolean) {
         if (!isActive) return
 
-        val infiniteTransition = rememberInfiniteTransition(label = "roarPulse")
-
-        val pulseAlpha by infiniteTransition.animateFloat(
-            initialValue = 0.35f,
-            targetValue = 0.75f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(600),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "roarPulseAlpha"
+        val infiniteTransition = rememberInfiniteTransition(label = "buffIconPulse")
+        val scale by infiniteTransition.animateFloat(
+            initialValue = 0.95f,
+            targetValue = 1.05f,
+            animationSpec = infiniteRepeatable(tween(800), RepeatMode.Reverse),
+            label = "buffIconScale"
         )
 
-        val amber = Color(0xFFFFA726)
-
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Full-screen edge glow, persistent while active — pulses instead of fading out
-            Box(
-                modifier = Modifier
-                    .width(8.dp)
-                    .height(880.dp)
-                    .align(Alignment.CenterStart)
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                amber.copy(alpha = pulseAlpha),
-                                Color.Transparent
-                            )
-                        )
-                    )
-            )
-
-            Box(
-                modifier = Modifier
-                    .width(8.dp)
-                    .height(880.dp)
-                    .align(Alignment.CenterEnd)
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                amber.copy(alpha = pulseAlpha)
-                            )
-                        )
-                    )
-            )
-
-            // Countdown badge so the player knows how many rounds are left
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset(y = 60.dp) // tune to sit below your HORRORS AWOKEN title
-                    .background(
-                        amber.copy(alpha = 0.85f),
-                        RoundedCornerShape(50)
-                    )
-                    .padding(horizontal = 14.dp, vertical = 6.dp)
-            ) {
-                Text(
-                    text = "ROAR ACTIVE: $roundsRemaining",
-                    color = Color.Black,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 13.sp
-                )
-            }
-        }
+        Image(
+            painter = painterResource(R.drawable.guardshield4), // image of the buff icon
+            contentDescription = "Buff active",
+            modifier = Modifier
+                .size(28.dp)
+                .scale(scale)
+        )
     }
 
     @Composable
@@ -257,7 +195,7 @@ class AttackAnimations {
                     animationSpec = tween(1) // fade in
                 )
 
-                delay(380) // How long the image stays fully visible
+                delay(410) // How long the image stays fully visible
 
                 alpha.animateTo(
                     targetValue = 0f,
