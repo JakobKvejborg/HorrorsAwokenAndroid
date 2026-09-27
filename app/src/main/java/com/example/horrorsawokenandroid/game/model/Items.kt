@@ -1540,7 +1540,6 @@ class Items {
         "of Defense",
         "of Protection",
         "of Stone",
-        "of Steel"
     )
 
     private val magicSuffixes = listOf(

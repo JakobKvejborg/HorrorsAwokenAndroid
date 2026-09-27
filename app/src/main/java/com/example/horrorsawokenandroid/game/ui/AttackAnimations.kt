@@ -17,6 +17,18 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.getValue
 
 class AttackAnimations {
 
@@ -115,6 +127,82 @@ class AttackAnimations {
         }
 
         return alpha.value
+    }
+
+    @Composable
+    fun RoarBuffAura(
+        isActive: Boolean,
+        roundsRemaining: Int
+    ) {
+        if (!isActive) return
+
+        val infiniteTransition = rememberInfiniteTransition(label = "roarPulse")
+
+        val pulseAlpha by infiniteTransition.animateFloat(
+            initialValue = 0.35f,
+            targetValue = 0.75f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(600),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "roarPulseAlpha"
+        )
+
+        val amber = Color(0xFFFFA726)
+
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Full-screen edge glow, persistent while active — pulses instead of fading out
+            Box(
+                modifier = Modifier
+                    .width(8.dp)
+                    .height(880.dp)
+                    .align(Alignment.CenterStart)
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                amber.copy(alpha = pulseAlpha),
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
+
+            Box(
+                modifier = Modifier
+                    .width(8.dp)
+                    .height(880.dp)
+                    .align(Alignment.CenterEnd)
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                amber.copy(alpha = pulseAlpha)
+                            )
+                        )
+                    )
+            )
+
+            // Countdown badge so the player knows how many rounds are left
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = 60.dp) // tune to sit below your HORRORS AWOKEN title
+                    .background(
+                        amber.copy(alpha = 0.85f),
+                        RoundedCornerShape(50)
+                    )
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = "ROAR ACTIVE: $roundsRemaining",
+                    color = Color.Black,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 13.sp
+                )
+            }
+        }
     }
 
     @Composable

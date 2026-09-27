@@ -587,6 +587,11 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             trigger = state.bloodLustAnimation
         )
 
+        attackAnimations.RoarBuffAura(
+            isActive = state.player.isRoarActive,
+            roundsRemaining = state.player.roarBuffCountdown
+        )
+
         attackAnimations.GuardHealGlow(
             trigger = state.guardAnimation
         )

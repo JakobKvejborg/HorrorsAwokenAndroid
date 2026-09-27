@@ -29,7 +29,7 @@ data class Player(
     var goldFind: Int = 1,
     var techniqueBloodLustIsLearned: Boolean = false,
     var TechniqueSwiftIsLearned: Boolean = false,
-    var TechniqueRoarIsLearned: Boolean = false,
+    var TechniqueRoarIsLearned: Boolean = true,
     var TechniqueDivineIsLearned: Boolean = false,
     var TechniqueGuardIsLearned: Boolean = false,
     var PriceToHeal: Int = 2,
