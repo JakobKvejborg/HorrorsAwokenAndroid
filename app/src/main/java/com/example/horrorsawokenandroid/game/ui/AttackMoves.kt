@@ -3,7 +3,6 @@ package com.example.horrorsawokenandroid.game.ui
 import com.example.horrorsawokenandroid.game.model.NoOpSoundPlayer
 import com.example.horrorsawokenandroid.game.model.SoundPlayer
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.random.Random
@@ -52,10 +51,13 @@ class AttackMoves(
             val player = it.player.copy(
                 currentHealth = (
                         it.player.currentHealth - healthCost
-                        ).coerceAtLeast(0)
+                        ).coerceAtLeast(0),
             )
 
-            it.copy(player = player)
+            it.copy(
+                player = player,
+                bloodLustAnimation = it.bloodLustAnimation + 1
+            )
         }
 
         attackResolver(
@@ -151,6 +153,12 @@ class AttackMoves(
         val damage =
             (player.calculateTotalDamage() * multiplier).toInt()
 
+        updateState {
+            it.copy(
+                divineAnimation = it.divineAnimation + 1
+            )
+        }
+
         attackResolver(
             damage,
             true,
@@ -185,14 +193,13 @@ class AttackMoves(
                         ).coerceAtMost(player.maxHealth),
 
                 armor = player.armor + buffArmor,
-
                 guardBuffArmor = buffArmor,
-
                 guardBuffIsActive = true
             )
 
             it.copy(
                 player = updatedPlayer,
+                guardAnimation = it.guardAnimation + 1,
                 encounterLog =
                     it.encounterLog +
                             "\nYou stand your ground, boosting your defense!"

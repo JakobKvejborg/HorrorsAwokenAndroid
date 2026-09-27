@@ -5,7 +5,7 @@ import kotlin.random.Random
 import kotlinx.coroutines.delay
 
 class EncounterBattle(
-    private val getState: () -> GameUiState, // unresolved reference
+    private val getState: () -> GameUiState,
     private val updateState: ((GameUiState) -> GameUiState) -> Unit,
     private val sounds: SoundPlayer,
     private val onMonsterDefeated: (Monster) -> Unit, // GameViewModel hooks in generateItemFoundOnMonster + setBossDefeatedFlags
@@ -45,6 +45,11 @@ class EncounterBattle(
                                 (player.critDamage / 100.0)
                         ).toInt()
             sounds.playCrit()
+            updateState { // crit animation
+                it.copy(
+                    bloodSplatterAnimation = it.bloodSplatterAnimation + 1
+                )
+            }
         }
 
         // DAMAGE MONSTER
@@ -123,9 +128,10 @@ class EncounterBattle(
             updateState {
                 it.copy(
                     playerDodgedFlag = true,
+                    heroDodgeShake = it.heroDodgeShake + 1,
                     encounterLog =
                         it.encounterLog +
-                                "\nYou dodged the horror's attack!"
+                                " You dodged the horror's attack!"
                 )
             }
 
@@ -376,8 +382,11 @@ class EncounterBattle(
                 goldPopupText = null,
                 hpPopupText = null,
                 monsterImageShake = 0,
-                bloodlustAnimation = 0,
+                heroDodgeShake = 0,
+                bloodLustAnimation = 0,
                 divineAnimation = 0,
+                bloodSplatterAnimation = 0,
+                guardAnimation = 0,
             )
         }
     }

@@ -114,11 +114,6 @@ class GameViewModel(
     }
 
     fun bloodLustAttack() {
-        _uiState.update {
-            it.copy(
-                bloodlustAnimation = it.bloodlustAnimation + 1
-            )
-        }
         attackMoves.bloodLustAttack()
     }
 
@@ -131,11 +126,6 @@ class GameViewModel(
     }
 
     fun divineAttack() {
-        _uiState.update {
-            it.copy(
-                divineAnimation = it.divineAnimation + 1
-            )
-        }
         attackMoves.divineAttack()
     }
 
@@ -153,16 +143,6 @@ class GameViewModel(
             "Awoken Horror" -> uiState.value.isAct5BossDefeated = true
         }
 
-    }
-
-    private fun checkIfPlayerDefeated() {
-
-        if (
-            _uiState.value.player.currentHealth <= 0
-        ) {
-            sounds.playDeathGameOverSound()
-            setCurrentScreen(GameScreen.GameOver)
-        }
     }
 
     internal fun playerIsHealedByNPC() {
@@ -190,15 +170,6 @@ class GameViewModel(
 
     }
 
-    private fun checkIfPlayerLevelsUp(updatedPlayer: Player) {
-        val didLevelUp =
-            updatedPlayer.levelUp()
-
-        if (didLevelUp) {
-            sounds.playLevelUp()
-        }
-    }
-
     fun restartGame() {
         sounds.muteAllMusic()
 
@@ -208,59 +179,47 @@ class GameViewModel(
         )
     }
 
-    private fun playerGainsXPandGold(
-        monster: Monster,
-        player: Player
-    ): Triple<Int, Int, Player> {
-        val expGained =
-            monster.monsterExperience
-
-        val goldGained =
-            monster.monsterGold * player.goldFind
-        if (goldGained > 0) {
-            sounds.playCoin()
-        }
-
-        val updatedPlayer =
-            player.copy(
-                experience =
-                    player.experience + expGained,
-
-                goldInPocket =
-                    player.goldInPocket + goldGained
-            )
-
-        return Triple(expGained, goldGained, updatedPlayer)
-    }
-
     // Function to tech the player the different techniques based on which ones he already knows
     internal fun playerLearnTechniques() {
         val player = _uiState.value.player
 
-        if (player.PriceToLearnTechnique > player.goldInPocket || player.TechniqueGuardIsLearned) { // Function does nothing if player already knows Guard
+        if (player.PriceToLearnTechnique > player.goldInPocket || player.TechniqueGuardIsLearned) {
             sounds.playAct1ArtsTeacherNo()
             return
         }
 
-        player.goldInPocket -= player.PriceToLearnTechnique
-        player.PriceToLearnTechnique *= 3;
-        sounds.playAct1ArtsTeacher()
+        val learnedPlayer = when {
+            !player.techniqueBloodLustIsLearned ->
+                player.copy(techniqueBloodLustIsLearned = true)
 
-        if (!player.techniqueBloodLustIsLearned) {
-            player.techniqueBloodLustIsLearned = true
+            !player.TechniqueSwiftIsLearned && uiState.value.hasAct2BeenVisited ->
+                player.copy(TechniqueSwiftIsLearned = true)
 
-        } else if (!player.TechniqueSwiftIsLearned) {
-            player.TechniqueSwiftIsLearned = true
+            !player.TechniqueRoarIsLearned && uiState.value.hasAct3BeenVisited ->
+                player.copy(TechniqueRoarIsLearned = true)
 
-        } else if (!player.TechniqueRoarIsLearned) {
-            player.TechniqueRoarIsLearned = true
+            !player.TechniqueDivineIsLearned && uiState.value.hasAct4BeenVisited ->
+                player.copy(TechniqueDivineIsLearned = true)
 
-        } else if (!player.TechniqueDivineIsLearned) {
-            player.TechniqueDivineIsLearned = true
+            !player.TechniqueGuardIsLearned && uiState.value.hasAct5BeenVisited ->
+                player.copy(TechniqueGuardIsLearned = true)
 
-        } else if (!player.TechniqueGuardIsLearned) {
-            player.TechniqueGuardIsLearned = true
+            else -> null
+        } ?: run {
+            sounds.playAct1ArtsTeacherNo()
+            return
         }
+
+        _uiState.update {
+            it.copy(
+                player = learnedPlayer.copy(
+                    goldInPocket = learnedPlayer.goldInPocket - player.PriceToLearnTechnique,
+                    PriceToLearnTechnique = player.PriceToLearnTechnique * 3
+                )
+            )
+        }
+
+        sounds.playAct1ArtsTeacher()
     }
 
     // Inventory
@@ -580,21 +539,21 @@ class GameViewModel(
                 setCurrentScreen(GameScreen.TownAct2)
                 sounds.act2TownMixer()
                 uiState.value.isAct1BossDefeated = false // Makes act 1 boss repeatable
-                uiState.value.hasAct2BeenVisited == true
+                uiState.value.hasAct2BeenVisited = true
             }
 
             2 -> {
                 uiState.value.currentAct = 3
                 setCurrentScreen(GameScreen.TownAct3)
                 sounds.act3TownMixer()
-                uiState.value.hasAct3BeenVisited == true
+                uiState.value.hasAct3BeenVisited = true
             }
 
             3 -> {
                 uiState.value.currentAct = 4
                 setCurrentScreen(GameScreen.TownAct4)
                 sounds.act4TownMixer()
-                uiState.value.hasAct4BeenVisited == true
+                uiState.value.hasAct4BeenVisited = true
             }
 
             4 -> {

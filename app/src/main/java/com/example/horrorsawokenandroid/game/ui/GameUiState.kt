@@ -18,6 +18,7 @@ data class GameUiState(
     var introMonstersAreCompleted: Boolean = false,
     var totalMonstersDefeated: Int = 0,
     val monsterImageShake: Int = 0,
+    val heroDodgeShake: Int = 0,
     val inventoryOpen: Boolean = false,
     var act2SmithOverlayOpen: Boolean = false,
     val currentScreen: GameScreen = GameScreen.Menu, // This decides where the game begins (in menu, in combat e.g.)
@@ -34,9 +35,10 @@ data class GameUiState(
     var hasAct5BeenVisited: Boolean = false,
 
     // Attack animations
-    var bloodlustAnimation: Int = 0,
+    var bloodLustAnimation: Int = 0,
     var divineAnimation: Int = 0,
-
+    var bloodSplatterAnimation: Int = 0,
+    var guardAnimation: Int = 0,
 
     // Quests
     var act1Quest1Started: Boolean = false,

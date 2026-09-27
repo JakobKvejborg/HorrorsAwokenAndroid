@@ -47,7 +47,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.ui.graphics.Path
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.ui.draw.alpha
@@ -67,8 +66,14 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
     val monsterShake = attackAnimations.monsterShake(
         trigger = state.monsterImageShake
     )
+    val heroDodgeShake = attackAnimations.heroDodgeShake(
+        trigger = state.heroDodgeShake
+    )
 
-    val divineAttackImage = attackAnimations.divineAttackImage(state.divineAnimation)
+    val divineAttackEffect = attackAnimations.divineAttackEffect(state.divineAnimation)
+    val bloodSplatterCritEffect =
+        attackAnimations.bloodSplatterCritEffect(state.bloodSplatterAnimation)
+    val guardAttackEffect = attackAnimations.guardEffect(state.guardAnimation)
 
 
     Box(
@@ -76,7 +81,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             .fillMaxSize()
             .background(Color(0xFF090909))
     ) {
-
         // Background
         Image(
             painter = painterResource(
@@ -108,7 +112,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 .size(400.dp)
                 .scale(1.4f) // how much the image is scaled up ( x 1.4 )
                 .align(Alignment.BottomStart)
-                .offset(x = (-20).dp, y = (-50).dp),
+                .offset(x = (-20).dp + heroDodgeShake.dp, y = (-50).dp),
             contentScale = ContentScale.Fit
         )
 
@@ -128,7 +132,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
         // Inventory backpack. Click on this image to open the Inventory screen
         Box(
             modifier = Modifier
-                .offset(y = 480.dp, x = 82.dp)
+                .offset(y = 480.dp, x = 82.dp + heroDodgeShake.dp)
         ) {
             // Backpack
             Image(
@@ -475,7 +479,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(5.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
         }
 
@@ -578,18 +582,43 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             }
         }
 
+        // ANIMATIONS
         attackAnimations.BloodLustGlow(
-            trigger = state.bloodlustAnimation
+            trigger = state.bloodLustAnimation
         )
 
-        // Divine light — fullscreen, top of z-order, independent of all other layout
+        attackAnimations.GuardHealGlow(
+            trigger = state.guardAnimation
+        )
+
+        // Guard attack animation image — fullscreen, top of z-order, independent of all other layout
+        Image(
+            painter = painterResource(R.drawable.guardshield3),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(guardAttackEffect * 0.6f) // 0.5f = 50% as visible
+        )
+
+        // Divine light image — fullscreen, top of z-order, independent of all other layout
         Image(
             painter = painterResource(R.drawable.divinelight),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
-                .alpha(divineAttackImage * 0.4f) // 0.5f = 50% as visible
+                .alpha(divineAttackEffect * 0.4f) // 0.5f = 50% as visible
+        )
+
+        // Blood splatter on critical hit crit image — fullscreen, top of z-order, independent of all other layout
+        Image(
+            painter = painterResource(R.drawable.bloodsplatter2),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(bloodSplatterCritEffect * 0.6f) // 0.5f = 50% as visible
         )
 
         // Inventory overlay
