@@ -51,6 +51,9 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.border
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.draw.clip
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -441,6 +444,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "BLOOD LUST",
                         modifier = Modifier.weight(1f),
+                        imageRes = R.drawable.bloodbutton2,
                         onClick = { if (state.monster != null) viewModel.bloodLustAttack() }
                     )
                 }
@@ -449,6 +453,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 if (state.player.TechniqueSwiftIsLearned) {
                     CombatButton(
                         text = "SWIFT",
+                        imageRes = R.drawable.swiftbutton2,
                         modifier = Modifier.weight(1f),
                         onClick = { if (state.monster != null) viewModel.swiftAttack() }
                     )
@@ -476,6 +481,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     CombatButton(
                         text = "DIVINE",
                         modifier = Modifier.weight(1f),
+                        imageRes = R.drawable.divinebutton,
                         onClick = { if (state.monster != null) viewModel.divineAttack() }
                     )
                 }
@@ -488,6 +494,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         glowColor = Color(0xFF00BFFF),
                         isGlowing = playerLowHealth && state.monster != null && !state.player.guardBuffIsActive,
                         modifier = Modifier.weight(1f),
+                        imageRes = R.drawable.guardbutton,
                         onClick = { if (state.monster != null) viewModel.guardAttack() }
                     )
                 }
@@ -665,6 +672,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 private fun CombatButton(
     text: String,
     modifier: Modifier = Modifier,
+    imageRes: Int? = null,
     isGlowing: Boolean = false,
     glowColor: Color = Color(0xFFFFC107), // fallback color
     onClick: () -> Unit
@@ -790,6 +798,21 @@ private fun CombatButton(
                         Color(0xFF111216)
                     )
                 )
+            )
+        }
+
+        // IMAGE ON THE TOP FACE (behind text)
+        if (imageRes != null) {
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                alpha = 0.5f, // 0.5f = 50% visible image behind text
+                modifier = Modifier
+                    .padding(end = 7.dp) // matches the 7.dp extrusion (dx) so it stays on the face
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .offset(x = pressX, y = pressY) // moves with the press
             )
         }
 
