@@ -75,6 +75,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
     val bloodSplatterCritEffect =
         attackAnimations.bloodSplatterCritEffect(state.bloodSplatterAnimation)
     val guardAttackEffect = attackAnimations.guardEffect(state.guardAnimation)
+    val swiftAttackEffect = attackAnimations.swiftAttackEffect(state.swiftAnimation)
 
 
     Box(
@@ -480,7 +481,8 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 }
 
                 if (state.player.TechniqueGuardIsLearned) {
-                    val playerLowHealth = state.player.currentHealth <= state.player.playerIsOnLowHealth
+                    val playerLowHealth =
+                        state.player.currentHealth <= state.player.playerIsOnLowHealth
                     CombatButton(
                         text = "GUARD",
                         glowColor = Color(0xFF00BFFF),
@@ -622,6 +624,17 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 .fillMaxSize()
                 .alpha(divineAttackEffect * 0.4f) // 0.5f = 50% as visible
         )
+
+        // Swift attack image on Dodge — fullscreen, top of z-order, independent of all other layout
+        Image(
+            painter = painterResource(R.drawable.swiftattacksword4),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(swiftAttackEffect * 0.7f) // 0.5f = 50% as visible
+        )
+
 
         // Blood splatter on critical hit crit image — fullscreen, top of z-order, independent of all other layout
         Image(

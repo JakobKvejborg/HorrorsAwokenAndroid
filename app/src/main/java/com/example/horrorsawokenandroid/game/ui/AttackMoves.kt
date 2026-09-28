@@ -70,6 +70,7 @@ class AttackMoves(
     fun swiftAttack() = scope.launch {
         val state = getState()
         val monster = state.monster ?: return@launch
+        val dodgedBefore = state.playerDodgedFlag
 
         if (monster.currentHealth <= 0) return@launch
 
@@ -84,7 +85,10 @@ class AttackMoves(
         }
 
         updateState {
-            it.copy(playerDodgedFlag = false)
+            it.copy(
+                playerDodgedFlag = false,
+                swiftAnimation = if (dodgedBefore) it.swiftAnimation + 1 else it.swiftAnimation
+            )
         }
 
         attackResolver(

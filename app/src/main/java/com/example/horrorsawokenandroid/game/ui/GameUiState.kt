@@ -8,7 +8,7 @@ data class GameUiState(
     val player: Player,
     val monster: Monster? = null,
     val encounterLog: String = "",
-    val playerDodgedFlag: Boolean = false, // drives SwiftAttack button glow
+    val playerDodgedFlag: Boolean = false,
     val goldPopupText: String? = null,     // null = hidden
     val hpPopupText: String? = null,       // null = hidden
     val lootAvailable: Boolean = false,
@@ -39,6 +39,7 @@ data class GameUiState(
     var divineAnimation: Int = 0,
     var bloodSplatterAnimation: Int = 0,
     var guardAnimation: Int = 0,
+    var swiftAnimation: Int = 0,
 
     // Quests
     var act1Quest1Started: Boolean = false,

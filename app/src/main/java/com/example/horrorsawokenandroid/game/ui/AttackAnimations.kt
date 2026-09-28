@@ -123,6 +123,37 @@ class AttackAnimations {
     }
 
     @Composable
+    fun swiftAttackEffect(
+        trigger: Int
+    ): Float {
+
+        val alpha = remember {
+            Animatable(0f)
+        }
+
+        LaunchedEffect(trigger) {
+            if (trigger > 0) {
+
+                alpha.snapTo(0f)
+
+                alpha.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(10)
+                )
+
+                delay(60)
+
+                alpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(160)
+                )
+            }
+        }
+
+        return alpha.value
+    }
+
+    @Composable
     fun BuffIcon(isActive: Boolean) {
         if (!isActive) return
 
