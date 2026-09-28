@@ -389,6 +389,25 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 )
 
                             }
+                            Box(
+                                modifier = Modifier
+                                    .size(300.dp)
+                                    .offset(x = monsterShake.dp),
+                                contentAlignment = Alignment.TopCenter
+                            ) {
+                                state.monster?.imageRes?.let { imageRes ->
+                                    Image(
+                                        painter = painterResource(id = imageRes),
+                                        contentDescription = state.monster?.name,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
+
+                                attackAnimations.NormalSlashEffect(
+                                    trigger = state.normalAttackAnimation
+                                )
+                            }
                         }
                     }
                 }

@@ -388,6 +388,7 @@ class EncounterBattle(
                 bloodSplatterAnimation = 0,
                 guardAnimation = 0,
                 swiftAnimation = 0,
+                normalAttackAnimation = 0,
             )
         }
     }

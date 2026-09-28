@@ -40,6 +40,7 @@ data class GameUiState(
     var bloodSplatterAnimation: Int = 0,
     var guardAnimation: Int = 0,
     var swiftAnimation: Int = 0,
+    var normalAttackAnimation: Int = 0,
 
     // Quests
     var act1Quest1Started: Boolean = false,
@@ -47,4 +48,7 @@ data class GameUiState(
     var act4QuestIsFinished: Boolean = false,
     var act4QuestRubyHasBeenGivenToSmith: Boolean = false,
     var sophiaIsDead: Boolean = true,
-)
+    var act1TownTextShown: Boolean = false,
+    var act3TownTextShown: Boolean = false,
+
+    )

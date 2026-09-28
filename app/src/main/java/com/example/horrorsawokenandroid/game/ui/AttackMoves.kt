@@ -29,6 +29,10 @@ class AttackMoves(
 
         val damage = state.player.calculateTotalDamage()
 
+        updateState {
+            it.copy(normalAttackAnimation = it.normalAttackAnimation + 1)
+        }
+
         attackResolver(
             damage,
             false,

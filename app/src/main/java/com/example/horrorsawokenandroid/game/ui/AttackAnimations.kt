@@ -1,6 +1,7 @@
 package com.example.horrorsawokenandroid.game.ui
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,10 +22,13 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import com.example.horrorsawokenandroid.R
 
@@ -236,6 +240,67 @@ class AttackAnimations {
         }
 
         return alpha.value
+    }
+
+    @Composable
+    fun NormalSlashEffect(
+        trigger: Int
+    ) {
+        val progress = remember { Animatable(0f) }
+        val alpha = remember { Animatable(0f) }
+
+        LaunchedEffect(trigger) {
+            if (trigger > 0) {
+                progress.snapTo(0f)
+                alpha.snapTo(1f)
+
+                // Blade sweeps across
+                progress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(15, easing = LinearEasing)
+                )
+
+                alpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(20) // cut fades out
+                )
+            }
+        }
+
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            if (progress.value <= 0f || alpha.value <= 0f) return@Canvas
+
+            val start = Offset(size.width * 0.15f, size.height * 0.12f)
+            val end = Offset(size.width * 0.85f, size.height * 0.88f)
+            val head = start + (end - start) * progress.value
+
+            // Tail is transparent, head is bright
+            val trail = Brush.linearGradient(
+                colors = listOf(Color.Transparent, Color.White),
+                start = start,
+                end = head
+            )
+
+            // Soft glow
+            drawLine(
+                brush = trail,
+                start = start,
+                end = head,
+                strokeWidth = 2.5.dp.toPx(),
+                cap = StrokeCap.Round,
+                alpha = 0.08f * alpha.value
+            )
+
+            // Sharp core
+            drawLine(
+                brush = trail,
+                start = start,
+                end = head,
+                strokeWidth = 0.9.dp.toPx(),
+                cap = StrokeCap.Round,
+                alpha = 0.45f * alpha.value
+            )
+        }
     }
 
     @Composable
