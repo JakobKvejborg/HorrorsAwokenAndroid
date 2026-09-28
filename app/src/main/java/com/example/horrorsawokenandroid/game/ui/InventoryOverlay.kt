@@ -78,6 +78,8 @@ fun InventoryOverlay(
     var itemToBeUpgraded by remember { mutableStateOf<Items.Item?>(null) }
     var upgradeBoxBounds by remember { mutableStateOf<Rect?>(null) }
     var upgradeWasPressed by remember { mutableStateOf(false) }
+    val dragItemText = "Drag an equipped item here"
+    val alreadyUpgradedText = "Items can only be upgraded once"
 
     fun openInventoryInfoBox(item: Items.Item) {
         heldItem = item
@@ -619,7 +621,7 @@ fun InventoryOverlay(
                     horizontalAlignment = Alignment.CenterHorizontally // Centers both the text and the box horizontally
                 ) {
                     Text(
-                        text = "Drag an equipped item here",
+                        text = if (itemToBeUpgraded?.name?.contains("Upg.") == true) { alreadyUpgradedText } else dragItemText,
                         color = Color.Gray,
                         fontSize = 13.sp,
                         modifier = Modifier.padding(bottom = 8.dp) // Adds a small gap before the box
