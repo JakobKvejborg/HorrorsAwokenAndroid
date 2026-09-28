@@ -54,6 +54,7 @@ import androidx.compose.foundation.border
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -933,33 +934,32 @@ private fun MonsterHealthBar(
     maxHealth: Int,
     modifier: Modifier = Modifier
 ) {
+    val target = if (maxHealth > 0) {
+        (currentHealth.toFloat() / maxHealth).coerceIn(0f, 1f)
+    } else 0f
+
+    val progress by animateFloatAsState(
+        targetValue = target,
+        animationSpec = tween(durationMillis = 120), // lower = faster
+        label = "monsterHpProgress"
+    )
+
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(7.dp) // How thick the monster health bar appears
-            .clip(RoundedCornerShape(50))
+            .height(8.dp) // bar thickness
+            .clip(RectangleShape)
+            .background(Color(0xFF1A1A1A)) // empty part
     ) {
-        LinearProgressIndicator(
-            progress = {
-                if (maxHealth > 0) {
-                    currentHealth / maxHealth.toFloat()
-                } else {
-                    0f
-                }
-            },
-            modifier = Modifier.fillMaxSize()
-        )
-
-        // 3D shine: bright top edge, soft shade at the bottom
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth(progress)
+                .fillMaxHeight()
                 .background(
                     Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to Color.White.copy(alpha = 0.55f),
-                            0.45f to Color.White.copy(alpha = 0.05f),
-                            1.0f to Color.Black.copy(alpha = 0.35f)
+                        colors = listOf(
+                            Color(0xFFC9CDD2), // top
+                            Color(0xFF8E949B)  // bottom
                         )
                     )
                 )
