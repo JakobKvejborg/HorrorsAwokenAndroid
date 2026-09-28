@@ -365,18 +365,9 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                                 color = Color.White
                             )
 
-                            LinearProgressIndicator(
-                                progress = {
-                                    if (monster.maxHealth > 0) {
-                                        monster.currentHealth /
-                                                monster.maxHealth.toFloat()
-                                    } else {
-                                        0f
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(5.dp), // How thick the monster health bar appears
+                            MonsterHealthBar(
+                                currentHealth = monster.currentHealth,
+                                maxHealth = monster.maxHealth
                             )
                         }
 
@@ -933,6 +924,46 @@ private fun PlayerStatsPanel(player: Player) {
                 modifier = Modifier.weight(1f)
             )
         }
+    }
+}
+
+@Composable
+private fun MonsterHealthBar(
+    currentHealth: Int,
+    maxHealth: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(7.dp) // How thick the monster health bar appears
+            .clip(RoundedCornerShape(50))
+    ) {
+        LinearProgressIndicator(
+            progress = {
+                if (maxHealth > 0) {
+                    currentHealth / maxHealth.toFloat()
+                } else {
+                    0f
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // 3D shine: bright top edge, soft shade at the bottom
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0.0f to Color.White.copy(alpha = 0.55f),
+                            0.45f to Color.White.copy(alpha = 0.05f),
+                            1.0f to Color.Black.copy(alpha = 0.35f)
+                        )
+                    )
+                )
+        )
     }
 }
 
