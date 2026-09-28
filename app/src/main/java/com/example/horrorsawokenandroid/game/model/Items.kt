@@ -145,8 +145,8 @@ class Items {
         val chances = when (safeAct) {
 
             1 -> listOf(
-                Quality.Damaged to 35.0,
-                Quality.Normal to 55.0,
+                Quality.Damaged to 45.0,
+                Quality.Normal to 45.0,
                 Quality.Magic to 7.0,
                 Quality.Strong to 2.5,
                 Quality.Rare to 0.5
@@ -215,11 +215,6 @@ class Items {
     // ITEM TYPE DISTRIBUTION
     // ============================================================
     private fun generateItemType(act: Int): ItemType {
-        /*
-         * The weapon pool is intentionally not dominant.
-         * Armor pieces make up a large part of the loot pool,
-         * just like the old game.
-         */
         val pool = when (act) {
 
             1 -> listOf(
@@ -232,12 +227,10 @@ class Items {
 
             2 -> listOf(
                 ItemType.Weapon,
-                ItemType.Armor,
                 ItemType.Boots,
                 ItemType.Gloves,
                 ItemType.Leggings,
                 ItemType.Belt,
-                ItemType.Helmet,
                 ItemType.Shoulders
             )
 
@@ -248,7 +241,6 @@ class Items {
                 ItemType.Boots,
                 ItemType.Gloves,
                 ItemType.Leggings,
-                ItemType.Belt,
                 ItemType.Helmet,
                 ItemType.Shoulders,
             )
