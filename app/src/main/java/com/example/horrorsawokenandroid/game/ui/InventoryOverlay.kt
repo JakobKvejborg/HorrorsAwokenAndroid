@@ -56,6 +56,11 @@ import kotlin.math.roundToInt
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Brush
+import kotlinx.coroutines.delay
 
 @Composable
 fun InventoryOverlay(
@@ -80,6 +85,19 @@ fun InventoryOverlay(
     var upgradeWasPressed by remember { mutableStateOf(false) }
     val dragItemText = "Drag an equipped item here"
     val alreadyUpgradedText = "Items can only be upgraded once"
+    var itemUpgradeFlash by remember { mutableStateOf(false) }
+
+    val flashAlpha by animateFloatAsState(
+        targetValue = if (itemUpgradeFlash) 0.9f else 0f,
+        animationSpec = tween(if (itemUpgradeFlash) 200 else 900), // fast flash in, slow fade out
+        label = "upgradeItemFlash"
+    )
+    LaunchedEffect(itemUpgradeFlash) {
+        if (itemUpgradeFlash) {
+            delay(80)
+            itemUpgradeFlash = false
+        }
+    }
 
     fun openInventoryInfoBox(item: Items.Item) {
         heldItem = item
@@ -621,7 +639,9 @@ fun InventoryOverlay(
                     horizontalAlignment = Alignment.CenterHorizontally // Centers both the text and the box horizontally
                 ) {
                     Text(
-                        text = if (itemToBeUpgraded?.name?.contains("Upg.") == true) { alreadyUpgradedText } else dragItemText,
+                        text = if (itemToBeUpgraded?.name?.contains("Upg.") == true) {
+                            alreadyUpgradedText
+                        } else dragItemText,
                         color = Color.Gray,
                         fontSize = 13.sp,
                         modifier = Modifier.padding(bottom = 8.dp) // Adds a small gap before the box
@@ -635,6 +655,15 @@ fun InventoryOverlay(
                             }
                             .background(
                                 Color.Black.copy(alpha = 0.45f),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .background(
+                                Brush.radialGradient(
+                                    colors = listOf(
+                                        Color(0xFFFFF6C0).copy(alpha = flashAlpha),      // near-white hot center
+                                        Color(0xFFFFD700).copy(alpha = flashAlpha * 0.7f) // gold fading out
+                                    )
+                                ),
                                 RoundedCornerShape(8.dp)
                             )
                             .border(
@@ -673,6 +702,7 @@ fun InventoryOverlay(
                                     player.inventory.remove(itemToBeUpgraded) // HACK
                                     itemToBeUpgraded = null
                                     upgradeWasPressed = true
+                                    itemUpgradeFlash = true
                                 }
                             )
                         },
@@ -683,11 +713,19 @@ fun InventoryOverlay(
                             text = buildAnnotatedString {
                                 if (itemToBeUpgraded == null) {
                                     withStyle(style = SpanStyle(color = Color.White)) {
-                                        append("UPGRADE")
+                                        append("UPGRADE ")
+                                    }
+                                    withStyle(style = SpanStyle(color = Color(0xFFFFD700))) {
+                                        append("${viewModel.itemUpgrader.costToUpgradeItem}G")
                                     }
                                 } else {
                                     // This creates the multi-colored text when an item exists
-                                    withStyle(style = SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                                    withStyle(
+                                        style = SpanStyle(
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    ) {
                                         append("UPGRADE ")
                                     }
                                     withStyle(style = SpanStyle(color = Color(0xFFFFD700))) {

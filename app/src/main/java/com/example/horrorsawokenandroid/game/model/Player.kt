@@ -22,18 +22,19 @@ data class Player(
     var critDamage: Int = 150,    // percent, e.g. 150 = 1.5x
 
     // Inventory
+    var goldFind: Int = 1,
     val inventory: SnapshotStateList<Items.Item> = mutableStateListOf(),
     val equippedItems: SnapshotStateMap<Items.ItemType, Items.Item> = mutableStateMapOf(),
     var numberOfDragonEggsInInventory: Int = 0,
 
-    var goldFind: Int = 1,
+    var numberOfTechniquesLearned: Int = 0,
     var techniqueBloodLustIsLearned: Boolean = false,
     var TechniqueSwiftIsLearned: Boolean = false,
     var TechniqueRoarIsLearned: Boolean = false,
     var TechniqueDivineIsLearned: Boolean = false,
     var TechniqueGuardIsLearned: Boolean = false,
-    var PriceToHeal: Int = 2,
     var PriceToLearnTechnique: Int = 10,
+    var PriceToHeal: Int = 2,
 
     // Roar buff
     var roarBuffActive: Boolean = false,

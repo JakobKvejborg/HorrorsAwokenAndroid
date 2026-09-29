@@ -161,6 +161,7 @@ class GameViewModel(
         player.currentHealth = player.maxHealth
         player.goldInPocket -= player.PriceToHeal
         player.PriceToHeal += (player.PriceToHeal * 0.1 + 7).toInt() // TODO / ModifierProcessor.HealPriceReducedModifier
+        sounds.playHealingSound() // healing choir sound for all healers
 
         when (currentAct) {
             1 -> sounds.playAct1HealingMusic()
@@ -214,12 +215,17 @@ class GameViewModel(
             it.copy(
                 player = learnedPlayer.copy(
                     goldInPocket = learnedPlayer.goldInPocket - player.PriceToLearnTechnique,
-                    PriceToLearnTechnique = player.PriceToLearnTechnique * 3
+                    PriceToLearnTechnique = player.PriceToLearnTechnique * 3,
+                    numberOfTechniquesLearned = player.numberOfTechniquesLearned + 1,
                 )
             )
         }
 
         sounds.playAct1ArtsTeacher()
+    }
+
+    internal fun talkToDragonMage() {
+        sounds.playAct4MageSound()
     }
 
     // Inventory

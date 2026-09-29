@@ -50,5 +50,11 @@ data class GameUiState(
     var sophiaIsDead: Boolean = true,
     var act1TownTextShown: Boolean = false,
     var act3TownTextShown: Boolean = false,
+    var techniquesText1Shown: Boolean = false,
+    var techniquesText2Shown: Boolean = false,
+    var techniquesText3Shown: Boolean = false,
+    var techniquesText4Shown: Boolean = false,
+    var techniquesText5Shown: Boolean = false,
+    var shownTechniqueTexts: Set<Int> = emptySet(),
 
     )

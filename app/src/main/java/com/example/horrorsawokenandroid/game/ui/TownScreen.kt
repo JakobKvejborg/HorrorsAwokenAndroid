@@ -32,15 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.horrorsawokenandroid.R
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.TextUnit
-import kotlinx.coroutines.delay
 
 @Composable
 fun TownScreen(
@@ -48,22 +39,8 @@ fun TownScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     state.introMonstersAreCompleted = true
-
-    // Town text
     val currentAct = state.currentAct
-    val townText = remember(currentAct) {
-        when {
-            currentAct == 1 && !state.act1TownTextShown -> "Go west..."
-            currentAct == 3 && !state.act3TownTextShown -> "Help me..."
-            else -> ""
-        }
-    }
-
-    LaunchedEffect(currentAct) {
-        if (currentAct == 1) state.act1TownTextShown = true
-        if (currentAct == 3) state.act3TownTextShown = true
-    }
-
+    val GOLD_COLOR = Color(0xFFD4AF37)
 
     // BACKGROUND ZOOM
     val backgroundScale = remember { Animatable(1f) }
@@ -72,7 +49,7 @@ fun TownScreen(
         backgroundScale.animateTo(
             targetValue = 1.15f,
             animationSpec = tween(
-                durationMillis = 60000,
+                durationMillis = 50000,
                 easing = LinearEasing
             )
         )
@@ -205,6 +182,17 @@ fun TownScreen(
                             }
                         }
                     )
+
+                    // Price label on the NPC image
+                    if (currentAct == 1 || currentAct == 2 || currentAct == 4) {
+                        GoldPriceLabel(
+                            amount = state.player.PriceToHeal,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .offset(y = 20.dp)
+                        )
+                    }
+
                 }
 
                 // RIGHT NPC
@@ -237,7 +225,7 @@ fun TownScreen(
                                 }
 
                                 4 -> {
-                                    // ACT 4 NPC 2
+                                    viewModel.talkToDragonMage()
                                 }
 
                                 5 -> {
@@ -246,6 +234,17 @@ fun TownScreen(
                             }
                         }
                     )
+
+                    // Price label above the NPC image — only shown where relevant (act 1 teaches techniques)
+                    if (currentAct == 1) {
+                        GoldPriceLabel(
+                            amount = state.player.PriceToLearnTechnique,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .offset(y = (-40).dp)
+                        )
+                    }
+
                 }
             }
 
@@ -272,17 +271,19 @@ fun TownScreen(
 
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        TypewriterText(
-            text = townText,
-            modifier = Modifier.padding(horizontal = 32.dp)
-        )
-    }
+    TownTypewriterText(
+        currentAct = state.currentAct,
+        numberOfTechniquesLearned = state.player.numberOfTechniquesLearned,
+        act1TownTextShown = state.act1TownTextShown,
+        act3TownTextShown = state.act3TownTextShown,
+        shownTechniqueTexts = state.shownTechniqueTexts,
+        onAct1TextShown = { state.act1TownTextShown = true },
+        onAct3TextShown = { state.act3TownTextShown = true },
+        onTechniqueTextShown = { n ->
+            state.shownTechniqueTexts = state.shownTechniqueTexts + n
+        }
+    )
 }
-
 
 // COMPASS
 @Composable
@@ -397,7 +398,6 @@ private fun TownCompass(
 // ================================================================
 // NPC BOX
 // ================================================================
-
 @Composable
 private fun LeftNPCBox(
     imageRes: Int?,
@@ -481,7 +481,7 @@ private fun getNpcImage(
         }
 
         4 -> when (npcNumber) {
-            1 -> null
+            1 -> R.drawable.act4healer
             2 -> R.drawable.act4mage
             else -> null
         }
@@ -539,53 +539,6 @@ private fun getNpcName(
 
         else -> ""
     }
-}
-
-@Composable
-fun TypewriterText(
-    text: String,
-    modifier: Modifier = Modifier,
-    color: Color = Color(0xFF4E4E4E), // soft dark grey
-    fontSize: TextUnit = 18.sp,
-    letterDelayMs: Long = 15,         // lower = faster
-    holdMs: Long = 2900               // how long the full text stays visible
-) {
-    var visibleStart by remember { mutableIntStateOf(0) }
-    var visibleEnd by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(text) {
-        visibleStart = 0
-        visibleEnd = 0
-
-        // Letters appear left to right
-        for (i in 1..text.length) {
-            visibleEnd = i
-            delay(letterDelayMs)
-        }
-
-        delay(holdMs)
-
-        // Letters disappear in the same direction
-        for (i in 1..text.length) {
-            visibleStart = i
-            delay(letterDelayMs)
-        }
-    }
-
-    Text(
-        text = buildAnnotatedString {
-            text.forEachIndexed { index, char ->
-                val visible = index >= visibleStart && index < visibleEnd
-                withStyle(SpanStyle(color = if (visible) color else Color.Transparent)) {
-                    append(char)
-                }
-            }
-        },
-        fontSize = fontSize,
-        fontWeight = FontWeight.Medium,
-        textAlign = TextAlign.Center,
-        modifier = modifier
-    )
 }
 
 

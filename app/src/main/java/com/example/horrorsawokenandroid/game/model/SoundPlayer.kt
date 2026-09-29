@@ -142,6 +142,7 @@ class AndroidSoundPlayer(
         loadSound("equip")
         loadSound("trash")
         loadSound("smithupgrade")
+        loadSound("healingchoir")
     }
 
     private fun loadSound(name: String) {
@@ -308,7 +309,7 @@ class AndroidSoundPlayer(
     }
 
     override fun playHealingSound() {
-        playSound("act1healer")
+        playSound("healingchoir")
     }
 
     override fun playAct2HealingSound() {

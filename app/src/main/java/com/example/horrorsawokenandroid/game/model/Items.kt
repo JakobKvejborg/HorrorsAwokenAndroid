@@ -146,20 +146,19 @@ class Items {
 
             1 -> listOf(
                 Quality.Damaged to 45.0,
-                Quality.Normal to 45.0,
-                Quality.Magic to 7.0,
-                Quality.Strong to 2.5,
-                Quality.Rare to 0.5
+                Quality.Normal to 45.5,
+                Quality.Magic to 8.0,
+                Quality.Strong to 1.2,
+                Quality.Rare to 0.3
             )
 
             2 -> listOf(
-                Quality.Damaged to 25.0,
-                Quality.Normal to 50.0,
-                Quality.Magic to 12.0,
-                Quality.Strong to 7.0,
-                Quality.Rare to 4.0,
-                Quality.Unique to 1.5,
-                Quality.Epic to 0.5
+                Quality.Damaged to 30.0,
+                Quality.Normal to 55.0,
+                Quality.Magic to 10.0,
+                Quality.Strong to 4.0,
+                Quality.Rare to 0.8,
+                Quality.Unique to 0.2,
             )
 
             3 -> listOf(
@@ -175,9 +174,9 @@ class Items {
 
             4 -> listOf(
                 Quality.Damaged to 10.0,
-                Quality.Normal to 40.0,
-                Quality.Magic to 17.0,
-                Quality.Strong to 12.0,
+                Quality.Normal to 35.0,
+                Quality.Magic to 20.0,
+                Quality.Strong to 14.0,
                 Quality.Rare to 10.0,
                 Quality.Unique to 6.0,
                 Quality.Epic to 3.0,
@@ -186,14 +185,14 @@ class Items {
             )
 
             else -> listOf(
-                Quality.Damaged to 5.0,
-                Quality.Normal to 30.0,
+                Quality.Damaged to 4.0,
+                Quality.Normal to 28.0,
                 Quality.Magic to 20.0,
                 Quality.Strong to 15.0,
                 Quality.Rare to 12.0,
-                Quality.Unique to 8.0,
-                Quality.Epic to 5.0,
-                Quality.Legendary to 3.5,
+                Quality.Unique to 9.0,
+                Quality.Epic to 6.0,
+                Quality.Legendary to 4.5,
                 Quality.Godly to 1.5
             )
         }
@@ -686,7 +685,7 @@ class Items {
                 ).roundToInt()
 
         item.armor = (
-                random.nextInt(0, 4) +
+                random.nextInt(0, 3) +
                         quality * act -
                         1
                 ).roundToInt()
@@ -1334,7 +1333,7 @@ class Items {
                         "Abyssal Leggings",
                         "Doom Leggings",
                         "Soulforged Leggings",
-                        "Leggings of the End"
+                        "Blood Leggings"
                     ).random(random)
                 }
             }
