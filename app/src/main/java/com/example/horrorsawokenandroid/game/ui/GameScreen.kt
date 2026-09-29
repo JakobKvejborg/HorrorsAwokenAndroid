@@ -4,6 +4,7 @@ package com.example.horrorsawokenandroid.game.ui
 enum class GameScreen {
     Menu,
     GameOver,
+    Modifiers,
     IntroMovie,
     CombatAct1,
     TownAct1,

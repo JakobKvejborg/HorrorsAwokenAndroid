@@ -18,6 +18,7 @@ import com.example.horrorsawokenandroid.game.ui.TownScreen
 import com.example.horrorsawokenandroid.game.ui.GameScreen
 import com.example.horrorsawokenandroid.game.ui.IntroMovieScreen
 import com.example.horrorsawokenandroid.game.ui.MenuScreen
+import com.example.horrorsawokenandroid.game.ui.ModifierButtonsScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -46,6 +47,12 @@ class MainActivity : ComponentActivity() {
                             viewModel = gameViewModel
                         )
                     }
+                    GameScreen.Modifiers -> {
+                        ModifierButtonsScreen(
+                            viewModel = gameViewModel,
+                            onClose = { gameViewModel.setCurrentScreen(GameScreen.Menu) }
+                        )
+                    }
                     GameScreen.GameOver -> {
                         GameOverScreen(
                             viewModel = gameViewModel
@@ -58,7 +65,7 @@ class MainActivity : ComponentActivity() {
                     }
                     GameScreen.CombatAct1 -> {
                         CombatScreen(
-                            viewModel = gameViewModel,
+                            viewModel = gameViewModel
                         )
                     }
                     GameScreen.TownAct1 -> {

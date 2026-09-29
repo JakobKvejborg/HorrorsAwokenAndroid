@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -438,7 +437,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             Spacer(modifier = Modifier.height(10.dp))
 
             // ATTACK BUTTONS
-            CombatButton(
+            CombatButtonLayout(
                 text = "ATTACK",
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { if (state.monster != null) viewModel.normalAttack() }
@@ -452,7 +451,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 if (state.player.techniqueBloodLustIsLearned) {
-                    CombatButton(
+                    CombatButtonLayout(
                         text = "BLOOD LUST",
                         modifier = Modifier.weight(1f),
                         imageRes = R.drawable.bloodbutton2,
@@ -462,7 +461,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
 
                 if (state.player.TechniqueSwiftIsLearned) {
-                    CombatButton(
+                    CombatButtonLayout(
                         text = "SWIFT",
                         imageRes = R.drawable.swiftbutton2,
                         modifier = Modifier.weight(1f),
@@ -479,7 +478,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 if (state.player.TechniqueRoarIsLearned) {
-                    CombatButton(
+                    CombatButtonLayout(
                         text = "ROAR",
                         glowColor = Color(0xFF00FFCC),
                         isGlowing = state.player.roarBuffActive,
@@ -489,7 +488,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 }
 
                 if (state.player.TechniqueDivineIsLearned) {
-                    CombatButton(
+                    CombatButtonLayout(
                         text = "DIVINE",
                         modifier = Modifier.weight(1f),
                         imageRes = R.drawable.divinebutton,
@@ -500,7 +499,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 if (state.player.TechniqueGuardIsLearned) {
                     val playerLowHealth =
                         state.player.currentHealth <= state.player.playerIsOnLowHealth
-                    CombatButton(
+                    CombatButtonLayout(
                         text = "GUARD",
                         glowColor = Color(0xFF00BFFF),
                         isGlowing = playerLowHealth && state.monster != null && !state.player.guardBuffIsActive,
@@ -680,7 +679,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 }
 
 @Composable
-private fun CombatButton(
+internal fun CombatButtonLayout(
     text: String,
     modifier: Modifier = Modifier,
     imageRes: Int? = null,

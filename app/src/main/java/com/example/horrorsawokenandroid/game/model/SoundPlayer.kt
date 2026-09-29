@@ -360,6 +360,7 @@ class AndroidSoundPlayer(
         stopAct2TownMusic()
         playAct1TownMusic()
         stopAct3Music()
+        stopAct2WindSound()
     }
 
     override fun act2TownMixer() {
@@ -367,12 +368,14 @@ class AndroidSoundPlayer(
         stopAct3Music()
         stopAct1TownMusic()
         playAct2TownMusic()
+        playAct2WindMusic()
     }
 
     override fun act3TownMixer() {
         stopAct4Music()
         stopAct2TownMusic()
         playAct3Music()
+        stopAct2WindSound()
     }
 
     override fun act4TownMixer() {

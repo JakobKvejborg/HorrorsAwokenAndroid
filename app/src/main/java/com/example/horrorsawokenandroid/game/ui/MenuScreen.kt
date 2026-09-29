@@ -91,7 +91,7 @@ fun MenuScreen(
             Spacer(modifier = Modifier.height(45.dp))
 
             MenuButton(
-                text = "PLAY",
+                text = "PLAY", // Play game button
                 onClick = {
                     viewModel.setCurrentScreen(GameScreen.IntroMovie)
                 }
@@ -108,10 +108,10 @@ fun MenuScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            MenuButton(
+            MenuButton( // Modifiers button
                 text = "MODIFIERS",
                 onClick = {
-                    // TODO
+                    viewModel.setCurrentScreen(GameScreen.Modifiers)
                 }
             )
         }
