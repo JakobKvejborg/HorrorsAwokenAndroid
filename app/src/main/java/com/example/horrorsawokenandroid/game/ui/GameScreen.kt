@@ -5,6 +5,7 @@ enum class GameScreen {
     Menu,
     GameOver,
     Modifiers,
+    Sophia,
     IntroMovie,
     CombatAct1,
     TownAct1,

@@ -52,7 +52,7 @@ data class Player(
 
     companion object {
         fun newHero() = Player( // TODO important, set dmg to 1, level to 1, and str to 3, gold to 0, and maxhealth 40, currenthealth 40, critchance 0
-            name = "Hero", maxHealth = 400, currentHealth = 400, damage = 15, strength = 10,
+            name = "Hero", maxHealth = 400, currentHealth = 400, damage = 1135, strength = 10,
             lifesteal = 0, armor = 0, dodgeChance = 40, goldInPocket = 11000, experience = 0,
             level = 15, critChance = 40, regeneration = 0, critDamage = 150,
         )

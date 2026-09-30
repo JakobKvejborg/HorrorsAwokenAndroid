@@ -751,14 +751,6 @@ class Items {
                     ).roundToInt()
         }
 
-        if (random.nextInt(100) < 30) {
-            item.critChance = (
-                    random.nextInt(1, 4) *
-                            quality *
-                            act
-                    ).roundToInt()
-        }
-
         item.strengthRequirement = (
                 random.nextInt(1, 6) *
                         quality
@@ -1006,36 +998,32 @@ class Items {
                     ""
             }
 
-        val suffix =
-            when (quality) {
+        val suffixes = when (quality) {
+            Quality.Damaged -> listOf("")
+            Quality.Normal ->
+                if (random.nextInt(100) < 70) {
+                    listOf("")
+                } else {
+                    normalSuffixes
+                }
+            Quality.Magic -> magicSuffixes
+            Quality.Strong -> strongSuffixes
+            Quality.Rare -> rareSuffixes
+            Quality.Unique -> uniqueSuffixes
+            Quality.Epic -> epicSuffixes
+            Quality.Legendary -> legendarySuffixes
+            Quality.Godly -> godlySuffixes
+        }
 
-                Quality.Damaged ->
-                    ""
+        val validSuffixes = suffixes.filter { suffix ->
+            val baseWords = baseName.lowercase().split(" ")
 
-                Quality.Normal ->
-                    normalSuffixes.random(random)
-
-                Quality.Magic ->
-                    magicSuffixes.random(random)
-
-                Quality.Strong ->
-                    strongSuffixes.random(random)
-
-                Quality.Rare ->
-                    rareSuffixes.random(random)
-
-                Quality.Unique ->
-                    uniqueSuffixes.random(random)
-
-                Quality.Epic ->
-                    epicSuffixes.random(random)
-
-                Quality.Legendary ->
-                    legendarySuffixes.random(random)
-
-                Quality.Godly ->
-                    godlySuffixes.random(random)
+            baseWords.none { word ->
+                suffix.lowercase().contains(word)
             }
+        }
+
+        val suffix = validSuffixes.randomOrNull() ?: ""
 
         return listOf(
             prefix,
@@ -1189,7 +1177,7 @@ class Items {
                         "Plated Jacket",
                         "Steel Armor",
                         "Battle Plate",
-                        "Knight Armor"
+                        "Knight's Armor"
                     ).random(random)
 
                     4 -> listOf(
@@ -1319,7 +1307,7 @@ class Items {
                         "Iron Leggings",
                         "Steel Leggings",
                         "War Leggings",
-                        "Knight Leggings"
+                        "Knight's Leggings"
                     ).random(random)
 
                     4 -> listOf(
@@ -1356,7 +1344,7 @@ class Items {
 
                     3 -> listOf(
                         "Steel Helmet",
-                        "Knight Helmet",
+                        "Knight's Helmet",
                         "Battle Helm"
                     ).random(random)
 
@@ -1433,7 +1421,7 @@ class Items {
                     3 -> listOf(
                         "Steel Shoulders",
                         "War Shoulders",
-                        "Knight Shoulders"
+                        "Knight's Shoulders"
                     ).random(random)
 
                     4 -> listOf(
@@ -1479,7 +1467,7 @@ class Items {
                     else -> listOf(
                         "Abyssal Amulet",
                         "Doom Amulet",
-                        "Amulet of the End"
+                        "End Amulet"
                     ).random(random)
                 }
             }
@@ -1496,7 +1484,6 @@ class Items {
         "Heroic",
         "Grand",
         "Warlord's",
-        "Knight's",
         "Unique",
         "Cunning"
     )

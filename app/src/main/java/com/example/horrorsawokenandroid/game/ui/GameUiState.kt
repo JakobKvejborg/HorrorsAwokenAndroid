@@ -45,16 +45,21 @@ data class GameUiState(
     // Quests
     var act1Quest1Started: Boolean = false,
     var act1Quest1IsFinished: Boolean = false,
+    var act4Quest1Started: Boolean = false,
     var act4QuestIsFinished: Boolean = false,
     var act4QuestRubyHasBeenGivenToSmith: Boolean = false,
     var sophiaIsDead: Boolean = true,
     var act1TownTextShown: Boolean = false,
     var act3TownTextShown: Boolean = false,
+    var act4QuestStartTextShown: Boolean = false,
+    var act4QuestTextShown: Boolean = false,
+    var act4QuestFinishedTextShown: Boolean = false,
     var techniquesText1Shown: Boolean = false,
     var techniquesText2Shown: Boolean = false,
     var techniquesText3Shown: Boolean = false,
     var techniquesText4Shown: Boolean = false,
     var techniquesText5Shown: Boolean = false,
     var shownTechniqueTexts: Set<Int> = emptySet(),
+    val adHocTownText: String? = null,
 
     )

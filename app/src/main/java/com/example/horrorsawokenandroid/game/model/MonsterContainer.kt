@@ -8,7 +8,7 @@ class MonsterContainer {
 // ACT 1 - NORMAL MONSTERS
 // ------------------------------------------------------------
 
-    val listOfMonsters1 = listOf(
+    val listOfMonstersAct1West = listOf(
         Monster(
             name = "Goblin",
             maxHealth = 10,
@@ -110,10 +110,10 @@ class MonsterContainer {
         )
     )
 
-// ------------------------------------------------------------
+    // ------------------------------------------------------------
 // ACT 1: 2 - STRONGER NORMAL MONSTERS
 // ------------------------------------------------------------
-    val listOfMonsters2 = listOf(
+    val listOfMonstersAct1East = listOf(
         Monster(
             name = "Ghost",
             maxHealth = 8,
@@ -143,7 +143,7 @@ class MonsterContainer {
             minDamage = 2,
             maxDamage = 0,
             randomDamageModifier = 5,
-            monsterExperience = 15,
+            monsterExperience = 16,
             monsterGold = 0,
             imageRes = R.drawable.golem
         ),
@@ -154,7 +154,7 @@ class MonsterContainer {
             minDamage = 1,
             maxDamage = 0,
             randomDamageModifier = 7,
-            monsterExperience = 17,
+            monsterExperience = 18,
             monsterGold = 3,
             imageRes = R.drawable.knight
         ),
@@ -165,7 +165,7 @@ class MonsterContainer {
             minDamage = 3,
             maxDamage = 0,
             randomDamageModifier = 5,
-            monsterExperience = 13,
+            monsterExperience = 14,
             monsterGold = 0,
             imageRes = R.drawable.horror
         ),
@@ -176,7 +176,7 @@ class MonsterContainer {
             minDamage = 1,
             maxDamage = 0,
             randomDamageModifier = 7,
-            monsterExperience = 19,
+            monsterExperience = 21,
             monsterGold = 0,
             imageRes = R.drawable.starved
         ),
@@ -187,7 +187,7 @@ class MonsterContainer {
             minDamage = 4,
             maxDamage = 0,
             randomDamageModifier = 2,
-            monsterExperience = 12,
+            monsterExperience = 13,
             monsterGold = 0,
             imageRes = R.drawable.bat
         ),
@@ -198,7 +198,7 @@ class MonsterContainer {
             minDamage = 0,
             maxDamage = 0,
             randomDamageModifier = 8,
-            monsterExperience = 22,
+            monsterExperience = 23,
             monsterGold = 4,
             imageRes = R.drawable.woodhorror
         ),
@@ -231,7 +231,7 @@ class MonsterContainer {
             minDamage = 1,
             maxDamage = 0,
             randomDamageModifier = 6,
-            monsterExperience = 30,
+            monsterExperience = 31,
             monsterGold = 0,
             imageRes = R.drawable.lizard
         )
@@ -277,7 +277,7 @@ class MonsterContainer {
 // SNOW AREA
 // ------------------------------------------------------------
 
-    val listOfSnowMonsters1 = listOf(
+    val listOfSnowMonstersAct2East = listOf(
         Monster(
             name = "Snow Demon",
             maxHealth = 35,
@@ -502,7 +502,7 @@ class MonsterContainer {
             minDamage = 35,
             maxDamage = 0,
             randomDamageModifier = 0,
-            monsterExperience = 70,
+            monsterExperience = 60,
             monsterGold = 30,
             imageRes = R.drawable.burningskeleton
         ),
@@ -513,7 +513,7 @@ class MonsterContainer {
             minDamage = 24,
             maxDamage = 0,
             randomDamageModifier = 0,
-            monsterExperience = 70,
+            monsterExperience = 60,
             monsterGold = 30,
             imageRes = R.drawable.burninglizard
         ),
@@ -546,7 +546,7 @@ class MonsterContainer {
             minDamage = 20,
             maxDamage = 0,
             randomDamageModifier = 12,
-            monsterExperience = 77,
+            monsterExperience = 67,
             monsterGold = 30,
             imageRes = R.drawable.forgottenprince
         ),
@@ -557,7 +557,7 @@ class MonsterContainer {
             minDamage = 34,
             maxDamage = 0,
             randomDamageModifier = 0,
-            monsterExperience = 66,
+            monsterExperience = 56,
             monsterGold = 30,
             imageRes = R.drawable.fireknight
         )
@@ -575,7 +575,7 @@ class MonsterContainer {
             minDamage = 36,
             maxDamage = 0,
             randomDamageModifier = 0,
-            monsterExperience = 90,
+            monsterExperience = 93,
             monsterGold = 44,
             imageRes = R.drawable.casterdragon
         ),
@@ -597,7 +597,7 @@ class MonsterContainer {
             minDamage = 43,
             maxDamage = 0,
             randomDamageModifier = 0,
-            monsterExperience = 20,
+            monsterExperience = 50,
             monsterGold = 60,
             imageRes = R.drawable.silverdragon
         ),
@@ -608,7 +608,7 @@ class MonsterContainer {
             minDamage = 29,
             maxDamage = 0,
             randomDamageModifier = 8,
-            monsterExperience = 79,
+            monsterExperience = 89,
             monsterGold = 0,
             imageRes = R.drawable.dragonhydra
         ),
@@ -628,6 +628,20 @@ class MonsterContainer {
 // ------------------------------------------------------------
 // ACT 4 DRAGON EGG AREA
 // ------------------------------------------------------------
+
+    val listOfDragonNestWatchersAct4North = listOf(
+        Monster(
+            name = "Nest-Watcher Dragon",
+            maxHealth = 310,
+            currentHealth = 310,
+            minDamage = 13,
+            maxDamage = 0,
+            randomDamageModifier = 50,
+            monsterExperience = 60,
+            monsterGold = 0,
+            imageRes = R.drawable.dragonnestwatcher
+        )
+    )
 
     val listOfDragonEggAct4North = listOf(
         Monster(
@@ -665,20 +679,20 @@ class MonsterContainer {
         )
     )
 
-// ------------------------------------------------------------
+    // ------------------------------------------------------------
 // ACT 5
 // ------------------------------------------------------------
-    val listOfAct5Monsters = listOf(
+    val listOfAct5MonstersWest = listOf(
         Monster(
-            name = "Shadow",
-            maxHealth = 470,
-            currentHealth = 470,
+            name = "Black Angel",
+            maxHealth = 360,
+            currentHealth = 360,
             minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 66,
-            monsterExperience = 80,
+            randomDamageModifier = 39,
+            monsterExperience = 120,
             monsterGold = 120,
-            imageRes = R.drawable.shadow
+            imageRes = R.drawable.blackangel
         ),
         Monster(
             name = "Jester",
@@ -692,37 +706,15 @@ class MonsterContainer {
             imageRes = R.drawable.jester
         ),
         Monster(
-            name = "False Light Entity",
-            maxHealth = 510,
-            currentHealth = 510,
-            minDamage = 53,
+            name = "Blood Void",
+            maxHealth = 373,
+            currentHealth = 340,
+            minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 0,
-            monsterExperience = 150,
+            randomDamageModifier = 58,
+            monsterExperience = 77,
             monsterGold = 0,
-            imageRes = R.drawable.entityoffalselight
-        ),
-        Monster(
-            name = "Black Angel",
-            maxHealth = 360,
-            currentHealth = 360,
-            minDamage = 0,
-            maxDamage = 0,
-            randomDamageModifier = 39,
-            monsterExperience = 120,
-            monsterGold = 120,
-            imageRes = R.drawable.blackangel
-        ),
-        Monster(
-            name = "Priest",
-            maxHealth = 415,
-            currentHealth = 415,
-            minDamage = 0,
-            maxDamage = 0,
-            randomDamageModifier = 67,
-            monsterExperience = 50,
-            monsterGold = 180,
-            imageRes = R.drawable.priest
+            imageRes = R.drawable.bloodvoid
         ),
         Monster(
             name = "Crow",
@@ -736,28 +728,6 @@ class MonsterContainer {
             imageRes = R.drawable.crow
         ),
         Monster(
-            name = "Void",
-            maxHealth = 470,
-            currentHealth = 470,
-            minDamage = 32,
-            maxDamage = 0,
-            randomDamageModifier = 40,
-            monsterExperience = 99,
-            monsterGold = 160,
-            imageRes = R.drawable.void1
-        ),
-        Monster(
-            name = "Blood Void",
-            maxHealth = 373,
-            currentHealth = 340,
-            minDamage = 0,
-            maxDamage = 0,
-            randomDamageModifier = 58,
-            monsterExperience = 77,
-            monsterGold = 0,
-            imageRes = R.drawable.bloodvoid
-        ),
-        Monster(
             name = "Death Angel",
             maxHealth = 364,
             currentHealth = 364,
@@ -767,6 +737,56 @@ class MonsterContainer {
             monsterExperience = 120,
             monsterGold = 133,
             imageRes = R.drawable.deathangel
+        ),
+    )
+
+    val listOfAct5MonstersEast = listOf(
+        Monster(
+            name = "Shadow",
+            maxHealth = 470,
+            currentHealth = 470,
+            minDamage = 0,
+            maxDamage = 0,
+            randomDamageModifier = 66,
+            monsterExperience = 80,
+            monsterGold = 120,
+            imageRes = R.drawable.shadow
+        ),
+
+        Monster(
+            name = "False Light Entity",
+            maxHealth = 510,
+            currentHealth = 510,
+            minDamage = 53,
+            maxDamage = 0,
+            randomDamageModifier = 0,
+            monsterExperience = 150,
+            monsterGold = 0,
+            imageRes = R.drawable.entityoffalselight
+        ),
+
+        Monster(
+            name = "Priest",
+            maxHealth = 415,
+            currentHealth = 415,
+            minDamage = 0,
+            maxDamage = 0,
+            randomDamageModifier = 67,
+            monsterExperience = 50,
+            monsterGold = 180,
+            imageRes = R.drawable.priest
+        ),
+
+        Monster(
+            name = "Void",
+            maxHealth = 470,
+            currentHealth = 470,
+            minDamage = 32,
+            maxDamage = 0,
+            randomDamageModifier = 40,
+            monsterExperience = 99,
+            monsterGold = 160,
+            imageRes = R.drawable.void1
         ),
         Monster(
             name = "Dark Mage",

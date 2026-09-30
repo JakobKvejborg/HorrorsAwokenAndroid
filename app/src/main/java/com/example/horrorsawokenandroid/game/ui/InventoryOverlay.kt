@@ -87,9 +87,9 @@ fun InventoryOverlay(
     val alreadyUpgradedText = "Items can only be upgraded once"
     var itemUpgradeFlash by remember { mutableStateOf(false) }
 
-    val flashAlpha by animateFloatAsState(
+    val flashAlpha by animateFloatAsState( // Upgrade item animation
         targetValue = if (itemUpgradeFlash) 0.9f else 0f,
-        animationSpec = tween(if (itemUpgradeFlash) 200 else 900), // fast flash in, slow fade out
+        animationSpec = tween(if (itemUpgradeFlash) 200 else 2400), // fast flash in, slow fade out
         label = "upgradeItemFlash"
     )
     LaunchedEffect(itemUpgradeFlash) {
@@ -619,7 +619,13 @@ fun InventoryOverlay(
                 )
 
                 Box(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInput(Unit) {
+                            detectTapGestures {
+                                closeInventoryInfoBox()
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -956,7 +962,6 @@ internal fun EquipmentSlot(
         )
     }
 }
-
 
 // ================================================================
 // ITEM INFO

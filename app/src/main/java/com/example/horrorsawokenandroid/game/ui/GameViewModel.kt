@@ -1,5 +1,9 @@
 package com.example.horrorsawokenandroid.game.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.horrorsawokenandroid.game.model.EncounterBattle
@@ -10,11 +14,9 @@ import com.example.horrorsawokenandroid.game.model.MonsterContainer
 import com.example.horrorsawokenandroid.game.model.NoOpSoundPlayer
 import com.example.horrorsawokenandroid.game.model.Player
 import com.example.horrorsawokenandroid.game.model.SoundPlayer
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlin.random.Random
 
 /*
 FORMAT: CTRL + ALT + L
@@ -103,7 +105,7 @@ class GameViewModel(
     // INITIAL SETUP / first encounter
     init {
         encounterBattle.startEncounter(
-            monsterPool = monsterContainer.listOfMonsters1,
+            monsterPool = monsterContainer.listOfMonstersAct1West,
             onEncounterStarted = { droppedItem = null }
         )
     }
@@ -226,6 +228,41 @@ class GameViewModel(
 
     internal fun talkToDragonMage() {
         sounds.playAct4MageSound()
+
+        _uiState.update { state ->
+            val player = state.player
+            val questFinished = player.numberOfDragonEggsInInventory >= 3
+
+            state.copy(
+                act4Quest1Started = true,
+                act4QuestIsFinished = if (questFinished) true else state.act4QuestIsFinished,
+                player = if (questFinished) {
+                    player.copy(numberOfDragonEggsInInventory = 0)
+                } else {
+                    player
+                }
+            )
+        }
+
+        showTownText(
+            if (uiState.value.act4QuestIsFinished) "Goooood... The eggs. Here, take this. Now leave me alone! Hahahahaha..."
+            else "What do you want... Oh yes, the eggs! I need 3 Dragon eggs. Didn't I already tell you? They're up north somewhere. Go get them!"
+        )
+
+        if (uiState.value.act4QuestIsFinished == true) {
+            sounds.dragonRubySound()
+        }
+
+    }
+
+    fun showTownText(text: String) {
+        _uiState.update { it.copy(adHocTownText = text) }
+    }
+
+    internal fun resetAct4QuestText() {
+        _uiState.update {
+            it.copy(act4QuestStartTextShown = false)
+        }
     }
 
     // Inventory
@@ -244,17 +281,15 @@ class GameViewModel(
 
     fun openAct2SmithOverlay() {
         _uiState.update {
-            it.copy(inventoryOpen = true)
+            it.copy(inventoryOpen = true, act2SmithOverlayOpen = true)
         }
-        uiState.value.act2SmithOverlayOpen = true
         sounds.playAct2SmithOffer()
     }
 
     fun closeAct2SmithOverlay() {
         _uiState.update {
-            it.copy(inventoryOpen = false)
+            it.copy(inventoryOpen = false, act2SmithOverlayOpen = false)
         }
-        uiState.value.act2SmithOverlayOpen = false
     }
 
     fun equipItem(item: Items.Item) {
@@ -284,14 +319,15 @@ class GameViewModel(
     }
 
     fun whereToGoBasedOnTheDirection(direction: String) {
-        val currentAct = uiState.value.currentAct
-        if (uiState.value.introMonstersAreCompleted) {
-            uiState.value.firstTimeTownVisitedMusic = false
+        val state = uiState.value
+        val currentAct = state.currentAct
+        if (state.introMonstersAreCompleted) {
+            state.firstTimeTownVisitedMusic = false
         }
 
         // Player goes South
         if (direction == "SOUTH") {
-            if (uiState.value.act1Quest1Started) {
+            if (state.act1Quest1Started) {
                 // TODO needs act 1 quest
             }
             when (currentAct) {
@@ -306,30 +342,32 @@ class GameViewModel(
         // Player goes North
         when (currentAct) {
             1 -> when (direction) {
-                "NORTH" -> if (uiState.value.isAct1BossDefeated == true) {
+                "NORTH" -> if (state.isAct1BossDefeated == true) {
                     goToNextAct()
                     return
                 }
             }
 
             2 -> when (direction) {
-                "NORTH" -> if (uiState.value.isAct2BossDefeated == true) {
+                "NORTH" -> if (state.isAct2BossDefeated == true) {
                     goToNextAct()
                     return
                 }
             }
 
             3 -> when (direction) {
-                "NORTH" -> if (uiState.value.isAct3BossDefeated == true) {
+                "NORTH" -> if (state.isAct3BossDefeated == true) {
                     goToNextAct()
                     return
                 }
             }
 
             5 -> when (direction) {
-                "NORTH" -> if (uiState.value.isAct5BossDefeated == true && uiState.value.sophiaIsDead) {
-                    // TODO make a "Sophia" game view
-                    return
+                "NORTH" -> {
+                    if (state.isAct5BossDefeated == true && state.sophiaIsDead) {
+                        goToNextAct()
+                        return
+                    }
                 }
             }
         }
@@ -363,22 +401,22 @@ class GameViewModel(
         val monsterPoolBasedOnDirection = when (currentAct) {
             // Act 1
             1 -> when (direction) {
-                "WEST" -> monsterContainer.listOfMonsters1
-                "EAST" -> monsterContainer.listOfMonsters2
+                "WEST" -> monsterContainer.listOfMonstersAct1West
+                "EAST" -> monsterContainer.listOfMonstersAct1East
                 "NORTH" -> {
                     sounds.playAct1BossSound()
                     monsterContainer.listOfMonstersBossAct1
                 }
 
                 else -> {
-                    monsterContainer.listOfMonsters1
+                    monsterContainer.listOfMonstersAct1West
                 }
             }
 
             // Act 2
             2 -> when (direction) {
                 "WEST" -> monsterContainer.listOfMonstersSnowGoldGoblin
-                "EAST" -> monsterContainer.listOfSnowMonsters1
+                "EAST" -> monsterContainer.listOfSnowMonstersAct2East
                 "NORTH" -> {
                     if (uiState.value.isAct2BossDefeated == true) {
                         goToNextAct()
@@ -389,7 +427,7 @@ class GameViewModel(
                 }
 
                 else -> {
-                    monsterContainer.listOfSnowMonsters1
+                    monsterContainer.listOfSnowMonstersAct2East
                 }
             }
 
@@ -416,22 +454,24 @@ class GameViewModel(
                 "WEST" -> monsterContainer.listOfMonstersAct4West
                 "EAST" -> monsterContainer.listOfDragonsAct4East
                 "NORTH" ->
-                    if (uiState.value.player.numberOfDragonEggsInInventory < 4) {
+                    if (uiState.value.act4Quest1Started && !uiState.value.act4QuestIsFinished) {
                         monsterContainer.listOfDragonEggAct4North
-                    } else {
+                    } else if (uiState.value.act4QuestIsFinished) {
                         goToNextAct()
                         return null
+                    } else {
+                        monsterContainer.listOfDragonNestWatchersAct4North // Player can't collect eggs unless he has spoken to act4 mage
                     }
 
                 else -> {
-                    monsterContainer.listOfMonstersAct4West
+                    return null
                 }
             }
 
             // Act 5
             5 -> when (direction) {
-                "WEST" -> monsterContainer.listOfAct5Monsters
-                "EAST" -> monsterContainer.listOfAct5Monsters
+                "WEST" -> monsterContainer.listOfAct5MonstersWest
+                "EAST" -> monsterContainer.listOfAct5MonstersEast
                 "NORTH" -> {
                     if (!uiState.value.isAct5BossDefeated == true) {
                         monsterContainer.listOfMonstersBossAct5
@@ -441,12 +481,12 @@ class GameViewModel(
                 }
 
                 else -> {
-                    monsterContainer.listOfAct5Monsters
+                    monsterContainer.listOfAct5MonstersEast
                 }
             }
 
             else -> {
-                monsterContainer.listOfMonsters1
+                monsterContainer.listOfMonstersAct1West
             }
         }
 
@@ -515,8 +555,8 @@ class GameViewModel(
             it.copy(
                 lootAvailable = false,
                 droppedItem = null,
-                encounterLog = "You find the item: ${loot.name}! "
-                        + "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ". Player dragonegg number: ${player.numberOfDragonEggsInInventory}", // for debugging
+                encounterLog = "You find the item: ${loot.name} "
+//                        + "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ". Player dragonegg number: ${player.numberOfDragonEggsInInventory}", // for debugging
             )
         }
 
@@ -566,7 +606,12 @@ class GameViewModel(
                 uiState.value.currentAct = 5
                 setCurrentScreen(GameScreen.TownAct5)
                 sounds.act5TownMixer()
-                uiState.value.hasAct5BeenVisited
+                uiState.value.hasAct5BeenVisited = true
+            }
+
+            5 -> {
+                setCurrentScreen(GameScreen.Sophia)
+                sounds.sophiaDeadMixer()
             }
         }
 
@@ -680,4 +725,21 @@ class GameViewModel(
             )
         }
     }
+
+    fun markAct1TextShown() {
+        _uiState.update { it.copy(act1TownTextShown = true) }
+    }
+
+    fun markAct3TextShown() {
+        _uiState.update { it.copy(act3TownTextShown = true) }
+    }
+
+    fun markTechniqueTextShown(n: Int) {
+        _uiState.update { it.copy(shownTechniqueTexts = it.shownTechniqueTexts + n) }
+    }
+
+    fun clearAdHocTownText() {
+        _uiState.update { it.copy(adHocTownText = null) }
+    }
+
 }

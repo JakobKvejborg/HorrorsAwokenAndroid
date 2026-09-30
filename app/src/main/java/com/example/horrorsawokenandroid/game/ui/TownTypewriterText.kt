@@ -54,16 +54,19 @@ fun TownTypewriterText(
     act1TownTextShown: Boolean,
     act3TownTextShown: Boolean,
     shownTechniqueTexts: Set<Int>,
+    adHocText: String?,
     onAct1TextShown: () -> Unit,
     onAct3TextShown: () -> Unit,
     onTechniqueTextShown: (Int) -> Unit,
+    onAdHocTextShown: () -> Unit,
 ) {
     val techniqueText = techniqueTexts[numberOfTechniquesLearned]
 
-    val announcement = remember(currentAct, numberOfTechniquesLearned) {
+    val announcement = remember(currentAct, numberOfTechniquesLearned, adHocText) {
         when {
-            currentAct == 1 && !act1TownTextShown -> "Go west..." to false // Text in act 1 town
-            currentAct == 3 && !act3TownTextShown -> "Help me..." to false // Text in act 2 town
+            adHocText != null -> adHocText to false
+            currentAct == 1 && !act1TownTextShown -> "Go west..." to false
+            currentAct == 3 && !act3TownTextShown -> "Save me..." to false
             techniqueText != null && numberOfTechniquesLearned !in shownTechniqueTexts ->
                 techniqueText to true
             else -> "" to false
@@ -72,10 +75,12 @@ fun TownTypewriterText(
 
     val (text, isTechniqueText) = announcement
 
-    if (currentAct == 1 && !act1TownTextShown) onAct1TextShown()
-    if (currentAct == 3 && !act3TownTextShown) onAct3TextShown()
-    if (techniqueText != null && numberOfTechniquesLearned !in shownTechniqueTexts) {
-        onTechniqueTextShown(numberOfTechniquesLearned)
+    LaunchedEffect(currentAct, numberOfTechniquesLearned, adHocText) {
+        if (currentAct == 1 && !act1TownTextShown) onAct1TextShown()
+        if (currentAct == 3 && !act3TownTextShown) onAct3TextShown()
+        if (techniqueText != null && numberOfTechniquesLearned !in shownTechniqueTexts) {
+            onTechniqueTextShown(numberOfTechniquesLearned)
+        }
     }
 
     Box(
@@ -83,11 +88,28 @@ fun TownTypewriterText(
         contentAlignment = Alignment.Center
     ) {
         TypewriterText(
-            color = if (isTechniqueText) TECHNIQUE_TEXT_COLOR else Color(DEFAULT_TEXT_COLOR),
+            color = when {
+                adHocText != null -> Color.White
+                isTechniqueText -> TECHNIQUE_TEXT_COLOR
+                else -> Color(DEFAULT_TEXT_COLOR)
+            },
             text = text,
-            holdMs = if (isTechniqueText) 5000 else 2900,
-            letterDelayMs = if (isTechniqueText) 10 else 30,
-        modifier = Modifier.padding(horizontal = 32.dp)
+            holdMs = when {
+                adHocText != null -> 1800
+                isTechniqueText -> 5000
+                else -> 2900
+            },
+            letterDelayMs = when {
+                adHocText != null -> 1
+                isTechniqueText -> 10
+                else -> 30
+            },
+            modifier = Modifier.padding(horizontal = 32.dp),
+            onFinished = {
+                if (adHocText != null) {
+                    onAdHocTextShown()
+                }
+            }
         )
     }
 }
@@ -96,10 +118,11 @@ fun TownTypewriterText(
 fun TypewriterText(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = Color.White, // default to white
+    color: Color = Color.White,
     fontSize: TextUnit = 18.sp,
-    letterDelayMs: Long = 30,         // lower = faster
-    holdMs: Long = 2900               // how long the full text stays visible
+    letterDelayMs: Long = 30, // lower = faster
+    holdMs: Long = 2900,
+    onFinished: () -> Unit = {}
 ) {
     var visibleStart by remember { mutableIntStateOf(0) }
     var visibleEnd by remember { mutableIntStateOf(0) }
@@ -108,7 +131,6 @@ fun TypewriterText(
         visibleStart = 0
         visibleEnd = 0
 
-        // Letters appear left to right
         for (i in 1..text.length) {
             visibleEnd = i
             delay(letterDelayMs)
@@ -116,18 +138,24 @@ fun TypewriterText(
 
         delay(holdMs)
 
-        // Letters disappear in the same direction
         for (i in 1..text.length) {
             visibleStart = i
             delay(letterDelayMs)
         }
+
+        onFinished()
     }
 
     Text(
         text = buildAnnotatedString {
             text.forEachIndexed { index, char ->
                 val visible = index >= visibleStart && index < visibleEnd
-                withStyle(SpanStyle(color = if (visible) color else Color.Transparent)) {
+
+                withStyle(
+                    SpanStyle(
+                        color = if (visible) color else Color.Transparent
+                    )
+                ) {
                     append(char)
                 }
             }

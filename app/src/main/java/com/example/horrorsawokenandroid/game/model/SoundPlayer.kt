@@ -30,6 +30,7 @@ interface SoundPlayer {
     fun playAct2BossSound()
     fun playAct3Boss()
     fun playAct2FrostfallenKing()
+    fun sophiaDeadMusic()
 
     fun playAct3Music()
     fun playAct4Music()
@@ -59,6 +60,7 @@ interface SoundPlayer {
     fun playLootItemsSound()
     fun playEquipSound()
     fun playTrashSound()
+    fun dragonRubySound()
 
     fun stopAct1TownMusic()
     fun stopAct2TownMusic()
@@ -68,12 +70,14 @@ interface SoundPlayer {
     fun stopAct3Music()
     fun stopAct4Music()
     fun stopAct5Music()
+    fun stopSophiaDeadMusic()
 
     fun act1TownMixer()
     fun act2TownMixer()
     fun act3TownMixer()
     fun act4TownMixer()
     fun act5TownMixer()
+    fun sophiaDeadMixer()
 
     fun muteAllMusic()
 
@@ -104,6 +108,7 @@ class AndroidSoundPlayer(
     private var act3MusicPlayer: MediaPlayer? = null
     private var act4MusicPlayer: MediaPlayer? = null
     private var act5MusicPlayer: MediaPlayer? = null
+    private var sophiaMusicPlayer: MediaPlayer? = null
 
     init {
         val audioAttributes = AudioAttributes.Builder()
@@ -143,6 +148,7 @@ class AndroidSoundPlayer(
         loadSound("trash")
         loadSound("smithupgrade")
         loadSound("healingchoir")
+        loadSound("dragonruby")
     }
 
     private fun loadSound(name: String) {
@@ -179,6 +185,7 @@ class AndroidSoundPlayer(
         act3MusicPlayer?.pause()
         act4MusicPlayer?.pause()
         act5MusicPlayer?.pause()
+        sophiaMusicPlayer?.pause()
     }
 
     fun resumeMusic() {
@@ -190,6 +197,7 @@ class AndroidSoundPlayer(
         act3MusicPlayer?.start()
         act4MusicPlayer?.start()
         act5MusicPlayer?.start()
+        sophiaMusicPlayer?.start()
     }
 
     private fun playMusic(
@@ -352,6 +360,10 @@ class AndroidSoundPlayer(
         playSound("trash")
     }
 
+    override fun dragonRubySound() {
+        playSound("dragonruby")
+    }
+
     // ---------------------------------------------------------
     // Town / area music
     // ---------------------------------------------------------
@@ -369,6 +381,7 @@ class AndroidSoundPlayer(
         stopAct1TownMusic()
         playAct2TownMusic()
         playAct2WindMusic()
+        stopAct3Waves()
     }
 
     override fun act3TownMixer() {
@@ -376,17 +389,25 @@ class AndroidSoundPlayer(
         stopAct2TownMusic()
         playAct3Music()
         stopAct2WindSound()
+        playAct3Waves()
     }
 
     override fun act4TownMixer() {
         stopAct5Music()
         stopAct3Music()
         playAct4Music()
+        stopAct3Waves()
     }
 
     override fun act5TownMixer() {
         stopAct4Music()
         playAct5Music()
+        stopSophiaDeadMusic()
+    }
+
+    override fun sophiaDeadMixer() {
+        sophiaDeadMusic()
+        stopAct5Music()
     }
 
     fun playThunder() {
@@ -441,6 +462,14 @@ class AndroidSoundPlayer(
         act5MusicPlayer = playMusic(
             "act5.wav",
             act5MusicPlayer,
+            true
+        )
+    }
+
+    override fun sophiaDeadMusic() {
+        sophiaMusicPlayer = playMusic(
+            "sophia4db.wav",
+            sophiaMusicPlayer,
             true
         )
     }
@@ -677,6 +706,11 @@ class AndroidSoundPlayer(
         act5MusicPlayer = null
     }
 
+    override fun stopSophiaDeadMusic() {
+        stopPlayer(sophiaMusicPlayer)
+        sophiaMusicPlayer = null
+    }
+
     override fun muteAllMusic() {
         stopAct1TownMusic()
         stopAct2TownMusic()
@@ -684,6 +718,8 @@ class AndroidSoundPlayer(
         stopAct4Music()
         stopAct3Music()
         stopAct5Music()
+        stopSophiaDeadMusic()
+        // TODO add more
     }
 
     private fun stopPlayer(player: MediaPlayer?) {
@@ -744,6 +780,7 @@ object NoOpSoundPlayer : SoundPlayer {
     override fun playAct3Music() {}
     override fun playAct4Music() {}
     override fun playAct5Music() {}
+    override fun sophiaDeadMusic() {}
     override fun playAct3Waves() {}
 
     override fun playAct1HealingMusic() {}
@@ -769,6 +806,7 @@ object NoOpSoundPlayer : SoundPlayer {
     override fun playLootItemsSound() {}
     override fun playEquipSound() {}
     override fun playTrashSound() {}
+    override fun dragonRubySound() {}
 
     override fun stopAct1TownMusic() {}
     override fun stopAct2TownMusic() {}
@@ -778,11 +816,13 @@ object NoOpSoundPlayer : SoundPlayer {
     override fun stopAct3Music() {}
     override fun stopAct4Music() {}
     override fun stopAct5Music() {}
+    override fun stopSophiaDeadMusic() {}
     override fun act1TownMixer() {}
     override fun act2TownMixer() {}
     override fun act3TownMixer() {}
     override fun act4TownMixer() {}
     override fun act5TownMixer() {}
+    override fun sophiaDeadMixer() {}
 
     override fun muteAllMusic() {}
     override fun release() {}

@@ -40,7 +40,6 @@ fun TownScreen(
     val state by viewModel.uiState.collectAsState()
     state.introMonstersAreCompleted = true
     val currentAct = state.currentAct
-    val GOLD_COLOR = Color(0xFFD4AF37)
 
     // BACKGROUND ZOOM
     val backgroundScale = remember { Animatable(1f) }
@@ -229,7 +228,6 @@ fun TownScreen(
                                 }
 
                                 5 -> {
-                                    // ACT 5 NPC 2
                                 }
                             }
                         }
@@ -269,20 +267,20 @@ fun TownScreen(
             )
         }
 
+        TownTypewriterText(
+            currentAct = state.currentAct,
+            numberOfTechniquesLearned = state.player.numberOfTechniquesLearned,
+            act1TownTextShown = state.act1TownTextShown,
+            act3TownTextShown = state.act3TownTextShown,
+            shownTechniqueTexts = state.shownTechniqueTexts,
+            adHocText = state.adHocTownText,
+            onAct1TextShown = { viewModel.markAct1TextShown() },
+            onAct3TextShown = { viewModel.markAct3TextShown() },
+            onTechniqueTextShown = { n -> viewModel.markTechniqueTextShown(n) },
+            onAdHocTextShown = { viewModel.clearAdHocTownText() }
+        )
     }
 
-    TownTypewriterText(
-        currentAct = state.currentAct,
-        numberOfTechniquesLearned = state.player.numberOfTechniquesLearned,
-        act1TownTextShown = state.act1TownTextShown,
-        act3TownTextShown = state.act3TownTextShown,
-        shownTechniqueTexts = state.shownTechniqueTexts,
-        onAct1TextShown = { state.act1TownTextShown = true },
-        onAct3TextShown = { state.act3TownTextShown = true },
-        onTechniqueTextShown = { n ->
-            state.shownTechniqueTexts = state.shownTechniqueTexts + n
-        }
-    )
 }
 
 // COMPASS

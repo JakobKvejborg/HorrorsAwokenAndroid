@@ -19,6 +19,7 @@ import com.example.horrorsawokenandroid.game.ui.GameScreen
 import com.example.horrorsawokenandroid.game.ui.IntroMovieScreen
 import com.example.horrorsawokenandroid.game.ui.MenuScreen
 import com.example.horrorsawokenandroid.game.ui.ModifierButtonsScreen
+import com.example.horrorsawokenandroid.game.ui.SophiaScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -51,6 +52,12 @@ class MainActivity : ComponentActivity() {
                         ModifierButtonsScreen(
                             viewModel = gameViewModel,
                             onClose = { gameViewModel.setCurrentScreen(GameScreen.Menu) }
+                        )
+                    }
+                    GameScreen.Sophia -> {
+                        SophiaScreen(
+                            viewModel = gameViewModel,
+                            onClose = { gameViewModel.restartGame() } // TODO check if modifiers are saved
                         )
                     }
                     GameScreen.GameOver -> {
