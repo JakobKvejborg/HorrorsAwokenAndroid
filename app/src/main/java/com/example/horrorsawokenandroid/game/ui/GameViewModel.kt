@@ -624,7 +624,7 @@ class GameViewModel(
 
             5 -> {
                 modifiers.giveRandomModifier()
-                println("UNLUCKED MODIFIERS: " + uiState.value.player.unlockedModifiers.toString()) // TODO delete debug print
+//                println("UNLUCKED MODIFIERS: " + uiState.value.player.unlockedModifiers.toString()) // TODO delete debug print
                 if (uiState.value.sophiaIsDead == true) {
                     setCurrentScreen(GameScreen.Sophia)
                     sounds.sophiaDeadMixer()
