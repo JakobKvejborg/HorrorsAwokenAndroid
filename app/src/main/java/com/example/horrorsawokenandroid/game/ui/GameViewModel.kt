@@ -616,8 +616,12 @@ class GameViewModel(
             }
 
             5 -> {
-                setCurrentScreen(GameScreen.Sophia)
-                sounds.sophiaDeadMixer()
+                if (uiState.value.sophiaIsDead == true) {
+                    setCurrentScreen(GameScreen.Sophia)
+                    sounds.sophiaDeadMixer()
+                } else {
+                    // TODO sophia is alive
+                }
             }
         }
 
