@@ -35,6 +35,8 @@ data class Player(
     var TechniqueGuardIsLearned: Boolean = false,
     var PriceToLearnTechnique: Int = 10,
     var PriceToHeal: Int = 2,
+    val unlockedModifiers: Set<String> = emptySet(),
+    val activeModifiers: Set<String> = emptySet(),
 
     // Roar buff
     var roarBuffActive: Boolean = false,

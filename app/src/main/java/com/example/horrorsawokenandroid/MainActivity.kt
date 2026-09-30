@@ -20,6 +20,8 @@ import com.example.horrorsawokenandroid.game.ui.IntroMovieScreen
 import com.example.horrorsawokenandroid.game.ui.MenuScreen
 import com.example.horrorsawokenandroid.game.ui.ModifierButtonsScreen
 import com.example.horrorsawokenandroid.game.ui.SophiaScreen
+import com.example.horrorsawokenandroid.game.model.AndroidModifierStorage
+import com.example.horrorsawokenandroid.game.model.ModifierStorage
 
 class MainActivity : ComponentActivity() {
 
@@ -29,6 +31,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         soundPlayer = AndroidSoundPlayer(this)
+        val modifierStorage = AndroidModifierStorage(this)
 
         enableEdgeToEdge()
         soundPlayer.playThunder() // Background sound when starting the game
@@ -37,7 +40,7 @@ class MainActivity : ComponentActivity() {
             HorrorsAwokenAndroidTheme {
 
                 val gameViewModel: GameViewModel = viewModel(
-                    factory = GameViewModelFactory(soundPlayer)
+                    factory = GameViewModelFactory(soundPlayer, modifierStorage)
                 )
                 val state by gameViewModel.uiState.collectAsState()
                 when (state.currentScreen) {
@@ -149,7 +152,8 @@ class MainActivity : ComponentActivity() {
 }
 
 class GameViewModelFactory(
-    private val sounds: AndroidSoundPlayer
+    private val sounds: AndroidSoundPlayer,
+    private val modifierStorage: ModifierStorage
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(
@@ -158,7 +162,8 @@ class GameViewModelFactory(
         if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return GameViewModel(
-                sounds = sounds
+                sounds = sounds,
+                modifierStorage = modifierStorage
             ) as T
         }
 

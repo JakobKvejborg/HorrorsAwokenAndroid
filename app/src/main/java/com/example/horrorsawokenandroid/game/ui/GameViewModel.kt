@@ -1,14 +1,12 @@
 package com.example.horrorsawokenandroid.game.ui
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.horrorsawokenandroid.game.model.EncounterBattle
 import com.example.horrorsawokenandroid.game.model.ItemUpgrader
 import com.example.horrorsawokenandroid.game.model.Items
+import com.example.horrorsawokenandroid.game.model.ModifierStorage
+import com.example.horrorsawokenandroid.game.model.Modifiers
 import com.example.horrorsawokenandroid.game.model.Monster
 import com.example.horrorsawokenandroid.game.model.MonsterContainer
 import com.example.horrorsawokenandroid.game.model.NoOpSoundPlayer
@@ -32,6 +30,7 @@ Which enemies are encountered etc.
 class GameViewModel(
     startingPlayer: Player = Player.newHero(),
     private val sounds: SoundPlayer = NoOpSoundPlayer,
+    private val modifierStorage: ModifierStorage
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -43,6 +42,13 @@ class GameViewModel(
     private val items = Items()
     private var droppedItem: Items.Item? = null
     private var lastMusicAct: Int = -1
+    val modifiers = Modifiers(
+        getState = { _uiState.value },
+        updateState = { transform -> _uiState.update(transform) },
+        storage = modifierStorage // see constructor note below
+    )
+
+
 
     // Encounter
     internal val encounterBattle = EncounterBattle(
@@ -104,6 +110,7 @@ class GameViewModel(
 
     // INITIAL SETUP / first encounter
     init {
+        _uiState.update { it.copy(player = modifiers.loadUnlockedModifiers(it.player)) } // apply persisted modifiers to the starting player
         encounterBattle.startEncounter(
             monsterPool = monsterContainer.listOfMonstersAct1West,
             onEncounterStarted = { droppedItem = null }
@@ -177,7 +184,7 @@ class GameViewModel(
         sounds.muteAllMusic()
 
         _uiState.value = GameUiState(
-            player = Player.newHero(),
+            player = modifiers.loadUnlockedModifiers(Player.newHero()),
             currentScreen = GameScreen.Menu
         )
     }
@@ -616,6 +623,8 @@ class GameViewModel(
             }
 
             5 -> {
+                modifiers.giveRandomModifier()
+                println("UNLUCKED MODIFIERS: " + uiState.value.player.unlockedModifiers.toString()) // TODO delete debug print
                 if (uiState.value.sophiaIsDead == true) {
                     setCurrentScreen(GameScreen.Sophia)
                     sounds.sophiaDeadMixer()
