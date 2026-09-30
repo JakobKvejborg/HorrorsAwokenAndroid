@@ -69,7 +69,7 @@ fun ModifierButtonsScreen(
                     onClick = { /* TODO */ }
                 )
                 CombatButtonLayout(
-                    text = "HPUP",
+                    text = "HEALTHY",
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { /* TODO */ }
                 )
@@ -79,7 +79,7 @@ fun ModifierButtonsScreen(
                     onClick = { /* TODO */ }
                 )
                 CombatButtonLayout(
-                    text = "LEARNER",
+                    text = "INTUITIVE",
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { /* TODO */ }
                 )

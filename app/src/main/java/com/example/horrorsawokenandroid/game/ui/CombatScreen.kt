@@ -611,6 +611,33 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     }
                 }
             }
+
+        }
+
+        // DRAGON EGGS
+        if (state.player.numberOfDragonEggsInInventory > 0 && !state.act4QuestIsFinished) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+//                        .offset(y = 25.dp) // Sets the height of the CONTINUE button
+                    .padding(start = 3.dp, bottom = 3.dp)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center // Centers the text over the image
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.dragonegg),
+                        contentDescription = "Dragon Egg Button Background",
+                        modifier = Modifier.size(64.dp) // Adjust sizing to fit your text comfortably
+                    )
+
+                    Text(
+                        text = "${state.player.numberOfDragonEggsInInventory}",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
 
         // ANIMATIONS

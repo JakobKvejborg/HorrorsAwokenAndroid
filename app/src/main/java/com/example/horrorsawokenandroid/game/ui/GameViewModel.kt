@@ -228,15 +228,21 @@ class GameViewModel(
 
     internal fun talkToDragonMage() {
         sounds.playAct4MageSound()
+        val player = uiState.value.player
+        val questIsCompletingRightNow = player.numberOfDragonEggsInInventory >= 3
+
+        // If the quest is already finished, give them a generic "go away" text and stop!
+        if (uiState.value.act4QuestIsFinished) {
+            showTownText("Leave me alone, I said! Hahahahaha...")
+            return
+        }
 
         _uiState.update { state ->
-            val player = state.player
-            val questFinished = player.numberOfDragonEggsInInventory >= 3
 
             state.copy(
                 act4Quest1Started = true,
-                act4QuestIsFinished = if (questFinished) true else state.act4QuestIsFinished,
-                player = if (questFinished) {
+                act4QuestIsFinished = if (questIsCompletingRightNow) true else state.act4QuestIsFinished,
+                player = if (questIsCompletingRightNow) {
                     player.copy(numberOfDragonEggsInInventory = 0)
                 } else {
                     player
@@ -245,7 +251,7 @@ class GameViewModel(
         }
 
         showTownText(
-            if (uiState.value.act4QuestIsFinished) "Goooood... The eggs. Here, take this. Now leave me alone! Hahahahaha..."
+            if (questIsCompletingRightNow) "Goooood... The eggs. Here, take this. Now leave me alone! Hahahahaha..."
             else "What do you want... Oh yes, the eggs! I need 3 Dragon eggs. Didn't I already tell you? They're up north somewhere. Go get them!"
         )
 

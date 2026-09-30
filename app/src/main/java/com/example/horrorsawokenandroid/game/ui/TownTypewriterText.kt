@@ -28,6 +28,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
@@ -69,11 +70,19 @@ fun TownTypewriterText(
             currentAct == 3 && !act3TownTextShown -> "Save me..." to false
             techniqueText != null && numberOfTechniquesLearned !in shownTechniqueTexts ->
                 techniqueText to true
-            else -> "" to false
+            else -> null to false
         }
     }
 
     val (text, isTechniqueText) = announcement
+
+    DisposableEffect(adHocText) {
+        onDispose {
+            if (adHocText != null) {
+                onAdHocTextShown()
+            }
+        }
+    }
 
     LaunchedEffect(currentAct, numberOfTechniquesLearned, adHocText) {
         if (currentAct == 1 && !act1TownTextShown) onAct1TextShown()
@@ -83,34 +92,36 @@ fun TownTypewriterText(
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        TypewriterText(
-            color = when {
-                adHocText != null -> Color.White
-                isTechniqueText -> TECHNIQUE_TEXT_COLOR
-                else -> Color(DEFAULT_TEXT_COLOR)
-            },
-            text = text,
-            holdMs = when {
-                adHocText != null -> 1800
-                isTechniqueText -> 5000
-                else -> 2900
-            },
-            letterDelayMs = when {
-                adHocText != null -> 1
-                isTechniqueText -> 10
-                else -> 30
-            },
-            modifier = Modifier.padding(horizontal = 32.dp),
-            onFinished = {
-                if (adHocText != null) {
+    if (text != null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            TypewriterText(
+                color = when {
+                    adHocText != null -> Color.White
+                    isTechniqueText -> TECHNIQUE_TEXT_COLOR
+                    else -> Color(DEFAULT_TEXT_COLOR)
+                },
+                text = text,
+                holdMs = when {
+                    adHocText != null -> 2500 // How long text should be displayed before disappearing
+                    isTechniqueText -> 5000
+                    else -> 2900
+                },
+                letterDelayMs = when {
+                    adHocText != null -> 1
+                    isTechniqueText -> 10
+                    else -> 30
+                },
+                modifier = Modifier.padding(horizontal = 32.dp),
+                onFinished = {
+//                if (adHocText != null) {
                     onAdHocTextShown()
+
                 }
-            }
-        )
+            )
+        }
     }
 }
 
