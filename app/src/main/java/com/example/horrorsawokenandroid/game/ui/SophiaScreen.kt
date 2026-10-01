@@ -55,9 +55,9 @@ fun SophiaScreen(
         ) {
             if (state.sophiaIsDead) {
                 TypewriterText(
-                    text = "You find Sophia's lifeless body in the void. The darkness has consumed her. Your heart sinks as you realize you've failed to save her. " +
+                    text = "You find Sophia's lifeless body in the void. The darkness has consumed her. Your heart sinks as you realize you've failed to save her." +
                             "\nThe Hero now must journey back through time, wielding the wisdom of past battles to change the fate of Sophia. Use the given Modifier to gain some small advantage, and be stronger than before. " +
-                            "Many Modifiers can be collected at random, and any number of Modifiers can be used each run. Good luck Hero!",
+                            "Many Modifiers can be collected at random, and any number can be activated each run. Good luck Hero! \n\n[ NEW MODIFIER UNLOCKED ]", // TODO if no more modifiers can be unlocked
                     color = Color.White,
                     modifier = Modifier.padding(horizontal = 32.dp),
                     holdMs = 100000,

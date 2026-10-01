@@ -49,7 +49,6 @@ class GameViewModel(
     )
 
 
-
     // Encounter
     internal val encounterBattle = EncounterBattle(
         getState = { _uiState.value },
@@ -518,9 +517,9 @@ class GameViewModel(
             return
         }
 
-        val currentAct =
-            uiState.value.currentAct // This method finds out which act the play currently is in
-        val found = items.generateLoot(currentAct)
+        val currentAct = uiState.value.currentAct // which act the player currently is in
+        val direction = uiState.value.lastDirectionChosenByPlayer
+        val found = items.generateLoot(currentAct, direction)
 
         droppedItem = found
 
@@ -542,12 +541,30 @@ class GameViewModel(
                     )
                 )
             }
+            return true // Egg-Watcher Dragons don't drop any loot
+        }
 
+        if ( // 100% drop rate and better loot on these bosses
+            monster.name == "The Frostfallen King" ||
+            monster.name == "Awoken Horror" ||
+            monster.name == "Ultimate Darkness"
+        ) {
+            val found = items.generateBossItem(
+                act = uiState.value.currentAct,
+                direction = uiState.value.lastDirectionChosenByPlayer
+            )
+            droppedItem = found
+            _uiState.update {
+                it.copy(
+                    lootAvailable = true,
+                    droppedItem = found
+                )
+            }
             return true
         }
 
         if (monster.name == "Gold Goblin" || monster.name == "Nest-Watcher Dragon") {
-            return true
+            return true // These monsters doesn't drop items
         }
 
         return false

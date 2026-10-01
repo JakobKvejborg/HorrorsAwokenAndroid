@@ -1,6 +1,6 @@
-
 package com.example.horrorsawokenandroid.game.model
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -35,7 +35,7 @@ class Items {
         var isItemUpgraded: Boolean = false,
         var isItemReforged: Boolean = false,
 
-    ) {
+        ) {
 
         fun cloneItem(): Item {
             return copy()
@@ -114,7 +114,7 @@ class Items {
      * Act 4 = late game
      * Act 5 = end game
      */
-    fun generateLoot(act: Int): Item? {
+    fun generateLoot(act: Int, direction: String): Item? {
 
         val lootRoll = Random.nextInt(100)
 
@@ -124,8 +124,26 @@ class Items {
 
         val safeAct = act.coerceIn(1, 5)
 
-        val type = generateItemType(safeAct)
-        val quality = generateQuality(safeAct)
+        val type = generateItemType(safeAct, direction)
+        val quality = generateQuality(safeAct, direction)
+
+        return generateItem(
+            act = safeAct,
+            type = type,
+            quality = quality
+        )
+    }
+
+    fun generateBossItem(act: Int, direction: String): Item {
+        val safeAct = act.coerceIn(1, 5)
+
+        val type = generateItemType(safeAct, direction)
+
+        val quality = when (Random.nextInt(100)) {
+            in 0..17 -> Quality.Epic
+            in 18..77 -> Quality.Legendary
+            else -> Quality.Godly
+        }
 
         return generateItem(
             act = safeAct,
@@ -137,19 +155,20 @@ class Items {
     // ============================================================
     // QUALITY
     // ============================================================
-    private fun generateQuality(act: Int): Quality {
+    private fun generateQuality(act: Int, direction: String): Quality {
 
         val safeAct = act.coerceIn(1, 5)
-        val roll = random.nextDouble(0.0, 100.0)
+        val eastBadDrops = if (direction == "EAST" && act != 5 && act != 3) 15.0 else 0.0
+        val roll = (random.nextDouble(0.0, 100.0) - eastBadDrops).coerceAtLeast(0.0) // coerceAtLeast forces negative results to be 0.0
 
         val chances = when (safeAct) {
 
             1 -> listOf(
-                Quality.Damaged to 45.0,
-                Quality.Normal to 45.5,
-                Quality.Magic to 8.0,
-                Quality.Strong to 1.2,
-                Quality.Rare to 0.3
+                Quality.Damaged to 49.0,
+                Quality.Normal to 43.8,
+                Quality.Magic to 6.0,
+                Quality.Strong to 1.0,
+                Quality.Rare to 0.2
             )
 
             2 -> listOf(
@@ -177,11 +196,11 @@ class Items {
                 Quality.Normal to 35.0,
                 Quality.Magic to 20.0,
                 Quality.Strong to 14.0,
-                Quality.Rare to 10.0,
-                Quality.Unique to 6.0,
+                Quality.Rare to 10.1,
+                Quality.Unique to 6.1,
                 Quality.Epic to 3.0,
                 Quality.Legendary to 1.5,
-                Quality.Godly to 0.5
+                Quality.Godly to 0.3
             )
 
             else -> listOf(
@@ -213,7 +232,27 @@ class Items {
     // ============================================================
     // ITEM TYPE DISTRIBUTION
     // ============================================================
-    private fun generateItemType(act: Int): ItemType {
+    private fun generateItemType(act: Int, direction: String): ItemType {
+
+        if (act == 5) {
+            val eastPool = listOf(
+                ItemType.Weapon,
+                ItemType.Amulet,
+                ItemType.Armor,
+                ItemType.Belt,
+                ItemType.Gloves,
+            )
+            val westPool = listOf(
+                ItemType.Boots,
+                ItemType.Hook,
+                ItemType.Leggings,
+                ItemType.Helmet,
+                ItemType.Shoulders
+            )
+            // Picks one random entry from whichever list matches the direction, and returns it
+            return if (direction == "EAST") eastPool.random(random) else westPool.random(random)
+        }
+
         val pool = when (act) {
 
             1 -> listOf(
@@ -1006,6 +1045,7 @@ class Items {
                 } else {
                     normalSuffixes
                 }
+
             Quality.Magic -> magicSuffixes
             Quality.Strong -> strongSuffixes
             Quality.Rare -> rareSuffixes

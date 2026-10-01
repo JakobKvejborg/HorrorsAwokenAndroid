@@ -728,15 +728,26 @@ class MonsterContainer {
             imageRes = R.drawable.crow
         ),
         Monster(
-            name = "Death Angel",
-            maxHealth = 364,
-            currentHealth = 364,
-            minDamage = 0,
+            name = "Void",
+            maxHealth = 470,
+            currentHealth = 470,
+            minDamage = 32,
             maxDamage = 0,
-            randomDamageModifier = 74,
-            monsterExperience = 120,
-            monsterGold = 133,
-            imageRes = R.drawable.deathangel
+            randomDamageModifier = 40,
+            monsterExperience = 99,
+            monsterGold = 160,
+            imageRes = R.drawable.void1
+        ),
+        Monster(
+            name = "Void Dragon",
+            maxHealth = 528,
+            currentHealth = 418,
+            minDamage = 35,
+            maxDamage = 0,
+            randomDamageModifier = 15,
+            monsterExperience = 129,
+            monsterGold = 0,
+            imageRes = R.drawable.voiddragon
         ),
     )
 
@@ -752,7 +763,17 @@ class MonsterContainer {
             monsterGold = 120,
             imageRes = R.drawable.shadow
         ),
-
+        Monster(
+            name = "Death Angel",
+            maxHealth = 364,
+            currentHealth = 364,
+            minDamage = 0,
+            maxDamage = 0,
+            randomDamageModifier = 74,
+            monsterExperience = 120,
+            monsterGold = 133,
+            imageRes = R.drawable.deathangel
+        ),
         Monster(
             name = "False Light Entity",
             maxHealth = 510,
@@ -776,18 +797,6 @@ class MonsterContainer {
             monsterGold = 180,
             imageRes = R.drawable.priest
         ),
-
-        Monster(
-            name = "Void",
-            maxHealth = 470,
-            currentHealth = 470,
-            minDamage = 32,
-            maxDamage = 0,
-            randomDamageModifier = 40,
-            monsterExperience = 99,
-            monsterGold = 160,
-            imageRes = R.drawable.void1
-        ),
         Monster(
             name = "Dark Mage",
             maxHealth = 394,
@@ -795,7 +804,7 @@ class MonsterContainer {
             minDamage = 15,
             maxDamage = 0,
             randomDamageModifier = 45,
-            monsterExperience = 150,
+            monsterExperience = 140,
             monsterGold = 60,
             imageRes = R.drawable.darkmage
         ),
