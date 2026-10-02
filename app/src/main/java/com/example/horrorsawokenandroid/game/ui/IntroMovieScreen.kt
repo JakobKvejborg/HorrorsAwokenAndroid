@@ -53,7 +53,7 @@ fun IntroMovieScreen(
                     start()
                 }
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }

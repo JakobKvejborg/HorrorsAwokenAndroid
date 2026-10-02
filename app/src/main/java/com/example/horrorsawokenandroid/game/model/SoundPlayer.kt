@@ -412,7 +412,7 @@ class AndroidSoundPlayer(
 
     fun playThunder() {
         act1ThunderPlayer = playMusic(
-            "thunder.wav",
+            "thunder.ogg",
             act1ThunderPlayer,
             true
         )
@@ -420,7 +420,7 @@ class AndroidSoundPlayer(
 
     override fun playAct1TownMusic() {
         act1TownPlayer = playMusic(
-            "act1town.wav",
+            "act1town.ogg",
             act1TownPlayer,
             true
         )
@@ -436,7 +436,7 @@ class AndroidSoundPlayer(
 
     override fun playAct2WindMusic() {
         act2WindPlayer = playMusic(
-            "act2wind.wav",
+            "act2wind.ogg",
             act2WindPlayer,
             true
         )
@@ -444,7 +444,7 @@ class AndroidSoundPlayer(
 
     override fun playAct3Music() {
         act3MusicPlayer = playMusic(
-            "act3.wav",
+            "act3.ogg",
             act3MusicPlayer,
             true
         )
@@ -452,7 +452,7 @@ class AndroidSoundPlayer(
 
     override fun playAct4Music() {
         act4MusicPlayer = playMusic(
-            "act4.wav",
+            "act4.ogg",
             act4MusicPlayer,
             true
         )
@@ -460,7 +460,7 @@ class AndroidSoundPlayer(
 
     override fun playAct5Music() {
         act5MusicPlayer = playMusic(
-            "act5.wav",
+            "act5.ogg",
             act5MusicPlayer,
             true
         )
@@ -468,7 +468,7 @@ class AndroidSoundPlayer(
 
     override fun sophiaDeadMusic() {
         sophiaMusicPlayer = playMusic(
-            "sophia4db.wav",
+            "sophia4db.ogg",
             sophiaMusicPlayer,
             true
         )
@@ -476,7 +476,7 @@ class AndroidSoundPlayer(
 
     override fun playAct3Waves() {
         act3WavesPlayer = playMusic(
-            "act3waves.wav",
+            "act3waves.ogg",
             act3WavesPlayer,
             true
         )

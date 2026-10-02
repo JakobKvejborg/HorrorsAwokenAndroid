@@ -122,7 +122,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
         )
 
         // Ruby dragon stone to upgrade the smith, given from Act4Quest1
-        if (state.act4QuestIsFinished && !state.act4QuestRubyHasBeenGivenToSmith) {
+        if (state.act4QuestIsFinished && !state.act4QuestRubyHasBeenGivenToSmith && state.player.hasDragonRuby == true) {
             Image(
                 painter = painterResource(id = R.drawable.ruby), // The ruby dragon stone image
                 contentDescription = "Ruby Dragon Stone",
@@ -634,6 +634,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     Text(
                         text = "${state.player.numberOfDragonEggsInInventory}",
                         color = Color.White,
+                        fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }

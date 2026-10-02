@@ -105,7 +105,7 @@ fun TownTypewriterText(
                 },
                 text = text,
                 holdMs = when {
-                    adHocText != null -> 2500 // How long text should be displayed before disappearing
+                    adHocText != null -> 4400 // How long text should be displayed before disappearing
                     isTechniqueText -> 5000
                     else -> 2900
                 },

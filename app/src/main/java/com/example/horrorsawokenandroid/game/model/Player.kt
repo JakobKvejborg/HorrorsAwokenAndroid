@@ -40,6 +40,7 @@ data class Player(
     val hasSkilledModifier: Boolean = false,
     var hasPhoenixModifier: Boolean = false,
     var healingCostModifier: Int = 1,
+    var hasDragonRuby: Boolean = false,
 
     // Roar buff
     var roarBuffActive: Boolean = false,

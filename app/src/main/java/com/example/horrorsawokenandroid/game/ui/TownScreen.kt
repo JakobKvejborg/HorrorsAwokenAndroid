@@ -203,7 +203,8 @@ fun TownScreen(
                     RightNPCBox(
                         imageRes = getNpcImage(
                             act = currentAct,
-                            npcNumber = 2
+                            npcNumber = 2,
+                            smithHasDragonRuby = !state.player.hasDragonRuby && state.act4QuestIsFinished // Smith has Dragon Ruby when the player doesn't have it
                         ),
                         label = getNpcName(
                             act = currentAct,
@@ -216,7 +217,11 @@ fun TownScreen(
                                 }
 
                                 2 -> {
-                                    viewModel.openAct2SmithOverlay() // ACT 2 NPC 2
+                                    if (state.player.hasDragonRuby == true) {
+                                        viewModel.giveSmithDragonRuby()
+                                    } else {
+                                        viewModel.openAct2SmithOverlay() // ACT 2 NPC 2
+                                    }
                                 }
 
                                 3 -> {
@@ -455,7 +460,8 @@ private fun RightNPCBox(
 // NPC IMAGES
 private fun getNpcImage(
     act: Int,
-    npcNumber: Int
+    npcNumber: Int,
+    smithHasDragonRuby: Boolean = false,
 ): Int? {
 
     return when (act) {
@@ -468,7 +474,7 @@ private fun getNpcImage(
 
         2 -> when (npcNumber) {
             1 -> R.drawable.act2healer
-            2 -> R.drawable.act2smith
+            2 -> if (smithHasDragonRuby) R.drawable.act2smithupgraded else R.drawable.act2smith
             else -> null
         }
 

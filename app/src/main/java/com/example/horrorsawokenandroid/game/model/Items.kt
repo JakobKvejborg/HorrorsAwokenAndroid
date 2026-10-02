@@ -8,10 +8,6 @@ class Items {
 
     private val random = Random.Default
 
-    // ============================================================
-    // ITEM
-    // ============================================================
-
     data class Item(
         var name: String,
         var type: ItemType,
@@ -66,10 +62,7 @@ class Items {
         }
     }
 
-    // ============================================================
     // ITEM TYPE
-    // ============================================================
-
     enum class ItemType {
         Hook,
         Weapon,
@@ -83,10 +76,7 @@ class Items {
         Belt
     }
 
-    // ============================================================
     // QUALITY
-    // ============================================================
-
     private enum class Quality(
         val multiplier: Double
     ) {
@@ -104,7 +94,6 @@ class Items {
     // ============================================================
     // PUBLIC LOOT GENERATION
     // ============================================================
-
     /**
      * Generates one random item based on the current act.
      * Also rolls a % chance for the loot to even drop

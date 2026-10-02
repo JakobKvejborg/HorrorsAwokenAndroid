@@ -747,7 +747,7 @@ class MonsterContainer {
             randomDamageModifier = 15,
             monsterExperience = 129,
             monsterGold = 0,
-            imageRes = R.drawable.voiddragon
+            imageRes = R.drawable.consumeddragon
         ),
     )
 

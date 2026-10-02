@@ -258,7 +258,7 @@ class GameViewModel(
                 act4Quest1Started = true,
                 act4QuestIsFinished = if (questIsCompletingRightNow) true else state.act4QuestIsFinished,
                 player = if (questIsCompletingRightNow) {
-                    player.copy(numberOfDragonEggsInInventory = 0)
+                    player.copy(numberOfDragonEggsInInventory = 0, hasDragonRuby = true)
                 } else {
                     player
                 }
@@ -278,12 +278,6 @@ class GameViewModel(
 
     fun showTownText(text: String) {
         _uiState.update { it.copy(adHocTownText = text) }
-    }
-
-    internal fun resetAct4QuestText() {
-        _uiState.update {
-            it.copy(act4QuestStartTextShown = false)
-        }
     }
 
     // Inventory
@@ -311,6 +305,18 @@ class GameViewModel(
         _uiState.update {
             it.copy(inventoryOpen = false, act2SmithOverlayOpen = false)
         }
+    }
+
+    fun giveSmithDragonRuby() {
+        showTownText("What is this now? Where did you find this?! I can sense powerful magic surrounding this item. Perhaps I can make some use of it...")
+
+        _uiState.update {
+            it.copy(
+                player = it.player.copy(hasDragonRuby = false)
+            )
+        }
+        itemUpgrader.smithUpgradeMultiplication++
+        sounds.playSmithUpgradeRubySound()
     }
 
     fun equipItem(item: Items.Item) {
