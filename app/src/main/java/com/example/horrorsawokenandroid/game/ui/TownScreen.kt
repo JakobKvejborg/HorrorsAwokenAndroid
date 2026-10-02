@@ -185,7 +185,7 @@ fun TownScreen(
                     // Price label on the NPC image
                     if (currentAct == 1 || currentAct == 2 || currentAct == 4) {
                         GoldPriceLabel(
-                            amount = state.player.PriceToHeal,
+                            amount = state.player.priceToHeal,
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .offset(y = 20.dp)
@@ -236,7 +236,7 @@ fun TownScreen(
                     // Price label above the NPC image — only shown where relevant (act 1 teaches techniques)
                     if (currentAct == 1) {
                         GoldPriceLabel(
-                            amount = state.player.PriceToLearnTechnique,
+                            amount = state.player.priceToLearnTechnique,
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .offset(y = (-40).dp)

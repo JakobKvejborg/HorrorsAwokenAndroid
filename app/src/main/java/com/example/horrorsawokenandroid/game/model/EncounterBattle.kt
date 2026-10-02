@@ -178,13 +178,26 @@ class EncounterBattle(
 
     // Function to check if the player is dead
     private fun checkIfPlayerDefeated() {
+        val player = getState().player
 
-        if (
-            getState().player.currentHealth <= 0
-        ) {
+        if (player.currentHealth <= 0) {
             sounds.playDeathGameOverSound()
+            if (player.hasPhoenixModifier) {
+                updateState {
+                    it.copy(
+                        player = it.player.copy(
+                            currentHealth = (player.maxHealth / 2),
+                            hasPhoenixModifier = false
+                        ),
+                        encounterLog = it.encounterLog + "You die, but rise from the ashes of the phoenix!"
+                    )
+                }
+                sounds.playResurrectionMusic()
+                return
+            }
             onPlayerDefeated()
         }
+
     }
 
     // Function to check if the monster fought is dead

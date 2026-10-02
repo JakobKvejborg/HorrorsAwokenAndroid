@@ -29,14 +29,17 @@ data class Player(
 
     var numberOfTechniquesLearned: Int = 0,
     var techniqueBloodLustIsLearned: Boolean = false,
-    var TechniqueSwiftIsLearned: Boolean = false,
-    var TechniqueRoarIsLearned: Boolean = false,
-    var TechniqueDivineIsLearned: Boolean = false,
-    var TechniqueGuardIsLearned: Boolean = false,
-    var PriceToLearnTechnique: Int = 10,
-    var PriceToHeal: Int = 2,
+    var techniqueSwiftIsLearned: Boolean = false,
+    var techniqueRoarIsLearned: Boolean = false,
+    var techniqueDivineIsLearned: Boolean = false,
+    var techniqueGuardIsLearned: Boolean = false,
+    var priceToLearnTechnique: Int = 10,
+    var priceToHeal: Int = 2,
     val unlockedModifiers: Set<String> = emptySet(),
     val activeModifiers: Set<String> = emptySet(),
+    val hasSkilledModifier: Boolean = false,
+    var hasPhoenixModifier: Boolean = false,
+    var healingCostModifier: Int = 1,
 
     // Roar buff
     var roarBuffActive: Boolean = false,

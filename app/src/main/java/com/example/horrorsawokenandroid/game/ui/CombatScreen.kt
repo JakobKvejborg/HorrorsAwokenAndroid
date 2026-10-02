@@ -460,7 +460,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 }
 
 
-                if (state.player.TechniqueSwiftIsLearned) {
+                if (state.player.techniqueSwiftIsLearned) {
                     CombatButtonLayout(
                         text = "SWIFT",
                         imageRes = R.drawable.swiftbutton2,
@@ -477,7 +477,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                if (state.player.TechniqueRoarIsLearned) {
+                if (state.player.techniqueRoarIsLearned) {
                     CombatButtonLayout(
                         text = "ROAR",
                         glowColor = Color(0xFF00FFCC),
@@ -487,7 +487,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     )
                 }
 
-                if (state.player.TechniqueDivineIsLearned) {
+                if (state.player.techniqueDivineIsLearned) {
                     CombatButtonLayout(
                         text = "DIVINE",
                         modifier = Modifier.weight(1f),
@@ -496,7 +496,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     )
                 }
 
-                if (state.player.TechniqueGuardIsLearned) {
+                if (state.player.techniqueGuardIsLearned) {
                     val playerLowHealth =
                         state.player.currentHealth <= state.player.playerIsOnLowHealth
                     CombatButtonLayout(

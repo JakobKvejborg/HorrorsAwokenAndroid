@@ -42,10 +42,16 @@ class GameViewModel(
     private val items = Items()
     private var droppedItem: Items.Item? = null
     private var lastMusicAct: Int = -1
+    val itemUpgrader = ItemUpgrader(
+        getState = { _uiState.value },
+        updateState = { transform -> _uiState.update(transform) },
+        sounds = sounds,
+    )
     val modifiers = Modifiers(
         getState = { _uiState.value },
         updateState = { transform -> _uiState.update(transform) },
-        storage = modifierStorage // see constructor note below
+        storage = modifierStorage,
+        itemUpgrader = itemUpgrader,
     )
 
 
@@ -93,11 +99,6 @@ class GameViewModel(
     )
 
     // ITEM UPGRADES
-    val itemUpgrader = ItemUpgrader(
-        getState = { _uiState.value },
-        updateState = { transform -> _uiState.update(transform) },
-        sounds = sounds,
-    )
 
     fun upgradeItem(
         item: Items.Item?,
@@ -158,18 +159,25 @@ class GameViewModel(
         val currentAct = uiState.value.currentAct
 
         // Guard clauses if player doesn't have enough gold
-        if (player.PriceToHeal > player.goldInPocket && currentAct == 1) {
+        if (player.priceToHeal > player.goldInPocket && currentAct == 1) {
             sounds.playAct1HealingNoGold()
             return
         }
-        if (player.PriceToHeal > player.goldInPocket) {
+        if (player.priceToHeal > player.goldInPocket) {
             return
         }
 
-        player.currentHealth = player.maxHealth
-        player.goldInPocket -= player.PriceToHeal
-        player.PriceToHeal += (player.PriceToHeal * 0.1 + 7).toInt() // TODO / ModifierProcessor.HealPriceReducedModifier
-        sounds.playHealingSound() // healing choir sound for all healers
+        val newPriceToHeal = player.priceToHeal + ((player.priceToHeal * 0.1 + 7).toInt() / player.healingCostModifier)
+
+        _uiState.update {
+            it.copy(
+                player = it.player.copy(
+                    currentHealth = it.player.maxHealth,
+                    goldInPocket = it.player.goldInPocket - player.priceToHeal,
+                    priceToHeal = newPriceToHeal
+                )
+            )
+        }
 
         when (currentAct) {
             1 -> sounds.playAct1HealingMusic()
@@ -191,8 +199,9 @@ class GameViewModel(
     // Function to tech the player the different techniques based on which ones he already knows
     internal fun playerLearnTechniques() {
         val player = _uiState.value.player
+        val isSkilled = player.hasSkilledModifier
 
-        if (player.PriceToLearnTechnique > player.goldInPocket || player.TechniqueGuardIsLearned) {
+        if (player.priceToLearnTechnique > player.goldInPocket || player.techniqueGuardIsLearned) {
             sounds.playAct1ArtsTeacherNo()
             return
         }
@@ -201,17 +210,17 @@ class GameViewModel(
             !player.techniqueBloodLustIsLearned ->
                 player.copy(techniqueBloodLustIsLearned = true)
 
-            !player.TechniqueSwiftIsLearned && uiState.value.hasAct2BeenVisited ->
-                player.copy(TechniqueSwiftIsLearned = true)
+            !player.techniqueSwiftIsLearned && (isSkilled || uiState.value.hasAct2BeenVisited) ->
+                player.copy(techniqueSwiftIsLearned = true)
 
-            !player.TechniqueRoarIsLearned && uiState.value.hasAct3BeenVisited ->
-                player.copy(TechniqueRoarIsLearned = true)
+            !player.techniqueRoarIsLearned && ((isSkilled && uiState.value.hasAct2BeenVisited) || uiState.value.hasAct3BeenVisited) ->
+                player.copy(techniqueRoarIsLearned = true)
 
-            !player.TechniqueDivineIsLearned && uiState.value.hasAct4BeenVisited ->
-                player.copy(TechniqueDivineIsLearned = true)
+            !player.techniqueDivineIsLearned && ((isSkilled && uiState.value.hasAct3BeenVisited) || uiState.value.hasAct4BeenVisited) ->
+                player.copy(techniqueDivineIsLearned = true)
 
-            !player.TechniqueGuardIsLearned && uiState.value.hasAct5BeenVisited ->
-                player.copy(TechniqueGuardIsLearned = true)
+            !player.techniqueGuardIsLearned && ((isSkilled && uiState.value.hasAct4BeenVisited) || uiState.value.hasAct5BeenVisited) ->
+                player.copy(techniqueGuardIsLearned = true)
 
             else -> null
         } ?: run {
@@ -222,8 +231,8 @@ class GameViewModel(
         _uiState.update {
             it.copy(
                 player = learnedPlayer.copy(
-                    goldInPocket = learnedPlayer.goldInPocket - player.PriceToLearnTechnique,
-                    PriceToLearnTechnique = player.PriceToLearnTechnique * 3,
+                    goldInPocket = learnedPlayer.goldInPocket - player.priceToLearnTechnique,
+                    priceToLearnTechnique = player.priceToLearnTechnique * 3,
                     numberOfTechniquesLearned = player.numberOfTechniquesLearned + 1,
                 )
             )

@@ -6,6 +6,7 @@ class Modifiers(
     private val getState: () -> GameUiState,
     private val updateState: ((GameUiState) -> GameUiState) -> Unit,
     private val storage: ModifierStorage = NoOpModifierStorage,
+    private val itemUpgrader: ItemUpgrader,
 ) {
     companion object {
         val allIds = listOf(
@@ -17,7 +18,7 @@ class Modifiers(
         )
     }
 
-    fun loadUnlocked(): Set<String> = storage.load() // unlucked is never used
+    fun loadUnlocked(): Set<String> = storage.load() // unlocked is never used
 
     /** Re-applies every already-unlocked modifier's effect to a freshly-created Player. Call this on new-game/restart. */
     fun loadUnlockedModifiers(player: Player): Player {
@@ -41,11 +42,9 @@ class Modifiers(
         val isActive = id in player.activeModifiers
 
         val updatedPlayer = if (isActive) {
-            // Disable modifier
-            removeEffect(id, player)
+            removeEffect(id, player) // Disable modifier
         } else {
-            // Enable modifier
-            applyEffect(id, player)
+            applyEffect(id, player) // Enable modifier
         }
 
         val newActive = if (isActive) {
@@ -108,89 +107,97 @@ class Modifiers(
     private fun applyEffectWithMessage(id: String, player: Player): Pair<Player, String> =
         when (id) {
             "crit" -> player.copy(critChance = player.critChance + 5) to "Increases Crit Chance."
-            "healthy" -> player.copy(maxHealth = player.maxHealth + 15) to "Increases Max Health."
+            "healthy" -> player.copy(maxHealth = player.maxHealth + 20) to "Increases Max Health."
             "juggernaut" -> player.copy(armor = player.armor + 1) to "Increases Armor."
-            "intuitive" -> player.copy(PriceToLearnTechnique = player.PriceToLearnTechnique / 2) to "Reduces the cost to learn new attacks."
+            "intuitive" -> player.copy(priceToLearnTechnique = player.priceToLearnTechnique / 2) to "Reduces the cost to learn new attacks."
             "vampire" -> player.copy(lifesteal = player.lifesteal + 5) to "Increases Lifesteal."
             "thief" -> player.copy(goldInPocket = player.goldInPocket + 50) to "Increases starting gold slightly."
             "rich" -> player.copy(goldInPocket = player.goldInPocket + 250) to "Increases starting gold."
             "immortal" -> player.copy(regeneration = player.regeneration + 5) to "Increases Health Regeneration."
             "dangerous" -> player.copy(critDamage = player.critDamage + 20) to "Increases Critical Damage."
-            "strong" -> player.copy(strength = player.strength + 3) to "Increases Strength."
+            "strong" -> player.copy(strength = player.strength + 2) to "Increases Strength."
             "soldier" -> player.copy(damage = player.damage + 1) to "Increases Damage slightly."
             "veteran" -> player.copy(damage = player.damage + 2) to "Increases Damage."
             "reflexes" -> player.copy(dodgeChance = player.dodgeChance + 3) to "Increases Dodge Chance."
-            "looter" -> player.copy(goldFind = player.goldFind + 1) to "Increases Gold Find."
-            "skilled" -> player.copy(techniqueBloodLustIsLearned = true) to "Unlocks the first technique, Blood Lust." // TODO fix this,
+            "looter" -> player.copy(goldFind = player.goldFind + 1) to "Increases gold found."
+            "skilled" -> player.copy(
+                techniqueBloodLustIsLearned = true,
+                numberOfTechniquesLearned = 1,
+                hasSkilledModifier = true
+            ) to "Unlocks the first technique, Blood Lust."
             "upgrader" -> {
-                // TODO: Reduce Item.CostToUpgrade by half
+                itemUpgrader.costToUpgradeItem /= 2
                 player to "Reduces item upgrade costs greatly (Smith)."
             }
-            "healer" -> {
-                // TODO: Set healing cost reduction to 2
-                player to "Reduces healers' healing costs."
-            }
+            "healer" -> player.copy(healingCostModifier = 2) to "Reduces healers' healing costs."
             "smuggler" -> {
-                // TODO: Give the player a Soldier's Dagger
+                val dagger = Items.Item(
+                    name = "Soldier's Dagger",
+                    type = Items.ItemType.Weapon,
+                    damage = 1,
+                    strengthRequirement = 1,
+                    levelRequirement = 1
+                )
+                player.inventory.add(dagger)
                 player to "Start with a Soldier's Dagger in inventory."
             }
             "smithing" -> {
-                // TODO: Increase Item.SmithUpgradeMultiplication by 1
+                itemUpgrader.smithUpgradeMultiplication = 2
                 player to "Improves smithing upgrades."
             }
+
             "pirate" -> {
                 // TODO: Reduce ReforgeItemStat.PriceToReforgeFrog by half
                 player to "Reduces reforge costs (Frog)."
             }
             "cheapsmith" -> {
-                // TODO: Reduce Item.CostToUpgrade by 10
+                itemUpgrader.costToUpgradeItem -= 10
                 player to "Reduces smithing costs slightly."
             }
+
             "friendly" -> {
                 // TODO: Increase ReforgeItemStat.ReforgeModifier by 0.15
                 player to "Improves reforge effects (Frog)."
             }
-            "phoenix" -> {
-                // TODO: Set resurrection buff to true
-                player to "Death can wait..."
-            }
+            "phoenix" -> player.copy(hasPhoenixModifier = true) to "Be able to survive death, once."
+
             else -> player to "Unknown modifier"
         }
 
     private fun removeEffect(id: String, player: Player): Player =
         when (id) {
             "crit" -> player.copy(critChance = player.critChance - 5)
-            "healthy" -> player.copy(maxHealth = player.maxHealth - 15)
+            "healthy" -> player.copy(maxHealth = player.maxHealth - 20)
             "juggernaut" -> player.copy(armor = player.armor - 1)
-            "intuitive" -> player.copy(PriceToLearnTechnique = player.PriceToLearnTechnique * 2)
+            "intuitive" -> player.copy(priceToLearnTechnique = player.priceToLearnTechnique * 2)
             "vampire" -> player.copy(lifesteal = player.lifesteal - 5)
             "thief" -> player.copy(goldInPocket = player.goldInPocket - 50)
             "rich" -> player.copy(goldInPocket = player.goldInPocket - 250)
             "immortal" -> player.copy(regeneration = player.regeneration - 5)
             "dangerous" -> player.copy(critDamage = player.critDamage - 20)
-            "strong" -> player.copy(strength = player.strength - 3)
+            "strong" -> player.copy(strength = player.strength - 2)
             "soldier" -> player.copy(damage = player.damage - 1)
             "veteran" -> player.copy(damage = player.damage - 2)
             "reflexes" -> player.copy(dodgeChance = player.dodgeChance - 3)
             "looter" -> player.copy(goldFind = player.goldFind - 1)
-            "skilled" -> player.copy(techniqueBloodLustIsLearned = false)
+            "skilled" -> player.copy(
+                techniqueBloodLustIsLearned = false,
+                numberOfTechniquesLearned = 0,
+                hasSkilledModifier = false
+            )
             "upgrader" -> {
-                // TODO: Restore Item.CostToUpgrade
+                itemUpgrader.costToUpgradeItem *= 2
                 player
             }
-
-            "healer" -> {
-                // TODO: Remove healing cost reduction
-                player
-            }
+            "healer" -> player.copy(healingCostModifier = 1)
 
             "smuggler" -> {
-                // TODO: Remove the Soldier's Dagger if appropriate
+                player.inventory.removeIf { it.name == "Soldier's Dagger" }
                 player
             }
 
             "smithing" -> {
-                // TODO: Decrease Item.SmithUpgradeMultiplication by 1
+                itemUpgrader.smithUpgradeMultiplication = 1
                 player
             }
 
@@ -200,7 +207,7 @@ class Modifiers(
             }
 
             "cheapsmith" -> {
-                // TODO: Increase Item.CostToUpgrade by 10
+                itemUpgrader.costToUpgradeItem += 10
                 player
             }
 
@@ -209,10 +216,8 @@ class Modifiers(
                 player
             }
 
-            "phoenix" -> {
-                // TODO: Set resurrection buff to false
-                player
-            }
+            "phoenix" -> player.copy(hasPhoenixModifier = false)
+
             else -> player
         }
 
