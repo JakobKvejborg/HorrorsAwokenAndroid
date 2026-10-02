@@ -44,7 +44,11 @@ data class GameUiState(
 
     // Quests
     var act1Quest1Started: Boolean = false,
+    var act1Quest1BoyIsSaved: Boolean = false,
     var act1Quest1IsFinished: Boolean = false,
+    var act1Quest1ThankYouShown: Boolean = false,
+    var act1Quest1InitialTextShown: Boolean = false,
+    var act1HungryBeastDefeated: Boolean = false,
     var act4Quest1Started: Boolean = false,
     var act4QuestIsFinished: Boolean = false,
     var act4QuestRubyHasBeenGivenToSmith: Boolean = false,
@@ -61,5 +65,12 @@ data class GameUiState(
     var techniquesText5Shown: Boolean = false,
     var shownTechniqueTexts: Set<Int> = emptySet(),
     val adHocTownText: String? = null,
+    val reforgeFrogScreenOpen: Boolean = false,
+    val act2OptionalAreaScreenOpen: Boolean = false,
+    val act1Quest1ScreenOpen: Boolean = false,
+    var act2OptionalBossDefeated: Boolean = false,
+    var justDefeatedOptionalBoss: Boolean = false,
+    var justDefeatedHungryBeast: Boolean = false,
+    var act3LilyHasBeenGivenToFrog: Boolean = false,
 
     )

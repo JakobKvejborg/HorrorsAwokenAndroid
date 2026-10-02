@@ -6,6 +6,8 @@ enum class GameScreen {
     GameOver,
     Modifiers,
     Sophia,
+    ReforgeFrog,
+    Act1Quest1,
     IntroMovie,
     CombatAct1,
     TownAct1,
@@ -16,6 +18,7 @@ enum class GameScreen {
     CombatAct4,
     TownAct4,
     CombatAct5,
-    TownAct5
+    TownAct5,
+    Act2OptionalAreaScreen
 }
 

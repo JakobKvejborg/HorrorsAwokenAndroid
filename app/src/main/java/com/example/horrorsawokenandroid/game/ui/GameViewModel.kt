@@ -11,6 +11,7 @@ import com.example.horrorsawokenandroid.game.model.Monster
 import com.example.horrorsawokenandroid.game.model.MonsterContainer
 import com.example.horrorsawokenandroid.game.model.NoOpSoundPlayer
 import com.example.horrorsawokenandroid.game.model.Player
+import com.example.horrorsawokenandroid.game.model.ReforgeFrogStat
 import com.example.horrorsawokenandroid.game.model.SoundPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +43,11 @@ class GameViewModel(
     private val items = Items()
     private var droppedItem: Items.Item? = null
     private var lastMusicAct: Int = -1
+    val reforgeFrogStat = ReforgeFrogStat(
+        getState = { _uiState.value },
+        updateState = { transform -> _uiState.update(transform) },
+        sounds = sounds,
+    )
     val itemUpgrader = ItemUpgrader(
         getState = { _uiState.value },
         updateState = { transform -> _uiState.update(transform) },
@@ -52,8 +58,63 @@ class GameViewModel(
         updateState = { transform -> _uiState.update(transform) },
         storage = modifierStorage,
         itemUpgrader = itemUpgrader,
+        reforgeFrogStat = reforgeFrogStat,
     )
 
+    fun reforgeFrogScreenOpen(open: Boolean) {
+        _uiState.update { it.copy(reforgeFrogScreenOpen = open) }
+    }
+
+    fun openAct2OptionalAreaScreen(open: Boolean) {
+        _uiState.update { it.copy(act2OptionalAreaScreenOpen = open) }
+    }
+
+    fun act3TalkToFrogSound() {
+        sounds.playAct3Frog()
+    }
+
+    fun womanCryingSoundAct1Q1() {
+        sounds.playAct1WomanCrying()
+    }
+
+    fun act1Quest1(open: Boolean) {
+        val state = uiState.value
+        state.act1Quest1Started = true
+
+        if (state.act1Quest1BoyIsSaved && !state.act1Quest1IsFinished) {
+            val helmet = Items.Item(
+                name = "Father's Helmet",
+                type = Items.ItemType.Helmet,
+                dodgeChance = (0..1).random(),
+                strength = (0..1).random(),
+                armor = (0..2).random(),
+                health = (0..10).random(),
+                levelRequirement = 4,
+                strengthRequirement = 5,
+            )
+
+            state.player.inventory.add(helmet)
+
+            _uiState.update {
+                it.copy(
+                    act1Quest1ScreenOpen = open,
+                    act1Quest1Started = true,
+                    act1Quest1IsFinished = true
+                )
+            }
+        } else {
+            _uiState.update {
+                it.copy(
+                    act1Quest1ScreenOpen = open,
+                    act1Quest1Started = true
+                )
+            }
+        }
+    }
+
+    fun markAct1Quest1ThankYouShown() {
+        _uiState.update { it.copy(act1Quest1ThankYouShown = true) }
+    }
 
     // Encounter
     internal val encounterBattle = EncounterBattle(
@@ -63,6 +124,9 @@ class GameViewModel(
         onMonsterDefeated = { monster ->
             generateItemFoundOnMonster(monster)
             setBossDefeatedFlags(monster)
+            if (monster.name == "Hungry Beast") {
+                _uiState.update { it.copy(act1Quest1BoyIsSaved = true) }
+            }
         },
         onPlayerDefeated = {
             setCurrentScreen(GameScreen.GameOver)
@@ -167,7 +231,8 @@ class GameViewModel(
             return
         }
 
-        val newPriceToHeal = player.priceToHeal + ((player.priceToHeal * 0.1 + 7).toInt() / player.healingCostModifier)
+        val newPriceToHeal =
+            player.priceToHeal + ((player.priceToHeal * 0.1 + 7).toInt() / player.healingCostModifier)
 
         _uiState.update {
             it.copy(
@@ -354,15 +419,20 @@ class GameViewModel(
 
         // Player goes South
         if (direction == "SOUTH") {
-            if (state.act1Quest1Started) {
-                // TODO needs act 1 quest
+            if (currentAct == 1 && state.act1Quest1Started && !state.act1HungryBeastDefeated) {
+                setCurrentScreen(GameScreen.CombatAct1)
+                _uiState.update {
+                    it.copy(
+                        act1HungryBeastDefeated = true, justDefeatedHungryBeast = true
+                    )
+                }
+                encounterBattle.startEncounter(
+                    monsterPool = monsterContainer.listOfMonstersAct1Quest1,
+                    onEncounterStarted = { droppedItem = null }
+                )
+                return
             }
-            when (currentAct) {
-                2 -> setCurrentScreen(GameScreen.TownAct1)
-                3 -> setCurrentScreen(GameScreen.TownAct2)
-                4 -> setCurrentScreen(GameScreen.TownAct3)
-                5 -> setCurrentScreen(GameScreen.TownAct4)
-            }
+            goToPreviousTown()
             return
         }
 
@@ -559,6 +629,12 @@ class GameViewModel(
             return true // Egg-Watcher Dragons don't drop any loot
         }
 
+        if (monster.name == "The Frostfallen King") {
+            _uiState.update {
+                it.copy(player = it.player.copy(hasFrozenLily = true))
+            }
+        }
+
         if ( // 100% drop rate and better loot on these bosses
             monster.name == "The Frostfallen King" ||
             monster.name == "Awoken Horror" ||
@@ -600,11 +676,30 @@ class GameViewModel(
             it.copy(
                 lootAvailable = false,
                 droppedItem = null,
+                normalAttackAnimation = 0,
                 encounterLog = "You find the item: ${loot.name} "
 //                        + "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ". Player dragonegg number: ${player.numberOfDragonEggsInInventory}", // for debugging
             )
         }
 
+    }
+
+    fun act2OptionalBossFight() {
+        val state = uiState.value
+        if (state.act2OptionalBossDefeated) return
+        sounds.playAct2FrostfallenKing()
+
+        // Needed for Continue to not appear right after the fight
+        _uiState.update {
+            it.copy(
+                act2OptionalBossDefeated = true, justDefeatedOptionalBoss = true
+            )
+        }
+        setCurrentScreen(GameScreen.CombatAct2)
+        encounterBattle.startEncounter(
+            monsterPool = monsterContainer.listOfOptionalBossAct2,
+            onEncounterStarted = { droppedItem = null }
+        )
     }
 
     // This function allows the player to continue in combat
@@ -656,7 +751,7 @@ class GameViewModel(
 
             5 -> {
                 modifiers.giveRandomModifier()
-//                println("UNLUCKED MODIFIERS: " + uiState.value.player.unlockedModifiers.toString()) // TODO delete debug print
+//                println("UNLOCKED MODIFIERS: " + uiState.value.player.unlockedModifiers.toString()) // TODO delete debug print
                 if (uiState.value.sophiaIsDead == true) {
                     setCurrentScreen(GameScreen.Sophia)
                     sounds.sophiaDeadMixer()
@@ -677,6 +772,7 @@ class GameViewModel(
 
     // This function allows the player to return to town
     fun goToTown() {
+        _uiState.update { it.copy(justDefeatedOptionalBoss = false, justDefeatedHungryBeast = false) }
 
         val currentAct = uiState.value.currentAct
 
@@ -701,6 +797,10 @@ class GameViewModel(
 
     // This function returns the player to the previous act town AKA south
     fun goToPreviousTown() {
+        if (uiState.value.currentAct == 1) {
+            return
+        }
+
         val previousAct = (uiState.value.currentAct - 1).coerceAtLeast(1)
         uiState.value.firstTimeTownVisitedMusic = true
 

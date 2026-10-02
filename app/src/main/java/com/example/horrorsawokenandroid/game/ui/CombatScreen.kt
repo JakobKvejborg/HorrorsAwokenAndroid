@@ -91,7 +91,12 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             painter = painterResource(
                 id = when (state.currentAct) {
                     1 -> R.drawable.castle
-                    2 -> R.drawable.act2background
+                    2 ->
+                        if (state.monster?.name == "The Frostfallen King") {
+                            R.drawable.frostfallenking
+                        } else {
+                            R.drawable.act2background
+                        }
                     3 -> {
                         if (state.monster?.name == "The Devouring Abyss") {
                             R.drawable.act3boss
@@ -128,6 +133,19 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 contentDescription = "Ruby Dragon Stone",
                 modifier = Modifier
                     .offset(y = 490.dp, x = 10.dp)
+                    .size(50.dp)
+                    .clickable {
+                    }
+            )
+        }
+
+        // Frozen Lily to upgrade the Frog, given from Act2Q1
+        if (!state.act3LilyHasBeenGivenToFrog && state.player.hasFrozenLily == true) {
+            Image(
+                painter = painterResource(id = R.drawable.frozenlily), // The Frozen Lily image
+                contentDescription = "Ruby Dragon Stone",
+                modifier = Modifier
+                    .offset(y = 490.dp, x = 29.dp)
                     .size(50.dp)
                     .clickable {
                     }
@@ -570,7 +588,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             }
 
             // CONTINUE - RIGHT SIDE
-            if (state.totalMonstersDefeated < 3 || state.introMonstersAreCompleted) {
+            if ((state.totalMonstersDefeated < 3 || state.introMonstersAreCompleted) && !state.justDefeatedOptionalBoss && !state.justDefeatedHungryBeast) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)

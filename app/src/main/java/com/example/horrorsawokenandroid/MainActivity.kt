@@ -22,6 +22,9 @@ import com.example.horrorsawokenandroid.game.ui.ModifierButtonsScreen
 import com.example.horrorsawokenandroid.game.ui.SophiaScreen
 import com.example.horrorsawokenandroid.game.model.AndroidModifierStorage
 import com.example.horrorsawokenandroid.game.model.ModifierStorage
+import com.example.horrorsawokenandroid.game.ui.Act1Quest1Screen
+import com.example.horrorsawokenandroid.game.ui.Act2OptionalAreaScreen
+import com.example.horrorsawokenandroid.game.ui.ReforgeFrogScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -51,76 +54,111 @@ class MainActivity : ComponentActivity() {
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.Modifiers -> {
                         ModifierButtonsScreen(
                             viewModel = gameViewModel,
                             onClose = { gameViewModel.setCurrentScreen(GameScreen.Menu) }
                         )
                     }
+
                     GameScreen.Sophia -> {
                         SophiaScreen(
                             viewModel = gameViewModel,
                             onClose = { gameViewModel.restartGame() } // TODO check if modifiers are saved
                         )
                     }
+
                     GameScreen.GameOver -> {
                         GameOverScreen(
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.IntroMovie -> {
                         IntroMovieScreen(
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.CombatAct1 -> {
                         CombatScreen(
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.TownAct1 -> {
                         TownScreen(
                             viewModel = gameViewModel
                         )
                     }
+
+                    GameScreen.Act1Quest1 -> {
+                        Act1Quest1Screen(
+                            viewModel = gameViewModel,
+                            onClose = { gameViewModel.setCurrentScreen(GameScreen.TownAct1) }
+                        )
+                    }
+
                     GameScreen.CombatAct2 -> {
                         CombatScreen(
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.TownAct2 -> {
                         TownScreen(
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.CombatAct3 -> {
                         CombatScreen(
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.TownAct3 -> {
                         TownScreen(
                             viewModel = gameViewModel
                         )
                     }
+
+                    GameScreen.ReforgeFrog -> {
+                        ReforgeFrogScreen(
+                            viewModel = gameViewModel,
+                            onClose = { gameViewModel.setCurrentScreen(GameScreen.TownAct3) }
+                        )
+                    }
+
                     GameScreen.CombatAct4 -> {
                         CombatScreen(
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.TownAct4 -> {
                         TownScreen(
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.CombatAct5 -> {
                         CombatScreen(
                             viewModel = gameViewModel
                         )
                     }
+
                     GameScreen.TownAct5 -> {
                         TownScreen(
                             viewModel = gameViewModel
+                        )
+                    }
+
+                    GameScreen.Act2OptionalAreaScreen -> {
+                        Act2OptionalAreaScreen(
+                            viewModel = gameViewModel,
+                            onClose = { gameViewModel.setCurrentScreen(GameScreen.TownAct2) }
                         )
                     }
 

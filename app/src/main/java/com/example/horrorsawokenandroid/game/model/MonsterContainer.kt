@@ -396,7 +396,6 @@ class MonsterContainer {
             randomDamageModifier = 25,
             monsterExperience = 500,
             monsterGold = 0,
-            imageRes = R.drawable.frostfallenking
         )
     )
 
@@ -739,7 +738,7 @@ class MonsterContainer {
             imageRes = R.drawable.void1
         ),
         Monster(
-            name = "Void Dragon",
+            name = "Consumed Dragon",
             maxHealth = 528,
             currentHealth = 418,
             minDamage = 35,

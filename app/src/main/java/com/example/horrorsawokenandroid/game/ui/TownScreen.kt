@@ -59,6 +59,17 @@ fun TownScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF090909))
+            .clickable { // What happens if you click the background in town
+                if (currentAct == 1) {
+                    viewModel.act1Quest1(true) // Opens act 1 quest 1 screen
+                    viewModel.womanCryingSoundAct1Q1()
+                } else if (currentAct == 3 && state.act4Quest1Started) {
+                    viewModel.reforgeFrogScreenOpen(true) // Opens act 3 reforge frog screen
+                    viewModel.act3TalkToFrogSound()
+                } else if (currentAct == 2 && state.act4Quest1Started) {
+                    viewModel.openAct2OptionalAreaScreen(true)
+                }
+            }
     ) {
 
         // BACKGROUND
@@ -88,10 +99,7 @@ fun TownScreen(
                 )
         )
 
-        // --------------------------------------------------------
         // MAIN CONTENT
-        // --------------------------------------------------------
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -137,7 +145,8 @@ fun TownScreen(
                     viewModel.whereToGoBasedOnTheDirection(state.lastDirectionChosenByPlayer)
                 },
                 onSouth = {
-                    viewModel.goToPreviousTown()
+                    state.lastDirectionChosenByPlayer = "SOUTH"
+                    viewModel.whereToGoBasedOnTheDirection(state.lastDirectionChosenByPlayer)
                 },
                 onEast = {
                     state.lastDirectionChosenByPlayer = "EAST"
@@ -161,29 +170,28 @@ fun TownScreen(
             ) {
 
                 // LEFT NPC
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .offset(x = (-50).dp) // This decides how far left the image is pushed off screen (-10 is a bit left, -200 is far left)
-                ) {
-                    LeftNPCBox(
-                        imageRes = getNpcImage(
-                            act = currentAct,
-                            npcNumber = 1
-                        ),
-                        label = getNpcName(
-                            act = currentAct,
-                            npcNumber = 1
-                        ),
-                        onClick = {
-                            when (currentAct) {
-                                1, 2, 4 -> viewModel.playerIsHealedByNPC()
+                if (currentAct == 1 || currentAct == 2 || currentAct == 4) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .offset(x = (-50).dp)
+                    ) {
+                        LeftNPCBox(
+                            imageRes = when (currentAct) {
+                                1 -> R.drawable.healer
+                                2 -> R.drawable.act2healer
+                                4 -> R.drawable.act4healer
+                                else -> null
+                            },
+                            label = getNpcName(
+                                act = currentAct,
+                                npcNumber = 1
+                            ),
+                            onClick = {
+                                viewModel.playerIsHealedByNPC()
                             }
-                        }
-                    )
+                        )
 
-                    // Price label on the NPC image
-                    if (currentAct == 1 || currentAct == 2 || currentAct == 4) {
                         GoldPriceLabel(
                             amount = state.player.priceToHeal,
                             modifier = Modifier
@@ -191,63 +199,59 @@ fun TownScreen(
                                 .offset(y = 20.dp)
                         )
                     }
-
                 }
 
                 // RIGHT NPC
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .offset(x = 110.dp) // This decides how far right the image is pushed off screen (10 is a bit right, 200 is far right)
-                ) {
-                    RightNPCBox(
-                        imageRes = getNpcImage(
-                            act = currentAct,
-                            npcNumber = 2,
-                            smithHasDragonRuby = !state.player.hasDragonRuby && state.act4QuestIsFinished // Smith has Dragon Ruby when the player doesn't have it
-                        ),
-                        label = getNpcName(
-                            act = currentAct,
-                            npcNumber = 2
-                        ),
-                        onClick = {
-                            when (currentAct) {
-                                1 -> {
-                                    viewModel.playerLearnTechniques() // ACT 1 NPC 2
+                if (currentAct == 1 || currentAct == 2 || currentAct == 4) { // NPC images are only shown if the current act is 1, 2 or 4
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(x = 110.dp)
+                    ) {
+                        RightNPCBox(
+                            imageRes = when (currentAct) {
+                                1 -> R.drawable.act1artsteacher
+                                2 -> if (
+                                    !state.player.hasDragonRuby &&
+                                    state.act4QuestIsFinished
+                                ) {
+                                    R.drawable.act2smithupgraded
+                                } else {
+                                    R.drawable.act2smith
                                 }
+                                4 -> R.drawable.act4mage
+                                else -> null
+                            },
+                            label = getNpcName(
+                                act = currentAct,
+                                npcNumber = 2
+                            ),
+                            onClick = {
+                                when (currentAct) {
+                                    1 -> viewModel.playerLearnTechniques()
 
-                                2 -> {
-                                    if (state.player.hasDragonRuby == true) {
-                                        viewModel.giveSmithDragonRuby()
-                                    } else {
-                                        viewModel.openAct2SmithOverlay() // ACT 2 NPC 2
+                                    2 -> {
+                                        if (state.player.hasDragonRuby) {
+                                            viewModel.giveSmithDragonRuby()
+                                        } else {
+                                            viewModel.openAct2SmithOverlay()
+                                        }
                                     }
-                                }
 
-                                3 -> {
-                                    // ACT 3 NPC 2
-                                }
-
-                                4 -> {
-                                    viewModel.talkToDragonMage()
-                                }
-
-                                5 -> {
+                                    4 -> viewModel.talkToDragonMage()
                                 }
                             }
-                        }
-                    )
-
-                    // Price label above the NPC image — only shown where relevant (act 1 teaches techniques)
-                    if (currentAct == 1) {
-                        GoldPriceLabel(
-                            amount = state.player.priceToLearnTechnique,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .offset(y = (-40).dp)
                         )
-                    }
 
+                        if (currentAct == 1) {
+                            GoldPriceLabel(
+                                amount = state.player.priceToLearnTechnique,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .offset(y = (-40).dp)
+                            )
+                        }
+                    }
                 }
             }
 
@@ -269,6 +273,30 @@ fun TownScreen(
                 },
                 onEquipItem = viewModel::equipItem,
                 onUnequipItem = viewModel::unEquipItem
+            )
+        }
+
+        // Act 1 screen
+        if (state.act1Quest1ScreenOpen) {
+            Act1Quest1Screen(
+                viewModel = viewModel,
+                onClose = { viewModel.act1Quest1(false) }
+            )
+        }
+
+        // Act 3 reforge frog screen
+        if (state.reforgeFrogScreenOpen) {
+            ReforgeFrogScreen(
+                viewModel = viewModel,
+                onClose = { viewModel.reforgeFrogScreenOpen(false) }
+            )
+        }
+
+        // Act 2 opentional boss area screen
+        if (state.act2OptionalAreaScreenOpen) {
+            Act2OptionalAreaScreen(
+                viewModel = viewModel,
+                onClose = { viewModel.openAct2OptionalAreaScreen(false) }
             )
         }
 
@@ -315,8 +343,8 @@ private fun TownCompass(
         Box(
             modifier = Modifier
                 .size(
-                    width = 75.dp,
-                    height = 60.dp
+                    width = 85.dp,
+                    height = 70.dp
                 )
                 .align(Alignment.TopCenter)
                 .clickable {
@@ -336,8 +364,8 @@ private fun TownCompass(
         Box(
             modifier = Modifier
                 .size(
-                    width = 75.dp,
-                    height = 60.dp
+                    width = 85.dp,
+                    height = 70.dp
                 )
                 .align(Alignment.BottomCenter)
                 .clickable {
@@ -357,8 +385,8 @@ private fun TownCompass(
         Box(
             modifier = Modifier
                 .size(
-                    width = 60.dp,
-                    height = 75.dp
+                    width = 70.dp,
+                    height = 85.dp
                 )
                 .align(Alignment.CenterStart)
                 .clickable {
@@ -378,8 +406,8 @@ private fun TownCompass(
         Box(
             modifier = Modifier
                 .size(
-                    width = 60.dp,
-                    height = 75.dp
+                    width = 70.dp,
+                    height = 85.dp
                 )
                 .align(Alignment.CenterEnd)
                 .clickable {

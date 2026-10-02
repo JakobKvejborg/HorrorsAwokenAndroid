@@ -7,6 +7,7 @@ class Modifiers(
     private val updateState: ((GameUiState) -> GameUiState) -> Unit,
     private val storage: ModifierStorage = NoOpModifierStorage,
     private val itemUpgrader: ItemUpgrader,
+    private val reforgeFrogStat: ReforgeFrogStat,
 ) {
     companion object {
         val allIds = listOf(
@@ -147,7 +148,7 @@ class Modifiers(
             }
 
             "pirate" -> {
-                // TODO: Reduce ReforgeItemStat.PriceToReforgeFrog by half
+                reforgeFrogStat.priceToReforgeFrog /= 2
                 player to "Reduces reforge costs (Frog)."
             }
             "cheapsmith" -> {
@@ -156,7 +157,7 @@ class Modifiers(
             }
 
             "friendly" -> {
-                // TODO: Increase ReforgeItemStat.ReforgeModifier by 0.15
+                reforgeFrogStat.reforgeModifier += 0.15
                 player to "Improves reforge effects (Frog)."
             }
             "phoenix" -> player.copy(hasPhoenixModifier = true) to "Be able to survive death, once."
@@ -202,7 +203,7 @@ class Modifiers(
             }
 
             "pirate" -> {
-                // TODO: Restore ReforgeItemStat.PriceToReforgeFrog
+                reforgeFrogStat.priceToReforgeFrog *= 2
                 player
             }
 
@@ -212,7 +213,7 @@ class Modifiers(
             }
 
             "friendly" -> {
-                // TODO: Decrease ReforgeItemStat.ReforgeModifier by 0.15
+                reforgeFrogStat.reforgeModifier -= 0.15
                 player
             }
 
