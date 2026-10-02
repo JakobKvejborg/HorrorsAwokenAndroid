@@ -716,7 +716,7 @@ class MonsterContainer {
             imageRes = R.drawable.bloodvoid
         ),
         Monster(
-            name = "Crow",
+            name = "Dark Crow",
             maxHealth = 320,
             currentHealth = 320,
             minDamage = 0,
