@@ -58,6 +58,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Brush
 import kotlinx.coroutines.delay
@@ -78,6 +79,7 @@ fun InventoryOverlay(
     var inventoryBounds by remember { mutableStateOf<Rect?>(null) }
     val equipmentBounds = remember { mutableStateMapOf<Items.ItemType, Rect>() }
     var trashBounds by remember { mutableStateOf<Rect?>(null) }
+    var showTrashAllItemsConfirmation by remember { mutableStateOf(false) }
     val magneticDropZone = 47f
     val isOverTrash = trashBounds?.inflate(magneticDropZone)?.contains(dragPosition) == true
     var itemToBeUpgraded by remember { mutableStateOf<Items.Item?>(null) }
@@ -527,7 +529,7 @@ fun InventoryOverlay(
                 if (heldItem != null) {
                     ItemInfoPanel(
                         item = heldItem!!,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
             }
@@ -667,7 +669,7 @@ fun InventoryOverlay(
                                 Brush.radialGradient(
                                     colors = listOf(
                                         Color(0xFFFFF6C0).copy(alpha = flashAlpha),      // near-white hot center
-                                        Color(0xFFFFD700).copy(alpha = flashAlpha * 0.7f) // gold fading out
+                                        Color(0xFF00FFCC).copy(alpha = flashAlpha * 0.7f) // Cyan fading out
                                     )
                                 ),
                                 RoundedCornerShape(8.dp)
@@ -771,19 +773,51 @@ fun InventoryOverlay(
                                 trashBounds = it.boundsInRoot()
                             }
                             .pointerInput(Unit) {
-                            },
-                        contentAlignment = Alignment.Center
+                            }
+                            .clickable { showTrashAllItemsConfirmation = true },
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Image( // trash can image
+                        Image(
+                            // trash can image
                             painter = painterResource(id = R.drawable.trash),
                             contentDescription = "Trash",
                             modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Fit
+                            contentScale = ContentScale.Fit,
+                        )
+                    }
+                    if (showTrashAllItemsConfirmation) {
+                        AlertDialog(
+                            onDismissRequest = {
+                                showTrashAllItemsConfirmation = false
+                            },
+                            title = {
+                                Text("Destroy entire inventory?")
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.trashAllItemsInInventory()
+                                        showTrashAllItemsConfirmation = false
+                                        closeInventoryInfoBox()
+                                    }
+                                ) {
+                                    Text("YES", fontSize = 18.sp)
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = {
+                                        showTrashAllItemsConfirmation = false
+                                    }
+                                ) {
+                                    Text("NO", fontSize = 18.sp)
+                                }
+                            }
                         )
                     }
                 }
 
-                // Pushes CLOSE all the way to the right
+                // Pushes "CLOSE" all the way to the right
                 Spacer(
                     modifier = Modifier.weight(1f)
                 )
@@ -970,7 +1004,7 @@ internal fun EquipmentSlot(
 @Composable
 internal fun ItemInfoPanel(
     item: Items.Item,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val itemTypeIcon = getItemTypeIcon(item.type)
 
@@ -1020,22 +1054,50 @@ internal fun ItemInfoPanel(
                     modifier = Modifier.height(2.dp)
                 )
 
-                Text(
-                    text = item.type.name,
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
+                // Item type is replaced by "Reforged" if the item has been reforged by the frog
+                if (!item.isItemReforged) {
+                    Text(
+                        text = item.type.name,
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
+                } else {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Reforged",
+                        color = Color(0xFFFFD700),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
 
                 Spacer(
                     modifier = Modifier.height(5.dp)
                 )
 
-                Text(
-                    text = item.statText(),
-                    color = Color.LightGray,
-                    fontSize = 13.sp,
-                    lineHeight = 17.sp
-                )
+                val upgradeLabel = when (item.upgradedStatName) {
+                    "damage" -> "Damage:"
+                    "health" -> "Health:"
+                    "lifesteal" -> "Lifesteal:"
+                    "critChance" -> "Crit chance:"
+                    "critDamage" -> "Crit damage:"
+                    "armor" -> "Armor:"
+                    "dodgeChance" -> "Dodge:"
+                    "strength" -> "Strength:"
+                    "regeneration" -> "Regen:"
+                    else -> null
+                }
+
+                // Upgraded item stat text
+                item.statText().split("\n").forEach { line ->
+                    Text(
+                        text = line,
+                        color = if (upgradeLabel != null && line.startsWith(upgradeLabel)) Color(0xFF00FFCC) else Color.LightGray, // Color of the upgraded item stat
+                        fontSize = 15.sp,
+                        lineHeight = 17.sp,
+//                        fontWeight = FontWeight.Bold,
+                    )
+                }
             }
         }
     }

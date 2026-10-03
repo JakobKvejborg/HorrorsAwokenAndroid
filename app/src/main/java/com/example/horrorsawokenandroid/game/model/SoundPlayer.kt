@@ -520,7 +520,7 @@ class AndroidSoundPlayer(
 
     override fun playAct1HealingMusic() {
         healingMusicPlayer = playMusic(
-            "act1healer.wav",
+            "act1healer.ogg",
             healingMusicPlayer
         )
     }

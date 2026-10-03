@@ -372,7 +372,7 @@ fun ReforgeFrogScreen(
 
                                         if (item.isItemReforged) {
                                             Text(
-                                                text = "REFORGED",
+                                                text = "★",
                                                 color = Color(0xFFFFD700),
                                                 fontSize = 10.sp,
                                                 fontWeight = FontWeight.Bold

@@ -377,7 +377,8 @@ class GameViewModel(
 
         _uiState.update {
             it.copy(
-                player = it.player.copy(hasDragonRuby = false)
+                player = it.player.copy(hasDragonRuby = false),
+                act4DragonRubyHasBeenGivenToSmith = true,
             )
         }
         itemUpgrader.smithUpgradeMultiplication++
@@ -855,6 +856,14 @@ class GameViewModel(
     }
 
     fun playTrashSound() {
+        sounds.playTrashSound()
+    }
+
+    fun trashAllItemsInInventory() {
+        _uiState.update {
+            it.player.inventory.clear()
+            it
+        }
         sounds.playTrashSound()
     }
 

@@ -51,7 +51,7 @@ data class GameUiState(
     var act1HungryBeastDefeated: Boolean = false,
     var act4Quest1Started: Boolean = false,
     var act4QuestIsFinished: Boolean = false,
-    var act4QuestRubyHasBeenGivenToSmith: Boolean = false,
+    var act4DragonRubyHasBeenGivenToSmith: Boolean = false,
     var sophiaIsDead: Boolean = true,
     var act1TownTextShown: Boolean = false,
     var act3TownTextShown: Boolean = false,

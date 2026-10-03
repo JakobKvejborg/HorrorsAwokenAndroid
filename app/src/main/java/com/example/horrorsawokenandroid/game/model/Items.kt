@@ -30,6 +30,7 @@ class Items {
         // Upgrade/reforge items
         var isItemUpgraded: Boolean = false,
         var isItemReforged: Boolean = false,
+        var upgradedStatName: String? = null,
 
         ) {
 
@@ -107,7 +108,7 @@ class Items {
 
         val lootRoll = Random.nextInt(100)
 
-        if (lootRoll >= 34) { // This is the % chance of an item dropping. Higher number = higher chance
+        if (lootRoll >= 36) { // This is the % chance of an item dropping. Higher number = higher chance
             return null
         }
 
