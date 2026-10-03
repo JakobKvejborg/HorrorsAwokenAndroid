@@ -49,7 +49,7 @@ class AttackMoves(
         sounds.playBloodLustAttack()
 
         val damage = (state.player.calculateTotalDamage() * 1.6).toInt()
-        val healthCost = (state.player.maxHealth * 0.08).toInt()
+        val healthCost = (state.player.maxHealth * 0.06).toInt()
 
         updateState {
             val player = it.player.copy(
@@ -190,7 +190,7 @@ class AttackMoves(
         }
 
         val healAmount = player.maxHealth / 15
-        val buffArmor = (player.armor * 0.15).toInt()
+        val buffArmor = (player.armor * 0.20).toInt()
 
         sounds.playGuard()
 

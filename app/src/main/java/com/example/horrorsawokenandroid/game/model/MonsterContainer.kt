@@ -246,7 +246,7 @@ class MonsterContainer {
             name = "Aldrus Thornfell",
             maxHealth = 100,
             currentHealth = 100,
-            minDamage = 5,
+            minDamage = 6,
             maxDamage = 0,
             randomDamageModifier = 7,
             monsterExperience = 40,
@@ -483,7 +483,7 @@ class MonsterContainer {
             currentHealth = 400,
             minDamage = 15,
             maxDamage = 0,
-            randomDamageModifier = 30,
+            randomDamageModifier = 28,
             monsterExperience = 100,
             monsterGold = 30
         )
@@ -531,7 +531,7 @@ class MonsterContainer {
             name = "Magma Horror",
             maxHealth = 180,
             currentHealth = 180,
-            minDamage = 40,
+            minDamage = 38,
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 20,
@@ -575,7 +575,7 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 93,
-            monsterGold = 44,
+            monsterGold = 48,
             imageRes = R.drawable.casterdragon
         ),
         Monster(
@@ -597,7 +597,7 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 0,
             monsterExperience = 50,
-            monsterGold = 60,
+            monsterGold = 70,
             imageRes = R.drawable.silverdragon
         ),
         Monster(
@@ -619,7 +619,7 @@ class MonsterContainer {
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 20,
-            monsterGold = 60,
+            monsterGold = 80,
             imageRes = R.drawable.goldendragon
         )
     )
@@ -688,7 +688,7 @@ class MonsterContainer {
             currentHealth = 360,
             minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 39,
+            randomDamageModifier = 41,
             monsterExperience = 120,
             monsterGold = 120,
             imageRes = R.drawable.blackangel
@@ -699,7 +699,7 @@ class MonsterContainer {
             currentHealth = 299,
             minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 93,
+            randomDamageModifier = 99,
             monsterExperience = 90,
             monsterGold = 20,
             imageRes = R.drawable.jester
@@ -710,7 +710,7 @@ class MonsterContainer {
             currentHealth = 340,
             minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 58,
+            randomDamageModifier = 62,
             monsterExperience = 77,
             monsterGold = 0,
             imageRes = R.drawable.bloodvoid
@@ -721,7 +721,7 @@ class MonsterContainer {
             currentHealth = 320,
             minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 89,
+            randomDamageModifier = 92,
             monsterExperience = 77,
             monsterGold = 0,
             imageRes = R.drawable.crow
@@ -741,7 +741,7 @@ class MonsterContainer {
             name = "Consumed Dragon",
             maxHealth = 528,
             currentHealth = 418,
-            minDamage = 35,
+            minDamage = 38,
             maxDamage = 0,
             randomDamageModifier = 15,
             monsterExperience = 129,
@@ -757,7 +757,7 @@ class MonsterContainer {
             currentHealth = 470,
             minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 66,
+            randomDamageModifier = 68,
             monsterExperience = 80,
             monsterGold = 120,
             imageRes = R.drawable.shadow
@@ -768,7 +768,7 @@ class MonsterContainer {
             currentHealth = 364,
             minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 74,
+            randomDamageModifier = 77,
             monsterExperience = 120,
             monsterGold = 133,
             imageRes = R.drawable.deathangel
@@ -791,7 +791,7 @@ class MonsterContainer {
             currentHealth = 415,
             minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 67,
+            randomDamageModifier = 69,
             monsterExperience = 50,
             monsterGold = 180,
             imageRes = R.drawable.priest
@@ -800,7 +800,7 @@ class MonsterContainer {
             name = "Dark Mage",
             maxHealth = 394,
             currentHealth = 394,
-            minDamage = 15,
+            minDamage = 17,
             maxDamage = 0,
             randomDamageModifier = 45,
             monsterExperience = 140,

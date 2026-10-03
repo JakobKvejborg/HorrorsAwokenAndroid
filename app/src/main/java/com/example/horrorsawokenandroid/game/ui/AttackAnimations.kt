@@ -373,7 +373,6 @@ class AttackAnimations {
         }
     }
 
-
     @Composable
     fun BloodLustGlow(
         trigger: Int
@@ -410,7 +409,7 @@ class AttackAnimations {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(75.dp)
+                        .height(85.dp)
                         .align(Alignment.BottomCenter)
                         .background(
                             Brush.verticalGradient(

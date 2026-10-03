@@ -107,7 +107,7 @@ class Items {
 
         val lootRoll = Random.nextInt(100)
 
-        if (lootRoll >= 32) {
+        if (lootRoll >= 34) { // This is the % chance of an item dropping. Higher number = higher chance
             return null
         }
 
@@ -181,25 +181,25 @@ class Items {
             )
 
             4 -> listOf(
-                Quality.Damaged to 10.0,
-                Quality.Normal to 35.0,
-                Quality.Magic to 20.0,
-                Quality.Strong to 14.0,
-                Quality.Rare to 10.1,
-                Quality.Unique to 6.1,
-                Quality.Epic to 3.0,
+                Quality.Damaged to 7.0,
+                Quality.Normal to 32.0,
+                Quality.Magic to 22.0,
+                Quality.Strong to 16.0,
+                Quality.Rare to 11.1,
+                Quality.Unique to 6.6,
+                Quality.Epic to 3.5,
                 Quality.Legendary to 1.5,
                 Quality.Godly to 0.3
             )
 
             else -> listOf(
-                Quality.Damaged to 4.0,
-                Quality.Normal to 28.0,
+                Quality.Damaged to 1.0,
+                Quality.Normal to 27.0,
                 Quality.Magic to 20.0,
-                Quality.Strong to 15.0,
-                Quality.Rare to 12.0,
-                Quality.Unique to 9.0,
-                Quality.Epic to 6.0,
+                Quality.Strong to 16.0,
+                Quality.Rare to 13.0,
+                Quality.Unique to 10.0,
+                Quality.Epic to 7.0,
                 Quality.Legendary to 4.5,
                 Quality.Godly to 1.5
             )
@@ -566,7 +566,7 @@ class Items {
                 ).roundToInt()
 
         item.lifesteal = (
-                random.nextInt(0, 5) *
+                random.nextInt(0, 4) *
                         quality *
                         act
                 ).roundToInt()
@@ -609,7 +609,7 @@ class Items {
             .coerceAtLeast(0)
 
         item.health = (
-                random.nextInt(2, 32) *
+                random.nextInt(2, 33) *
                         quality *
                         2.0 *
                         act
@@ -660,7 +660,7 @@ class Items {
             .coerceAtLeast(0)
 
         item.health = (
-                random.nextInt(1, 21) *
+                random.nextInt(1, 22) *
                         quality *
                         act
                 ).roundToInt()
@@ -757,7 +757,7 @@ class Items {
                 ).roundToInt()
 
         item.regeneration = (
-                random.nextInt(0, 3) *
+                random.nextInt(0, 4) *
                         quality *
                         act
                 ).roundToInt()
@@ -883,7 +883,7 @@ class Items {
                 ).roundToInt()
 
         item.lifesteal = (
-                random.nextInt(0, 9) *
+                random.nextInt(0, 7) *
                         quality *
                         act
                 ).roundToInt()
@@ -975,6 +975,12 @@ class Items {
 
         item.critChance = (
                 random.nextInt(0, 3) *
+                        quality *
+                        act
+                ).roundToInt()
+
+        item.lifesteal = (
+                random.nextInt(0, 2) *
                         quality *
                         act
                 ).roundToInt()

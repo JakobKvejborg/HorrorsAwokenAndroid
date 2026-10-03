@@ -243,7 +243,7 @@ fun TownScreen(
                             }
                         )
 
-                        if (currentAct == 1) {
+                        if (currentAct == 1 && !state.player.techniqueGuardIsLearned) {
                             GoldPriceLabel(
                                 amount = state.player.priceToLearnTechnique,
                                 modifier = Modifier

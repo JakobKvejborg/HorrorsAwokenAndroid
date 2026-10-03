@@ -712,7 +712,8 @@ fun InventoryOverlay(
                                 }
                             )
                         },
-                        enabled = itemToBeUpgraded != null,
+                        enabled = itemToBeUpgraded != null &&
+                                itemToBeUpgraded!!.type != Items.ItemType.Amulet,
                         shape = androidx.compose.ui.graphics.RectangleShape
                     ) {
                         Text(

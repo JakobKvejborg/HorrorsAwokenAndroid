@@ -52,7 +52,8 @@ class ReforgeFrogStat(
         if (player.hasFrozenLily) {
             updateState {
                 it.copy(
-                    player = it.player.copy(hasFrozenLily = false)
+                    player = it.player.copy(hasFrozenLily = false),
+                    act3LilyHasBeenGivenToFrog = true,
                 )
             }
             sounds.playAct3FrozenLilyFrogSound()
@@ -97,3 +98,4 @@ class ReforgeFrogStat(
     }
 
 }
+
