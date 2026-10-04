@@ -53,6 +53,7 @@ data class GameUiState(
     var act4QuestIsFinished: Boolean = false,
     var act4DragonRubyHasBeenGivenToSmith: Boolean = false,
     var sophiaIsDead: Boolean = true,
+    var sophiaIsSaved: Boolean = false,
     var act1TownTextShown: Boolean = false,
     var act3TownTextShown: Boolean = false,
     var act4QuestStartTextShown: Boolean = false,

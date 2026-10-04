@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -40,6 +41,7 @@ fun TownScreen(
     val state by viewModel.uiState.collectAsState()
     state.introMonstersAreCompleted = true
     val currentAct = state.currentAct
+    val interactionSource = remember { MutableInteractionSource() } // This makes the things clicked on not flicker
 
     // BACKGROUND ZOOM
     val backgroundScale = remember { Animatable(1f) }
@@ -59,7 +61,10 @@ fun TownScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF090909))
-            .clickable { // What happens if you click the background in town
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) { // What happens if you click the background in town
                 if (currentAct == 1) {
                     viewModel.act1Quest1(true) // Opens act 1 quest 1 screen
                     viewModel.womanCryingSoundAct1Q1()
@@ -328,6 +333,7 @@ private fun TownCompass(
         modifier = Modifier.size(240.dp),
         contentAlignment = Alignment.Center
     ) {
+        val interactionSource = remember { MutableInteractionSource() }
 
         // COMPASS IMAGE
         Image(
@@ -343,11 +349,14 @@ private fun TownCompass(
         Box(
             modifier = Modifier
                 .size(
-                    width = 85.dp,
-                    height = 70.dp
+                    width = 90.dp,
+                    height = 75.dp
                 )
                 .align(Alignment.TopCenter)
-                .clickable {
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {
                     onNorth()
                 },
             contentAlignment = Alignment.Center
@@ -364,11 +373,14 @@ private fun TownCompass(
         Box(
             modifier = Modifier
                 .size(
-                    width = 85.dp,
-                    height = 70.dp
+                    width = 90.dp,
+                    height = 75.dp
                 )
                 .align(Alignment.BottomCenter)
-                .clickable {
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {
                     onSouth()
                 },
             contentAlignment = Alignment.Center
@@ -385,11 +397,14 @@ private fun TownCompass(
         Box(
             modifier = Modifier
                 .size(
-                    width = 70.dp,
-                    height = 85.dp
+                    width = 75.dp,
+                    height = 90.dp
                 )
                 .align(Alignment.CenterStart)
-                .clickable {
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {
                     onWest()
                 },
             contentAlignment = Alignment.Center
@@ -406,11 +421,14 @@ private fun TownCompass(
         Box(
             modifier = Modifier
                 .size(
-                    width = 70.dp,
-                    height = 85.dp
+                    width = 75.dp,
+                    height = 90.dp
                 )
                 .align(Alignment.CenterEnd)
-                .clickable {
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {
                     onEast()
                 },
             contentAlignment = Alignment.Center
@@ -435,13 +453,18 @@ private fun LeftNPCBox(
     label: String,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Box(
         modifier = Modifier
             .size(
                 width = 210.dp,
                 height = 310.dp
             )
-            .clickable {
+            .clickable (
+                interactionSource = interactionSource,
+                indication = null
+            ) {
                 onClick()
             },
         contentAlignment = Alignment.Center
@@ -463,13 +486,18 @@ private fun RightNPCBox(
     label: String,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Box(
         modifier = Modifier
             .size(
                 width = 430.dp,
                 height = 500.dp
             )
-            .clickable {
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
                 onClick()
             },
         contentAlignment = Alignment.Center

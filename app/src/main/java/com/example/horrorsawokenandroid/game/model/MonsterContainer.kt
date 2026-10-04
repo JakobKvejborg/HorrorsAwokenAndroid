@@ -655,17 +655,6 @@ class MonsterContainer {
             imageRes = R.drawable.dragonnestwatcher
         ),
         Monster(
-            name = "Nest-Watcher Dragon",
-            maxHealth = 310,
-            currentHealth = 310,
-            minDamage = 13,
-            maxDamage = 0,
-            randomDamageModifier = 50,
-            monsterExperience = 60,
-            monsterGold = 0,
-            imageRes = R.drawable.dragonnestwatcher
-        ),
-        Monster(
             name = "Egg-Watcher Dragon",
             maxHealth = 310,
             currentHealth = 310,
@@ -675,7 +664,7 @@ class MonsterContainer {
             monsterExperience = 60,
             monsterGold = 0,
             imageRes = R.drawable.dragoneggwatcher
-        )
+        ),
     )
 
     // ------------------------------------------------------------

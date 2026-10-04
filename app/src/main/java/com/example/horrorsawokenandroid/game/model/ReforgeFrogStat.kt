@@ -46,7 +46,7 @@ class ReforgeFrogStat(
         item: Items.Item,
         stat: ReforgeableStat,
     ): Items.Item? {
-
+        println("lilymodifier number: " + lilyReforgeModifier) // TODO delete debug
         val player = getState().player
 
         if (player.hasFrozenLily) {

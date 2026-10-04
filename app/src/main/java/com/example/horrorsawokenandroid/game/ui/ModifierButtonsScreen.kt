@@ -48,7 +48,7 @@ fun ModifierButtonsScreen(
 
         // TOP LABEL (info)
         Text(
-            text = selectedModifier?.let { viewModel.modifiers.getDescription(it) } ?: "",
+            text = selectedModifier?.let { viewModel.modifiers.getDescription(it) } ?: "Complete the game to unlock a Modifier.",
             color = Color.White,
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
             fontWeight = FontWeight.Bold,

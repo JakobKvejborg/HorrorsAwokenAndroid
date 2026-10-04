@@ -57,7 +57,8 @@ class Modifiers(
         updateState {
             it.copy(
                 player = updatedPlayer.copy(
-                    activeModifiers = newActive
+                    activeModifiers = newActive,
+                    numberOfUnlockedModifiers = state.player.numberOfUnlockedModifiers + 1
                 )
             )
         }
@@ -89,7 +90,7 @@ class Modifiers(
         updateState {
             it.copy(
                 player = state.player.copy(
-                    unlockedModifiers = newUnlocked
+                    unlockedModifiers = newUnlocked,
                 )
             )
         }
@@ -99,38 +100,61 @@ class Modifiers(
         return id
     }
 
-    fun getDescription(id: String): String =
-        applyEffectWithMessage(id, getState().player).second
+    fun getDescription(id: String): String = descriptionFor(id)
+
+    private fun descriptionFor(id: String): String = when (id) {
+        "crit" -> "Increases Crit Chance."
+        "healthy" -> "Increases Max Health."
+        "juggernaut" -> "Increases Armor."
+        "intuitive" -> "Reduces the cost to learn new attacks."
+        "vampire" -> "Increases Lifesteal."
+        "thief" -> "Increases starting gold slightly."
+        "rich" -> "Increases starting gold."
+        "immortal" -> "Increases Health Regeneration."
+        "dangerous" -> "Increases Critical Damage."
+        "strong" -> "Increases Strength."
+        "soldier" -> "Increases Damage slightly."
+        "veteran" -> "Increases Damage."
+        "reflexes" -> "Increases Dodge Chance."
+        "looter" -> "Increases gold found."
+        "skilled" -> "Unlocks the first technique, Blood Lust."
+        "upgrader" -> "Reduces smith upgrade costs greatly."
+        "healer" -> "Reduces healers' healing costs."
+        "smuggler" -> "Start with a Dagger in inventory."
+        "smithing" -> "Improves smithing upgrades."
+        "pirate" -> "Reduces reforge costs (Frog)."
+        "cheapsmith" -> "Reduces smithing costs slightly."
+        else -> "Unknown modifier."
+    }
 
     private fun applyEffect(id: String, player: Player): Player =
-        applyEffectWithMessage(id, player).first
-
-    private fun applyEffectWithMessage(id: String, player: Player): Pair<Player, String> =
         when (id) {
-            "crit" -> player.copy(critChance = player.critChance + 5) to "Increases Crit Chance."
-            "healthy" -> player.copy(maxHealth = player.maxHealth + 20) to "Increases Max Health."
-            "juggernaut" -> player.copy(armor = player.armor + 1) to "Increases Armor."
-            "intuitive" -> player.copy(priceToLearnTechnique = player.priceToLearnTechnique / 2) to "Reduces the cost to learn new attacks."
-            "vampire" -> player.copy(lifesteal = player.lifesteal + 5) to "Increases Lifesteal."
-            "thief" -> player.copy(goldInPocket = player.goldInPocket + 50) to "Increases starting gold slightly."
-            "rich" -> player.copy(goldInPocket = player.goldInPocket + 250) to "Increases starting gold."
-            "immortal" -> player.copy(regeneration = player.regeneration + 5) to "Increases Health Regeneration."
-            "dangerous" -> player.copy(critDamage = player.critDamage + 20) to "Increases Critical Damage."
-            "strong" -> player.copy(strength = player.strength + 2) to "Increases Strength."
-            "soldier" -> player.copy(damage = player.damage + 1) to "Increases Damage slightly."
-            "veteran" -> player.copy(damage = player.damage + 2) to "Increases Damage."
-            "reflexes" -> player.copy(dodgeChance = player.dodgeChance + 3) to "Increases Dodge Chance."
-            "looter" -> player.copy(goldFind = player.goldFind + 1) to "Increases gold found."
+            "crit" -> player.copy(critChance = player.critChance + 5)
+            "healthy" -> player.copy(maxHealth = player.maxHealth + 20)
+            "juggernaut" -> player.copy(armor = player.armor + 1)
+            "intuitive" -> player.copy(priceToLearnTechnique = player.priceToLearnTechnique / 2)
+            "vampire" -> player.copy(lifesteal = player.lifesteal + 5)
+            "thief" -> player.copy(goldInPocket = player.goldInPocket + 50)
+            "rich" -> player.copy(goldInPocket = player.goldInPocket + 250)
+            "immortal" -> player.copy(regeneration = player.regeneration + 5)
+            "dangerous" -> player.copy(critDamage = player.critDamage + 20)
+            "strong" -> player.copy(strength = player.strength + 2)
+            "soldier" -> player.copy(damage = player.damage + 1)
+            "veteran" -> player.copy(damage = player.damage + 2)
+            "reflexes" -> player.copy(dodgeChance = player.dodgeChance + 3)
+            "looter" -> player.copy(goldFind = player.goldFind + 1)
             "skilled" -> player.copy(
                 techniqueBloodLustIsLearned = true,
                 numberOfTechniquesLearned = 1,
                 hasSkilledModifier = true
-            ) to "Unlocks the first technique, Blood Lust."
+            )
+
             "upgrader" -> {
                 itemUpgrader.costToUpgradeItem /= 2
-                player to "Reduces item upgrade costs greatly (Smith)."
+                player
             }
-            "healer" -> player.copy(healingCostModifier = 2) to "Reduces healers' healing costs."
+
+            "healer" -> player.copy(healingCostModifier = 2)
             "smuggler" -> {
                 val dagger = Items.Item(
                     name = "Soldier's Dagger",
@@ -140,29 +164,25 @@ class Modifiers(
                     levelRequirement = 1
                 )
                 player.inventory.add(dagger)
-                player to "Start with a Soldier's Dagger in inventory."
+                player
             }
+
             "smithing" -> {
                 itemUpgrader.smithUpgradeMultiplication = 2
-                player to "Improves smithing upgrades."
+                player
             }
 
             "pirate" -> {
                 reforgeFrogStat.priceToReforgeFrog /= 2
-                player to "Reduces reforge costs (Frog)."
+                player
             }
+
             "cheapsmith" -> {
                 itemUpgrader.costToUpgradeItem -= 10
-                player to "Reduces smithing costs slightly."
+                player
             }
 
-            "friendly" -> {
-                reforgeFrogStat.reforgeModifier += 0.15
-                player to "Improves reforge effects (Frog)."
-            }
-            "phoenix" -> player.copy(hasPhoenixModifier = true) to "Be able to survive death, once."
-
-            else -> player to "Unknown modifier"
+            else -> player
         }
 
     private fun removeEffect(id: String, player: Player): Player =
@@ -186,10 +206,12 @@ class Modifiers(
                 numberOfTechniquesLearned = 0,
                 hasSkilledModifier = false
             )
+
             "upgrader" -> {
                 itemUpgrader.costToUpgradeItem *= 2
                 player
             }
+
             "healer" -> player.copy(healingCostModifier = 1)
 
             "smuggler" -> {

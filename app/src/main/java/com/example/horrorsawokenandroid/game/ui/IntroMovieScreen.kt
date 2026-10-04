@@ -11,17 +11,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.horrorsawokenandroid.R
 import androidx.core.net.toUri
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
 
 @Composable
 fun IntroMovieScreen(
     viewModel: GameViewModel
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .clickable {
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
                 // Skip intro
                 viewModel.startEncounter(
                     monsterPool = viewModel.monsterContainer.listOfMonstersAct1West,

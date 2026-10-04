@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                     GameScreen.Sophia -> {
                         SophiaScreen(
                             viewModel = gameViewModel,
-                            onClose = { gameViewModel.restartGame() } // TODO check if modifiers are saved
+                            onClose = { gameViewModel.restartGame() }
                         )
                     }
 

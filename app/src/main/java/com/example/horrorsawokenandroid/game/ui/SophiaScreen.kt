@@ -2,6 +2,7 @@ package com.example.horrorsawokenandroid.game.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,10 +66,10 @@ fun SophiaScreen(
                 )
             } else {
                 TypewriterText(
-                    text = "Sophia embraces you with tears streaming down her face. You have saved her, and the world seems just a bit brighter. \" +\n" +
-                            "                        \"About time! What took you so long?\" she says smiling, with tears flooding her eyes. Sophia returns with you out of the door behind you.\" +\n" +
-                            "                        \" Congratulations Hero, you have finally done it. \" +\n" +
-                            "                        \$\"But one last challenge remains - if you dare.",
+                    text = "Sophia embraces you with tears streaming down her face. You have saved her, and the world seems just a bit brighter.\n\n" +
+                            "\"About time! What took you so long?\" she says smiling, with tears flooding her eyes. Sophia returns with you out of the door behind you.\n\n" +
+                            "Congratulations Hero, you have finally done it.\n" +
+                            "But one last challenge remains - if you dare.",
                     color = Color.White,
                     modifier = Modifier.padding(horizontal = 32.dp),
                     holdMs = 100000,
@@ -91,13 +92,17 @@ fun SophiaScreen(
                     if (state.sophiaIsDead) {
                         onClose()
                     } else {
+                        viewModel.markSophiaSaved()
                         viewModel.setCurrentScreen(GameScreen.TownAct5)
                     }
                 },
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 2.dp)
+                contentPadding = PaddingValues(vertical = 2.dp)
             ) {
                 Text(
-                    text = "TRAVEL BACK IN TIME ->",
+                    text = if (state.sophiaIsDead)
+                        "TRAVEL BACK IN TIME ->"
+                    else
+                        "BACK TO TOWN ->",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     style = TextStyle(

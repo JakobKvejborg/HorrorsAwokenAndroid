@@ -69,6 +69,22 @@ class GameViewModel(
         _uiState.update { it.copy(act2OptionalAreaScreenOpen = open) }
     }
 
+    fun checkIfSophiaIsAlive() {
+        val state = uiState.value
+
+        if (state.player.numberOfUnlockedModifiers >= 3) {
+            _uiState.update {
+                it.copy(sophiaIsDead = false) // Sets sophia to be alive
+            }
+        }
+    }
+
+    fun isSophiaDeadDebug(): Boolean { // TODO delete
+        val state = uiState.value
+
+        return state.sophiaIsDead
+    }
+
     fun act3TalkToFrogSound() {
         sounds.playAct3Frog()
     }
@@ -257,7 +273,7 @@ class GameViewModel(
 
         _uiState.value = GameUiState(
             player = modifiers.loadUnlockedModifiers(Player.newHero()),
-            currentScreen = GameScreen.Menu
+            currentScreen = GameScreen.Menu,
         )
     }
 
@@ -462,7 +478,7 @@ class GameViewModel(
 
             5 -> when (direction) {
                 "NORTH" -> {
-                    if (state.isAct5BossDefeated == true && state.sophiaIsDead) {
+                    if (state.isAct5BossDefeated == true && !state.sophiaIsSaved) {
                         goToNextAct()
                         return
                     }
@@ -571,7 +587,7 @@ class GameViewModel(
                 "WEST" -> monsterContainer.listOfAct5MonstersWest
                 "EAST" -> monsterContainer.listOfAct5MonstersEast
                 "NORTH" -> {
-                    if (!uiState.value.isAct5BossDefeated == true) {
+                    if (!uiState.value.isAct5BossDefeated) {
                         monsterContainer.listOfMonstersBossAct5
                     } else {
                         monsterContainer.listOfOptionalBossAct5
@@ -678,7 +694,7 @@ class GameViewModel(
                 lootAvailable = false,
                 droppedItem = null,
                 normalAttackAnimation = 0,
-                encounterLog = "You find the item: ${loot.name} "
+                encounterLog = "You find the item: ${loot.name}."
 //                        + "Player inventory now contains: " + player.inventory.joinToString(", ") { it.name } + ". Player dragonegg number: ${player.numberOfDragonEggsInInventory}", // for debugging
             )
         }
@@ -751,29 +767,33 @@ class GameViewModel(
             }
 
             5 -> {
-                modifiers.giveRandomModifier()
-//                println("UNLOCKED MODIFIERS: " + uiState.value.player.unlockedModifiers.toString()) // TODO delete debug print
-                if (uiState.value.sophiaIsDead == true) {
+                if (uiState.value.sophiaIsDead) {
                     setCurrentScreen(GameScreen.Sophia)
                     sounds.sophiaDeadMixer()
-                } else {
-                    // TODO sophia is alive
+                    modifiers.giveRandomModifier()
+                } else if (!uiState.value.sophiaIsSaved) {
+                    setCurrentScreen(GameScreen.Sophia)
+                    modifiers.giveRandomModifier()
                 }
             }
         }
 
-        // sample code
-        /*
-        when {
-            currentAct == 2 && uiState.value.isAct2BossDefeated -> GameScreen.TownAct3
-        }
-        */
+    }
 
+    fun markSophiaSaved() {
+        _uiState.update {
+            it.copy(sophiaIsSaved = true)
+        }
     }
 
     // This function allows the player to return to town
     fun goToTown() {
-        _uiState.update { it.copy(justDefeatedOptionalBoss = false, justDefeatedHungryBeast = false) }
+        _uiState.update {
+            it.copy(
+                justDefeatedOptionalBoss = false,
+                justDefeatedHungryBeast = false
+            )
+        }
 
         val currentAct = uiState.value.currentAct
 

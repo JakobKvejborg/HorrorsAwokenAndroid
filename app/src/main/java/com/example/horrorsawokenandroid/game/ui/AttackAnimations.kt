@@ -163,8 +163,8 @@ class AttackAnimations {
 
         val infiniteTransition = rememberInfiniteTransition(label = "buffIconPulse")
         val scale by infiniteTransition.animateFloat(
-            initialValue = 0.95f,
-            targetValue = 1.05f,
+            initialValue = 0.91f,
+            targetValue = 1.00f,
             animationSpec = infiniteRepeatable(tween(800), RepeatMode.Reverse),
             label = "buffIconScale"
         )
@@ -173,7 +173,7 @@ class AttackAnimations {
             painter = painterResource(R.drawable.guardshield4), // image of the buff icon
             contentDescription = "Buff active",
             modifier = Modifier
-                .size(28.dp)
+                .size(20.dp)
                 .scale(scale)
         )
     }
@@ -230,11 +230,11 @@ class AttackAnimations {
                     animationSpec = tween(1) // fade in
                 )
 
-                delay(450) // How long the image stays fully visible
+                delay(550) // How long the image stays fully visible
 
                 alpha.animateTo(
                     targetValue = 0f,
-                    animationSpec = tween(220) // fade out
+                    animationSpec = tween(230) // fade out
                 )
             }
         }

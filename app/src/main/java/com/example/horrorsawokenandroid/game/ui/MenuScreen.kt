@@ -26,6 +26,7 @@ import com.example.horrorsawokenandroid.R
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 
@@ -68,24 +69,31 @@ fun MenuScreen(
 
             Text(
                 text = "HORRORS AWOKEN",
-                fontSize = 48.sp,
+                fontSize = 40.sp,
                 fontWeight = FontWeight.Black,
-                letterSpacing = 4.sp,
+                letterSpacing = 5.sp,
                 textAlign = TextAlign.Center,
                 style = TextStyle(
                     brush = Brush.linearGradient(
                         colors = listOf(
+                            Color(0xFFFFE5E5),
                             Color(0xFFFF3D3D),
-                            Color(0xFFB71C1C),
-                            Color(0xFF4A0000)
+                            Color(0xFFD50000),
+                            Color(0xFF6B0000),
+                            Color(0xFF180000)
                         )
                     ),
                     shadow = Shadow(
-                        color = Color.Black,
-                        offset = Offset(3f, 4f),
-                        blurRadius = 8f
+                        color = Color(0xFFFF0000).copy(alpha = 0.65f),
+                        offset = Offset(0f, 0f),
+                        blurRadius = 18f
                     )
-                )
+                ),
+                modifier = Modifier
+                    .graphicsLayer {
+                        scaleX = 1.05f
+                        scaleY = 1.15f
+                    }
             )
 
             Spacer(modifier = Modifier.height(45.dp))
@@ -94,6 +102,8 @@ fun MenuScreen(
                 text = "PLAY", // Play game button
                 onClick = {
                     viewModel.setCurrentScreen(GameScreen.IntroMovie)
+                    viewModel.checkIfSophiaIsAlive()
+                    println("Is Sophia dead: " + viewModel.isSophiaDeadDebug()) // TODO delete
                 }
             )
 

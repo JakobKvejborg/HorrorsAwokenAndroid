@@ -36,6 +36,7 @@ data class Player(
     var priceToLearnTechnique: Int = 10,
     var priceToHeal: Int = 2,
     val unlockedModifiers: Set<String> = emptySet(),
+    var numberOfUnlockedModifiers: Int = 0,
     val activeModifiers: Set<String> = emptySet(),
     val hasSkilledModifier: Boolean = false,
     var hasPhoenixModifier: Boolean = false,
@@ -54,24 +55,24 @@ data class Player(
     var guardBuffArmor: Int = 0,
 ) {
 
-    val playerIsOnLowHealth: Double get() = maxHealth * 0.35
+    val playerIsOnLowHealth: Double get() = maxHealth * 0.36
     val xpNeededToLevelUp: Int get() = (10 * (level + level)) + (level * level) - 1
 
-    companion object {
-        fun newHero() = Player( // TODO important, these stats are buffed, for testing
-            name = "Hero", maxHealth = 400, currentHealth = 400, damage = 1135, strength = 10,
-            lifesteal = 0, armor = 0, dodgeChance = 40, goldInPocket = 11000, experience = 0,
-            level = 15, critChance = 40, regeneration = 0, critDamage = 150,
-        )
-    }
-
 //    companion object {
-//        fun newHero() = Player( // original
-//            name = "Hero", maxHealth = 40, currentHealth = 40, damage = 1, strength = 3,
-//            lifesteal = 0, armor = 0, dodgeChance = 0, goldInPocket = 0, experience = 0,
-//            level = 1, critChance = 0, regeneration = 0, critDamage = 150,
+//        fun newHero() = Player( // TODO important, these stats are buffed, for testing
+//            name = "Hero", maxHealth = 400, currentHealth = 400, damage = 1135, strength = 10,
+//            lifesteal = 0, armor = 0, dodgeChance = 99, goldInPocket = 11000, experience = 0,
+//            level = 15, critChance = 40, regeneration = 0, critDamage = 150,
 //        )
 //    }
+
+    companion object {
+        fun newHero() = Player( // original
+            name = "Hero", maxHealth = 40, currentHealth = 40, damage = 1, strength = 3,
+            lifesteal = 0, armor = 0, dodgeChance = 0, goldInPocket = 0, experience = 0,
+            level = 1, critChance = 0, regeneration = 0, critDamage = 150,
+        )
+    }
 
     fun calculateTotalDamage(): Int {
         return 1 + (damage / 2) + (strength / 6) * (level / 3)

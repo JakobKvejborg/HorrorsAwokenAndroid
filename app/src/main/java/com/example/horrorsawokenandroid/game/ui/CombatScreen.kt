@@ -106,6 +106,14 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     }
 
                     4 -> R.drawable.act4background
+
+                    5 -> {
+                        if (state.monster?.name == "Ultimate Darkness") {
+                            R.drawable.ultimatedarkness
+                        } else {
+                            R.drawable.act5encounterbackground
+                        }
+                    }
                     else -> R.drawable.act5encounterbackground
                 }
             ),

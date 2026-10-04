@@ -1615,6 +1615,7 @@ class Items {
     )
 
     private val godlySuffixes = listOf(
-        "of God"
+        "of Horrors",
+        "of Death"
     )
 }
