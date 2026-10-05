@@ -10,7 +10,7 @@ data class GameUiState(
     val encounterLog: String = "",
     val playerDodgedFlag: Boolean = false,
     val goldPopupText: String? = null,     // null = hidden
-    val hpPopupText: String? = null,       // null = hidden
+    var hpPopupText: String? = null,       // null = hidden
     val lootAvailable: Boolean = false,
     val droppedItem: Items.Item? = null,
     val monsterDefeated: Boolean = false,

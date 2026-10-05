@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.update
 FORMAT: CTRL + ALT + L
 COMMENT CODE: CTRL + / (on the numpad)
 SEARCH ENTIRE PROJECT: CTRL + SHIFT + F
+IF ERROR ANDROID SDK, CTRL+SHIFT+O TO SYNC GRADLE FILES
 */
 
 /*

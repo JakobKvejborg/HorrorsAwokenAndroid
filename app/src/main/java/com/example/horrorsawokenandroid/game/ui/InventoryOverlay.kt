@@ -58,6 +58,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Brush
@@ -88,6 +89,7 @@ fun InventoryOverlay(
     val dragItemText = "Drag an equipped item here"
     val alreadyUpgradedText = "Items can only be upgraded once"
     var itemUpgradeFlash by remember { mutableStateOf(false) }
+    var showingEquippedOverview by remember { mutableStateOf(false) }
 
     val flashAlpha by animateFloatAsState( // Upgrade item animation
         targetValue = if (itemUpgradeFlash) 0.9f else 0f,
@@ -250,507 +252,558 @@ fun InventoryOverlay(
             // =====================================================
             // EQUIPPED ITEMS
             // =====================================================
-            Text(
-                text = "EQUIPPED",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier.height(6.dp)
-            )
-
-            // The equipped area has a FIXED height. This prevents the inventory section from moving down when the player looks at an item
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(262.dp)
-            ) {
-
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    // TOP ROW
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Helmet],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Helmet],
-                            iconRes = R.drawable.helmeticon,
-                            label = "",
-                            slotType = Items.ItemType.Helmet,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Helmet,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Helmet] = it
-                            },
-                            onItemHeld = {
-                                it?.let { item ->
-                                    openInventoryInfoBox(item)
-                                }
-                            },
-                            onItemReleased = {
-                                closeInventoryInfoBox()
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Amulet],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Amulet],
-                            iconRes = R.drawable.amuleticon,
-                            label = "",
-                            slotType = Items.ItemType.Amulet,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Amulet,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Amulet] = it
-                            },
-                            onItemHeld = {
-                                heldItem = it
-                            },
-                            onItemReleased = {
-                                heldItem = null
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Shoulders],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Shoulders],
-                            iconRes = R.drawable.shouldersicon,
-                            label = "",
-                            slotType = Items.ItemType.Shoulders,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Shoulders,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Shoulders] = it
-                            },
-                            onItemHeld = {
-                                heldItem = it
-                            },
-                            onItemReleased = {
-                                heldItem = null
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-                    }
-
-                    Spacer(
-                        modifier = Modifier.height(4.dp)
-                    )
-
-                    // MIDDLE ROW
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Hook],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Hook],
-                            iconRes = R.drawable.hookicon,
-                            label = "",
-                            slotType = Items.ItemType.Hook,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Hook,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Hook] = it
-                            },
-                            onItemHeld = {
-                                heldItem = it
-                            },
-                            onItemReleased = {
-                                heldItem = null
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Armor],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Armor],
-                            iconRes = R.drawable.armoricon,
-                            label = "",
-                            slotType = Items.ItemType.Armor,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Armor,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Armor] = it
-                            },
-                            onItemHeld = {
-                                heldItem = it
-                            },
-                            onItemReleased = {
-                                heldItem = null
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Weapon],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Weapon],
-                            iconRes = R.drawable.swordicon,
-                            label = "",
-                            slotType = Items.ItemType.Weapon,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Weapon,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Weapon] = it
-                            },
-                            onItemHeld = {
-                                heldItem = it
-                            },
-                            onItemReleased = {
-                                heldItem = null
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-                    }
-
-                    Spacer(
-                        modifier = Modifier.height(4.dp)
-                    )
-
-                    // BOTTOM ROW
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Boots],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Boots],
-                            iconRes = R.drawable.bootsicon,
-                            label = "",
-                            slotType = Items.ItemType.Boots,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Boots,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Boots] = it
-                            },
-                            onItemHeld = {
-                                heldItem = it
-                            },
-                            onItemReleased = {
-                                heldItem = null
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Leggings],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Leggings],
-                            iconRes = R.drawable.leggingsicon,
-                            label = "",
-                            slotType = Items.ItemType.Leggings,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Leggings,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Leggings] = it
-                            },
-                            onItemHeld = {
-                                heldItem = it
-                            },
-                            onItemReleased = {
-                                heldItem = null
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Gloves],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Gloves],
-                            iconRes = R.drawable.glovesicon,
-                            label = "",
-                            slotType = Items.ItemType.Gloves,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Gloves,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Gloves] = it
-                            },
-                            onItemHeld = {
-                                heldItem = it
-                            },
-                            onItemReleased = {
-                                heldItem = null
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-
-                        EquipmentSlot(
-                            item = player.equippedItems[Items.ItemType.Belt],
-                            isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Belt],
-                            iconRes = R.drawable.belticon,
-                            label = "",
-                            slotType = Items.ItemType.Belt,
-                            isDropTarget = draggedItem?.type == Items.ItemType.Belt,
-                            onBoundsChanged = {
-                                equipmentBounds[Items.ItemType.Belt] = it
-                            },
-                            onItemHeld = {
-                                heldItem = it
-                            },
-                            onItemReleased = {
-                                heldItem = null
-                            },
-                            onDragStart = ::startDrag,
-                            onDrag = ::updateDrag,
-                            onDragEnd = ::finishDrag,
-                            draggedItem = draggedItem,
-                        )
-                    }
-                }
-
-                // This panel overlays the equipped pictures.
-                if (heldItem != null) {
-                    ItemInfoPanel(
-                        item = heldItem!!,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            }
-
-//            Spacer(
-//                modifier = Modifier.height(1.dp)
-//            )
-
-            // =====================================================
-            // INVENTORY
-            // =====================================================
-            if (!state.act2SmithOverlayOpen) {
+            if (!showingEquippedOverview) {
                 Text(
-                    text = "INVENTORY",
+                    text = "EQUIPPED",
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
 
                 Spacer(
-                    modifier = Modifier.height(4.dp)
+                    modifier = Modifier.height(6.dp)
                 )
 
-                Box( // Inventory box
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .onGloballyPositioned {
-                            inventoryBounds = it.boundsInRoot()
-                        }
-                        .background(
-                            Color.Black.copy(alpha = 0.45f),
-                            RoundedCornerShape(8.dp)
-                        )
-                ) {
-
-                    if (player.inventory.isEmpty()) {
-
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Inventory is empty",
-                                color = Color.Gray,
-                                fontSize = 14.sp
-                            )
-                        }
-
-                    } else {
-
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(6.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-
-                            items(
-                                items = player.inventory
-                            ) { item ->
-
-                                InventoryItemRow(
-                                    item = item,
-                                    isHeld = heldItem == item,
-                                    onItemHeld = {
-                                        heldItem = it
-                                    },
-                                    onItemReleased = {
-                                        heldItem = null
-                                    },
-                                    onDragStart = ::startDrag,
-                                    onDrag = ::updateDrag,
-                                    onDragEnd = ::finishDrag,
-                                    isBeingDragged = draggedItem == item
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // =====================================================
-            // UPGRADE AREA (Only while talking to act 2 smith)
-            // =====================================================
-            if (state.act2SmithOverlayOpen) {
-
-                Spacer(
-                    modifier = Modifier.height(40.dp)
-                )
-
+                // The equipped area has a FIXED height. This prevents the inventory section from moving down when the player looks at an item
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-                                closeInventoryInfoBox()
-                            }
-                        },
-                    contentAlignment = Alignment.Center
+                        .height(262.dp)
                 ) {
-                    Text(
-                        text = "BLACKSMITH",
-                        color = Color.White,
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        // TOP ROW
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Helmet],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Helmet],
+                                iconRes = R.drawable.helmeticon,
+                                label = "",
+                                slotType = Items.ItemType.Helmet,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Helmet,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Helmet] = it
+                                },
+                                onItemHeld = {
+                                    it?.let { item ->
+                                        openInventoryInfoBox(item)
+                                    }
+                                },
+                                onItemReleased = {
+                                    closeInventoryInfoBox()
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Amulet],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Amulet],
+                                iconRes = R.drawable.amuleticon,
+                                label = "",
+                                slotType = Items.ItemType.Amulet,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Amulet,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Amulet] = it
+                                },
+                                onItemHeld = {
+                                    heldItem = it
+                                },
+                                onItemReleased = {
+                                    heldItem = null
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Shoulders],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Shoulders],
+                                iconRes = R.drawable.shouldersicon,
+                                label = "",
+                                slotType = Items.ItemType.Shoulders,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Shoulders,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Shoulders] = it
+                                },
+                                onItemHeld = {
+                                    heldItem = it
+                                },
+                                onItemReleased = {
+                                    heldItem = null
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+                        }
+
+                        Spacer(
+                            modifier = Modifier.height(4.dp)
+                        )
+
+                        // MIDDLE ROW
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Hook],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Hook],
+                                iconRes = R.drawable.hookicon,
+                                label = "",
+                                slotType = Items.ItemType.Hook,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Hook,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Hook] = it
+                                },
+                                onItemHeld = {
+                                    heldItem = it
+                                },
+                                onItemReleased = {
+                                    heldItem = null
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Armor],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Armor],
+                                iconRes = R.drawable.armoricon,
+                                label = "",
+                                slotType = Items.ItemType.Armor,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Armor,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Armor] = it
+                                },
+                                onItemHeld = {
+                                    heldItem = it
+                                },
+                                onItemReleased = {
+                                    heldItem = null
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Weapon],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Weapon],
+                                iconRes = R.drawable.swordicon,
+                                label = "",
+                                slotType = Items.ItemType.Weapon,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Weapon,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Weapon] = it
+                                },
+                                onItemHeld = {
+                                    heldItem = it
+                                },
+                                onItemReleased = {
+                                    heldItem = null
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+                        }
+
+                        Spacer(
+                            modifier = Modifier.height(4.dp)
+                        )
+
+                        // BOTTOM ROW
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Boots],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Boots],
+                                iconRes = R.drawable.bootsicon,
+                                label = "",
+                                slotType = Items.ItemType.Boots,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Boots,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Boots] = it
+                                },
+                                onItemHeld = {
+                                    heldItem = it
+                                },
+                                onItemReleased = {
+                                    heldItem = null
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Leggings],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Leggings],
+                                iconRes = R.drawable.leggingsicon,
+                                label = "",
+                                slotType = Items.ItemType.Leggings,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Leggings,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Leggings] = it
+                                },
+                                onItemHeld = {
+                                    heldItem = it
+                                },
+                                onItemReleased = {
+                                    heldItem = null
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Gloves],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Gloves],
+                                iconRes = R.drawable.glovesicon,
+                                label = "",
+                                slotType = Items.ItemType.Gloves,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Gloves,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Gloves] = it
+                                },
+                                onItemHeld = {
+                                    heldItem = it
+                                },
+                                onItemReleased = {
+                                    heldItem = null
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+
+                            EquipmentSlot(
+                                item = player.equippedItems[Items.ItemType.Belt],
+                                isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Belt],
+                                iconRes = R.drawable.belticon,
+                                label = "",
+                                slotType = Items.ItemType.Belt,
+                                isDropTarget = draggedItem?.type == Items.ItemType.Belt,
+                                onBoundsChanged = {
+                                    equipmentBounds[Items.ItemType.Belt] = it
+                                },
+                                onItemHeld = {
+                                    heldItem = it
+                                },
+                                onItemReleased = {
+                                    heldItem = null
+                                },
+                                onDragStart = ::startDrag,
+                                onDrag = ::updateDrag,
+                                onDragEnd = ::finishDrag,
+                                draggedItem = draggedItem,
+                            )
+                        }
+                    }
+
+                    // This panel overlays the equipped pictures.
+                    if (heldItem != null) {
+                        ItemInfoPanel(
+                            item = heldItem!!,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
                 }
 
-                Spacer(
-                    modifier = Modifier.height(36.dp)
-                )
+//            Spacer(
+//                modifier = Modifier.height(1.dp)
+//            )
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally // Centers both the text and the box horizontally
-                ) {
+                // =====================================================
+                // INVENTORY
+                // =====================================================
+                if (!state.act2SmithOverlayOpen) {
                     Text(
-                        text = if (itemToBeUpgraded?.name?.contains("Upg.") == true) {
-                            alreadyUpgradedText
-                        } else dragItemText,
-                        color = Color.Gray,
-                        fontSize = 13.sp,
-                        modifier = Modifier.padding(bottom = 8.dp) // Adds a small gap before the box
+                        text = "INVENTORY",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
                     )
 
-                    Box( // Upgrade item box
+                    Spacer(
+                        modifier = Modifier.height(4.dp)
+                    )
+
+                    Box( // Inventory box
                         modifier = Modifier
-                            .size(86.dp)
+                            .fillMaxWidth()
+                            .weight(1f)
                             .onGloballyPositioned {
-                                upgradeBoxBounds = it.boundsInRoot()
+                                inventoryBounds = it.boundsInRoot()
                             }
                             .background(
                                 Color.Black.copy(alpha = 0.45f),
                                 RoundedCornerShape(8.dp)
                             )
-                            .background(
-                                Brush.radialGradient(
-                                    colors = listOf(
-                                        Color(0xFFFFF6C0).copy(alpha = flashAlpha),      // near-white hot center
-                                        Color(0xFF00FFCC).copy(alpha = flashAlpha * 0.7f) // Cyan fading out
-                                    )
-                                ),
-                                RoundedCornerShape(8.dp)
-                            )
-                            .border(
-                                width = 1.dp,
-                                color = Color.Gray.copy(alpha = 0.5f),
-                                shape = RoundedCornerShape(8.dp)
-                            ),
-                        contentAlignment = Alignment.Center
                     ) {
-                        // Render the item icon if one is placed inside
-                        if (itemToBeUpgraded != null) {
-                            val icon = getItemTypeIcon(itemToBeUpgraded!!.type)
 
-                            if (icon != null) {
-                                Image(
-                                    painter = painterResource(id = icon),
-                                    contentDescription = itemToBeUpgraded!!.name,
-                                    modifier = Modifier.size(120.dp),
-                                    contentScale = ContentScale.Fit
+                        if (player.inventory.isEmpty()) {
+
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Inventory is empty",
+                                    color = Color.Gray,
+                                    fontSize = 14.sp
                                 )
                             }
+
+                        } else {
+
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+
+                                items(
+                                    items = player.inventory
+                                ) { item ->
+
+                                    InventoryItemRow(
+                                        item = item,
+                                        isHeld = heldItem == item,
+                                        onItemHeld = {
+                                            heldItem = it
+                                        },
+                                        onItemReleased = {
+                                            heldItem = null
+                                        },
+                                        onDragStart = ::startDrag,
+                                        onDrag = ::updateDrag,
+                                        onDragEnd = ::finishDrag,
+                                        isBeingDragged = draggedItem == item
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // =====================================================
+                // UPGRADE AREA (Only while talking to act 2 smith)
+                // =====================================================
+                if (state.act2SmithOverlayOpen) {
+
+                    Spacer(
+                        modifier = Modifier.height(40.dp)
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .pointerInput(Unit) {
+                                detectTapGestures {
+                                    closeInventoryInfoBox()
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "BLACKSMITH",
+                            color = Color.White,
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(36.dp)
+                    )
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally // Centers both the text and the box horizontally
+                    ) {
+                        Text(
+                            text = if (itemToBeUpgraded?.name?.contains("Upg.") == true) {
+                                alreadyUpgradedText
+                            } else dragItemText,
+                            color = Color.Gray,
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(bottom = 8.dp) // Adds a small gap before the box
+                        )
+
+                        Box( // Upgrade item box
+                            modifier = Modifier
+                                .size(86.dp)
+                                .onGloballyPositioned {
+                                    upgradeBoxBounds = it.boundsInRoot()
+                                }
+                                .background(
+                                    Color.Black.copy(alpha = 0.45f),
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .background(
+                                    Brush.radialGradient(
+                                        colors = listOf(
+                                            Color(0xFFFFF6C0).copy(alpha = flashAlpha),      // near-white hot center
+                                            Color(0xFF00FFCC).copy(alpha = flashAlpha * 0.7f) // Cyan fading out
+                                        )
+                                    ),
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = Color.Gray.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(8.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            // Render the item icon if one is placed inside
+                            if (itemToBeUpgraded != null) {
+                                val icon = getItemTypeIcon(itemToBeUpgraded!!.type)
+
+                                if (icon != null) {
+                                    Image(
+                                        painter = painterResource(id = icon),
+                                        contentDescription = itemToBeUpgraded!!.name,
+                                        modifier = Modifier.size(120.dp),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(
+                            modifier = Modifier.height(16.dp)
+                        )
+
+                        // UPGRADE BUTTON
+                        Button(
+                            onClick = {
+                                viewModel.upgradeItem(
+                                    item = itemToBeUpgraded,
+                                    onEquipItem = onEquipItem,
+                                    onUpgradeApplied = {
+                                        player.inventory.remove(itemToBeUpgraded) // HACK
+                                        itemToBeUpgraded = null
+                                        upgradeWasPressed = true
+                                        itemUpgradeFlash = true
+                                    }
+                                )
+                            },
+                            enabled = itemToBeUpgraded != null &&
+                                    itemToBeUpgraded!!.type != Items.ItemType.Amulet && !itemToBeUpgraded!!.name.contains(
+                                "Upg."
+                            ),
+                            shape = androidx.compose.ui.graphics.RectangleShape
+                        ) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    if (itemToBeUpgraded == null) {
+                                        withStyle(style = SpanStyle(color = Color.White)) {
+                                            append("UPGRADE ")
+                                        }
+                                        withStyle(style = SpanStyle(color = Color(0xFFFFD700))) {
+                                            append("${viewModel.itemUpgrader.costToUpgradeItem}G")
+                                        }
+                                    } else {
+                                        // This creates the multi-colored text when an item exists
+                                        withStyle(
+                                            style = SpanStyle(
+                                                color = Color.White,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        ) {
+                                            append("UPGRADE ")
+                                        }
+                                        withStyle(style = SpanStyle(color = Color(0xFFFFD700))) {
+                                            append("${viewModel.itemUpgrader.costToUpgradeItem}G")
+                                        }
+                                    }
+
+                                }
+                            )
                         }
                     }
 
                     Spacer(
-                        modifier = Modifier.height(16.dp)
+                        modifier = Modifier.height(28.dp)
                     )
 
-                    // UPGRADE BUTTON
-                    Button(
-                        onClick = {
-                            viewModel.upgradeItem(
-                                item = itemToBeUpgraded,
-                                onEquipItem = onEquipItem,
-                                onUpgradeApplied = {
-                                    player.inventory.remove(itemToBeUpgraded) // HACK
-                                    itemToBeUpgraded = null
-                                    upgradeWasPressed = true
-                                    itemUpgradeFlash = true
-                                }
-                            )
-                        },
-                        enabled = itemToBeUpgraded != null &&
-                                itemToBeUpgraded!!.type != Items.ItemType.Amulet,
-                        shape = androidx.compose.ui.graphics.RectangleShape
-                    ) {
-                        Text(
-                            text = buildAnnotatedString {
-                                if (itemToBeUpgraded == null) {
-                                    withStyle(style = SpanStyle(color = Color.White)) {
-                                        append("UPGRADE ")
-                                    }
-                                    withStyle(style = SpanStyle(color = Color(0xFFFFD700))) {
-                                        append("${viewModel.itemUpgrader.costToUpgradeItem}G")
-                                    }
-                                } else {
-                                    // This creates the multi-colored text when an item exists
-                                    withStyle(
-                                        style = SpanStyle(
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    ) {
-                                        append("UPGRADE ")
-                                    }
-                                    withStyle(style = SpanStyle(color = Color(0xFFFFD700))) {
-                                        append("${viewModel.itemUpgrader.costToUpgradeItem}G")
-                                    }
-                                }
-
-                            }
-                        )
-                    }
                 }
 
-                Spacer(
-                    modifier = Modifier.height(28.dp)
+            } else {
+
+                // EQUIPPED OVERVIEW (all equipped items as full info panels)
+                Text(
+                    text = "EQUIPPED OVERVIEW",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
                 )
 
+                Spacer(modifier = Modifier.height(6.dp))
+
+                val equippedList = player.equippedItems.values.toList()
+
+                if (equippedList.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Nothing equipped",
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentPadding = PaddingValues(vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(equippedList) { item ->
+                            ItemInfoPanel(
+                                item = item,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(150.dp), // How big the EQUIPPED OVERVIEW stats boxes are
+                                compact = true
+                            )
+                        }
+                    }
+                }
             }
 
             // =====================================================
@@ -759,11 +812,11 @@ fun InventoryOverlay(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(35.dp), // Sets the total height of the footer
+                    .height(35.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // TRASH CAN - BOTTOM LEFT
+                // TRASH CAN - BOTTOM LEFT (hidden in overview mode)
                 if (!state.act2SmithOverlayOpen) {
                     Box(
                         modifier = Modifier
@@ -772,13 +825,10 @@ fun InventoryOverlay(
                             .onGloballyPositioned {
                                 trashBounds = it.boundsInRoot()
                             }
-                            .pointerInput(Unit) {
-                            }
                             .clickable { showTrashAllItemsConfirmation = true },
                         contentAlignment = Alignment.Center,
                     ) {
                         Image(
-                            // trash can image
                             painter = painterResource(id = R.drawable.trash),
                             contentDescription = "Trash",
                             modifier = Modifier.fillMaxSize(),
@@ -787,12 +837,8 @@ fun InventoryOverlay(
                     }
                     if (showTrashAllItemsConfirmation) {
                         AlertDialog(
-                            onDismissRequest = {
-                                showTrashAllItemsConfirmation = false
-                            },
-                            title = {
-                                Text("Destroy entire inventory?")
-                            },
+                            onDismissRequest = { showTrashAllItemsConfirmation = false },
+                            title = { Text("Destroy entire inventory?") },
                             confirmButton = {
                                 TextButton(
                                     onClick = {
@@ -800,16 +846,10 @@ fun InventoryOverlay(
                                         showTrashAllItemsConfirmation = false
                                         closeInventoryInfoBox()
                                     }
-                                ) {
-                                    Text("YES", fontSize = 18.sp)
-                                }
+                                ) { Text("YES", fontSize = 18.sp) }
                             },
                             dismissButton = {
-                                TextButton(
-                                    onClick = {
-                                        showTrashAllItemsConfirmation = false
-                                    }
-                                ) {
+                                TextButton(onClick = { showTrashAllItemsConfirmation = false }) {
                                     Text("NO", fontSize = 18.sp)
                                 }
                             }
@@ -817,32 +857,36 @@ fun InventoryOverlay(
                     }
                 }
 
-                // Pushes "CLOSE" all the way to the right
-                Spacer(
-                    modifier = Modifier.weight(1f)
-                )
+                Spacer(modifier = Modifier.weight(1f))
+
+                // EQUIPPED / INVENTORY TOGGLE
+                if (!state.act2SmithOverlayOpen) {
+                    TextButton(
+                        onClick = { showingEquippedOverview = !showingEquippedOverview },
+                        contentPadding = PaddingValues(vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = if (showingEquippedOverview) "SHOW INVENTORY" else "SHOW EQUIPPED",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
 
                 // CLOSE BUTTON - BOTTOM RIGHT
-                Text(
-                    text = "",
-                    modifier = Modifier.weight(1f),
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Black
-                )
-
                 TextButton(
                     onClick = {
                         if (itemToBeUpgraded != null && !upgradeWasPressed) {
                             onEquipItem(itemToBeUpgraded!!)
                         }
-
                         itemToBeUpgraded = null
                         upgradeWasPressed = false
+                        showingEquippedOverview = false // reset view mode on close
                         onClose()
                     },
-                    contentPadding = PaddingValues(vertical = 2.dp) // Shrinks the button height
-
+                    contentPadding = PaddingValues(vertical = 2.dp)
                 ) {
                     Text(
                         text = "CLOSE",
@@ -850,15 +894,14 @@ fun InventoryOverlay(
                         fontWeight = FontWeight.Bold,
                         style = androidx.compose.ui.text.TextStyle(
                             shadow = androidx.compose.ui.graphics.Shadow(
-                                color = Color.White.copy(alpha = 0.60f), // Soft, light white opacity
-                                offset = Offset(0f, 0f), // Keeps the glow centered around the text
-                                blurRadius = 8f // Higher number = softer, wider glow spreading outward
+                                color = Color.White.copy(alpha = 0.60f),
+                                offset = Offset(0f, 0f),
+                                blurRadius = 8f
                             )
                         )
                     )
                 }
             }
-
         }
 
         val itemBeingDragged = draggedItem
@@ -1005,8 +1048,12 @@ internal fun EquipmentSlot(
 internal fun ItemInfoPanel(
     item: Items.Item,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
     val itemTypeIcon = getItemTypeIcon(item.type)
+    val nameSize = if (compact) 14.sp else 17.sp
+    val typeSize = if (compact) 11.sp else 12.sp
+    val statSize = if (compact) 12.sp else 15.sp
 
     Box(
         modifier = modifier
@@ -1040,18 +1087,18 @@ internal fun ItemInfoPanel(
 
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = if (compact) Arrangement.Top else Arrangement.Center
             ) {
 
                 Text(
                     text = item.name,
                     color = Color.White,
-                    fontSize = 17.sp,
+                    fontSize = nameSize,
                     fontWeight = FontWeight.Bold
                 )
 
                 Spacer(
-                    modifier = Modifier.height(2.dp)
+                    modifier = Modifier.height(if (compact) 0.dp else 2.dp)
                 )
 
                 // Item type is replaced by "Reforged" if the item has been reforged by the frog
@@ -1059,20 +1106,20 @@ internal fun ItemInfoPanel(
                     Text(
                         text = item.type.name,
                         color = Color.Gray,
-                        fontSize = 12.sp
+                        fontSize = typeSize,
                     )
                 } else {
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(if (compact) 0.dp else 2.dp))
                     Text(
                         text = "Reforged",
                         color = Color(0xFFFFD700),
-                        fontSize = 12.sp,
+                        fontSize = typeSize,
                         fontWeight = FontWeight.Medium
                     )
                 }
 
                 Spacer(
-                    modifier = Modifier.height(5.dp)
+                    modifier = Modifier.height(if (compact) 0.dp else 5.dp)
                 )
 
                 val upgradeLabel = when (item.upgradedStatName) {
@@ -1092,9 +1139,11 @@ internal fun ItemInfoPanel(
                 item.statText().split("\n").forEach { line ->
                     Text(
                         text = line,
-                        color = if (upgradeLabel != null && line.startsWith(upgradeLabel)) Color(0xFF00FFCC) else Color.LightGray, // Color of the upgraded item stat
-                        fontSize = 15.sp,
-                        lineHeight = 17.sp,
+                        color = if (upgradeLabel != null && line.startsWith(upgradeLabel)) Color(
+                            0xFF00FFCC
+                        ) else Color.LightGray, // Color of the upgraded item stat
+                        fontSize = statSize,
+                        lineHeight = statSize * 1f,
 //                        fontWeight = FontWeight.Bold,
                     )
                 }
@@ -1140,9 +1189,8 @@ internal fun InventoryItemRow(
     onDrag: (Offset) -> Unit,
     onDragEnd: () -> Unit
 ) {
-    var rowBounds by remember {
-        mutableStateOf<Rect?>(null)
-    }
+    var rowBounds by remember { mutableStateOf<Rect?>(null) }
+    val interactionSource = remember { MutableInteractionSource() } // This makes the things clicked on not flicker
 
     Box(
         modifier = Modifier
@@ -1180,6 +1228,8 @@ internal fun InventoryItemRow(
                 )
             }
             .clickable(
+                interactionSource = interactionSource,
+                indication = null,
                 onClick = {
                     if (isHeld) onItemReleased() else onItemHeld(item) // Open/close the inventory info box by clicking the item
                 }

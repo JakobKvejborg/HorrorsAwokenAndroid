@@ -29,7 +29,8 @@ class EncounterBattle(
         }
 
         player = countdownRoarBuff(player) // Roar buff countdown
-        player = playerLifesteals(noLifeSteal, player) // LIFESTEAL
+        val (lifeStolePlayer, healedAmount) = playerLifesteals(noLifeSteal, player)
+        player = lifeStolePlayer // LIFESTEAL
 
         // CRITICAL HIT
         val isCrit =
@@ -71,6 +72,7 @@ class EncounterBattle(
                 monster = monster,
                 encounterLog = attackText,
                 monsterImageShake = it.monsterImageShake + 1,
+                hpPopupText = if (healedAmount > 0) "+${healedAmount} HP" else it.hpPopupText,
             )
         }
 
@@ -308,13 +310,14 @@ class EncounterBattle(
     private fun playerLifesteals(
         noLifeSteal: Boolean,
         player: Player
-    ): Player {
+    ): Pair <Player, Int> {
         var player1 = player
+        var healed = 0
         if (
             !noLifeSteal &&
             player1.lifesteal > 0
         ) {
-            val healed =
+            healed =
                 (player1.calculateTotalDamage() * player1.lifesteal) / 100
 
             player1 = player1.copy(
@@ -323,7 +326,7 @@ class EncounterBattle(
                         ).coerceAtMost(player1.maxHealth)
             )
         }
-        return player1
+        return player1 to healed
     }
 
     private fun countdownRoarBuff(player: Player): Player {

@@ -118,7 +118,7 @@ class MonsterContainer {
             name = "Ghost",
             maxHealth = 8,
             currentHealth = 8,
-            minDamage = 0,
+            minDamage = 1,
             maxDamage = 0,
             randomDamageModifier = 3,
             monsterExperience = 10,
@@ -142,7 +142,7 @@ class MonsterContainer {
             currentHealth = 28,
             minDamage = 2,
             maxDamage = 0,
-            randomDamageModifier = 5,
+            randomDamageModifier = 6,
             monsterExperience = 16,
             monsterGold = 0,
             imageRes = R.drawable.golem
@@ -153,7 +153,7 @@ class MonsterContainer {
             currentHealth = 27,
             minDamage = 1,
             maxDamage = 0,
-            randomDamageModifier = 7,
+            randomDamageModifier = 8,
             monsterExperience = 18,
             monsterGold = 3,
             imageRes = R.drawable.knight
@@ -162,7 +162,7 @@ class MonsterContainer {
             name = "Horror",
             maxHealth = 21,
             currentHealth = 21,
-            minDamage = 3,
+            minDamage = 4,
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 14,
@@ -186,7 +186,7 @@ class MonsterContainer {
             currentHealth = 20,
             minDamage = 4,
             maxDamage = 0,
-            randomDamageModifier = 2,
+            randomDamageModifier = 4,
             monsterExperience = 13,
             monsterGold = 0,
             imageRes = R.drawable.bat
@@ -197,7 +197,7 @@ class MonsterContainer {
             currentHealth = 16,
             minDamage = 0,
             maxDamage = 0,
-            randomDamageModifier = 8,
+            randomDamageModifier = 9,
             monsterExperience = 23,
             monsterGold = 4,
             imageRes = R.drawable.woodhorror
@@ -206,7 +206,7 @@ class MonsterContainer {
             name = "Dead Troll",
             maxHealth = 19,
             currentHealth = 19,
-            minDamage = 3,
+            minDamage = 4,
             maxDamage = 0,
             randomDamageModifier = 5,
             monsterExperience = 20,
@@ -219,7 +219,7 @@ class MonsterContainer {
             currentHealth = 27,
             minDamage = 4,
             maxDamage = 0,
-            randomDamageModifier = 1,
+            randomDamageModifier = 3,
             monsterExperience = 2,
             monsterGold = 4,
             imageRes = R.drawable.lost
@@ -230,7 +230,7 @@ class MonsterContainer {
             currentHealth = 33,
             minDamage = 1,
             maxDamage = 0,
-            randomDamageModifier = 6,
+            randomDamageModifier = 8,
             monsterExperience = 31,
             monsterGold = 0,
             imageRes = R.drawable.lizard
@@ -668,8 +668,8 @@ class MonsterContainer {
     )
 
     // ------------------------------------------------------------
-// ACT 5
-// ------------------------------------------------------------
+    // ACT 5
+    // ------------------------------------------------------------
     val listOfAct5MonstersWest = listOf(
         Monster(
             name = "Black Angel",

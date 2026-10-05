@@ -4,6 +4,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
+import kotlin.math.max
 
 data class Player(
     var name: String,
@@ -58,21 +59,21 @@ data class Player(
     val playerIsOnLowHealth: Double get() = maxHealth * 0.36
     val xpNeededToLevelUp: Int get() = (10 * (level + level)) + (level * level) - 1
 
-//    companion object {
-//        fun newHero() = Player( // TODO important, these stats are buffed, for testing
-//            name = "Hero", maxHealth = 400, currentHealth = 400, damage = 1135, strength = 10,
-//            lifesteal = 0, armor = 0, dodgeChance = 99, goldInPocket = 11000, experience = 0,
-//            level = 15, critChance = 40, regeneration = 0, critDamage = 150,
-//        )
-//    }
-
     companion object {
-        fun newHero() = Player( // original
-            name = "Hero", maxHealth = 40, currentHealth = 40, damage = 1, strength = 3,
-            lifesteal = 0, armor = 0, dodgeChance = 0, goldInPocket = 0, experience = 0,
-            level = 1, critChance = 0, regeneration = 0, critDamage = 150,
+        fun newHero() = Player( // TODO important, these stats are buffed, for testing
+            name = "Hero", maxHealth = 400, currentHealth = 400, damage = 15, strength = 10,
+            lifesteal = 10, armor = 0, dodgeChance = 99, goldInPocket = 11000, experience = 0,
+            level = 15, critChance = 40, regeneration = 0, critDamage = 150,
         )
     }
+
+//    companion object {
+//        fun newHero() = Player( // original
+//            name = "Hero", maxHealth = 40, currentHealth = 40, damage = 1, strength = 3,
+//            lifesteal = 0, armor = 0, dodgeChance = 0, goldInPocket = 0, experience = 0,
+//            level = 1, critChance = 0, regeneration = 0, critDamage = 150,
+//        )
+//    }
 
     fun calculateTotalDamage(): Int {
         return 1 + (damage / 2) + (strength / 6) * (level / 3)
@@ -152,5 +153,12 @@ data class Player(
 
         equippedItems.remove(item.type)
         inventory.add(item)
+
+        if (currentHealth > maxHealth) {
+            currentHealth = maxHealth
+        }
+
     }
+
+
 }

@@ -81,6 +81,7 @@ class Items {
     private enum class Quality(
         val multiplier: Double
     ) {
+        Poor(0.1),
         Damaged(0.5),
         Normal(1.0),
         Magic(1.8),
@@ -108,7 +109,7 @@ class Items {
 
         val lootRoll = Random.nextInt(100)
 
-        if (lootRoll >= 36) { // This is the % chance of an item dropping. Higher number = higher chance
+        if (lootRoll >= 34) { // This is the % chance of an item dropping. Higher number = higher chance
             return null
         }
 
@@ -154,10 +155,11 @@ class Items {
         val chances = when (safeAct) {
 
             1 -> listOf(
-                Quality.Damaged to 49.0,
-                Quality.Normal to 43.8,
-                Quality.Magic to 6.0,
-                Quality.Strong to 1.0,
+                Quality.Poor to 30.0,
+                Quality.Damaged to 46.5,
+                Quality.Normal to 20.8,
+                Quality.Magic to 2.0,
+                Quality.Strong to 0.5,
                 Quality.Rare to 0.2
             )
 
@@ -442,6 +444,12 @@ class Items {
                     actMultiplier,
                     act
                 )
+        }
+
+        // Lower requirements for Poor and Damaged quality
+        if (quality == Quality.Damaged || quality == Quality.Poor) {
+            item.strengthRequirement /= 2
+            item.levelRequirement /= 2
         }
 
         item.name = generateName(
@@ -1013,6 +1021,8 @@ class Items {
 
         val prefix =
             when (quality) {
+                Quality.Poor ->
+                    "Poor"
 
                 Quality.Damaged ->
                     "Damaged"
@@ -1034,6 +1044,7 @@ class Items {
             }
 
         val suffixes = when (quality) {
+            Quality.Poor -> listOf("")
             Quality.Damaged -> listOf("")
             Quality.Normal ->
                 if (random.nextInt(100) < 70) {

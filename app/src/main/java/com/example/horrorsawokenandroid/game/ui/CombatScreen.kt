@@ -52,8 +52,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.border
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import kotlinx.coroutines.delay
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -438,7 +440,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 }
             }
 
-
             // COMBAT ENCOUNTER LOG
             Spacer(modifier = Modifier.weight(0.7f))
             Box(
@@ -727,6 +728,41 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 onEquipItem = viewModel::equipItem,
                 onUnequipItem = viewModel::unEquipItem
             )
+        }
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center // Centers the popup on the screen
+        ) {
+            // HP / LIFESTEAL POPUP
+            if (state.hpPopupText != null) {
+                LaunchedEffect(state.hpPopupText) {
+                    delay(500)
+                    viewModel.dismissHpPopup()
+                }
+                Text(
+                    text = state.hpPopupText!!,
+                    color = Color(0xFF4CAF50).copy(alpha = 0.5f), // Solid green so it's readable over images
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 8.sp, // Made larger since it's an overlay
+                    modifier = Modifier.offset(y = (12).dp) // Adjust height
+                )
+            }
+
+            // GOLD POPUP
+            if (state.goldPopupText != null) {
+                LaunchedEffect(state.goldPopupText) {
+                    delay(500)
+                    viewModel.dismissGoldPopup() // Make sure you have this in your viewModel
+                }
+                Text(
+                    text = state.goldPopupText!!,
+                    color = Color(0xFFFFD700).copy(alpha = 0.5f), // Gold color
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 8.sp,
+                    modifier = Modifier.offset(y = (0).dp) // Slightly below the HP popup
+                )
+            }
         }
 
     }
