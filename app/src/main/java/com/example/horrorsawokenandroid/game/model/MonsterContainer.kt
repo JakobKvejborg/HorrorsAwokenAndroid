@@ -575,7 +575,7 @@ class MonsterContainer {
             randomDamageModifier = 0,
             monsterExperience = 93,
             monsterGold = 48,
-            imageRes = R.raw.dragonmage
+            imageRes = R.raw.dragonmage // .gif is placed in raw
         ),
         Monster(
             name = "Dragon King",
