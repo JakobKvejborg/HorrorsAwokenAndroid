@@ -565,7 +565,6 @@ class MonsterContainer {
 // ------------------------------------------------------------
 // ACT 4 DRAGONS
 // ------------------------------------------------------------
-
     val listOfDragonsAct4East = listOf(
         Monster(
             name = "Dragon Mage",
@@ -576,7 +575,7 @@ class MonsterContainer {
             randomDamageModifier = 0,
             monsterExperience = 93,
             monsterGold = 48,
-            imageRes = R.drawable.casterdragon
+            imageRes = R.raw.dragonmage
         ),
         Monster(
             name = "Dragon King",

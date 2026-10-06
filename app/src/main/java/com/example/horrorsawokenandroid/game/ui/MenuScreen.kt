@@ -103,7 +103,6 @@ fun MenuScreen(
                 onClick = {
                     viewModel.setCurrentScreen(GameScreen.IntroMovie)
                     viewModel.checkIfSophiaIsAlive()
-                    println("Is Sophia dead: " + viewModel.isSophiaDeadDebug()) // TODO delete
                 }
             )
 

@@ -1,5 +1,7 @@
 package com.example.horrorsawokenandroid.game.ui
 
+import android.graphics.drawable.AnimatedImageDrawable
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,6 +58,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import kotlinx.coroutines.delay
+import coil.compose.AsyncImage
+import coil.ImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.request.repeatCount
 
 /*
 This class is handles the encounter screen and the logic during a battle with a monster
@@ -99,6 +109,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                         } else {
                             R.drawable.act2background
                         }
+
                     3 -> {
                         if (state.monster?.name == "The Devouring Abyss") {
                             R.drawable.act3boss
@@ -116,6 +127,7 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                             R.drawable.act5encounterbackground
                         }
                     }
+
                     else -> R.drawable.act5encounterbackground
                 }
             ),
@@ -408,37 +420,21 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                             contentAlignment = Alignment.TopCenter
                         ) {
                             state.monster?.imageRes?.let { imageRes ->
-                                Image(
-                                    painter = painterResource(id = imageRes),
+                                MonsterGifImage(
+                                    imageRes = imageRes,
                                     contentDescription = state.monster?.name,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Fit
-                                )
-
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(300.dp)
-                                    .offset(x = monsterShake.dp),
-                                contentAlignment = Alignment.TopCenter
-                            ) {
-                                state.monster?.imageRes?.let { imageRes ->
-                                    Image(
-                                        painter = painterResource(id = imageRes),
-                                        contentDescription = state.monster?.name,
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentScale = ContentScale.Fit
-                                    )
-                                }
-
-                                attackAnimations.NormalSlashEffect(
-                                    trigger = state.normalAttackAnimation
+                                    modifier = Modifier.fillMaxSize()
                                 )
                             }
+
+                            attackAnimations.NormalSlashEffect(
+                                trigger = state.normalAttackAnimation
+                            )
                         }
                     }
                 }
             }
+
 
             // COMBAT ENCOUNTER LOG
             Spacer(modifier = Modifier.weight(0.7f))
@@ -1099,4 +1095,39 @@ private fun StatItem(
             fontSize = MaterialTheme.typography.bodyMedium.fontSize
         )
     }
+}
+
+@Composable
+fun MonsterGifImage(
+    imageRes: Int,
+    contentDescription: String?,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val imageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                if (Build.VERSION.SDK_INT >= 28) {
+                    add(ImageDecoderDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
+            }
+            .build()
+    }
+
+    val imageRequest = remember<ImageRequest>(imageRes) {
+        ImageRequest.Builder(context)
+            .data(imageRes)
+            .repeatCount(0) // Built-in Coil function: 0 means play exactly 1 time
+            .build()
+    }
+
+    AsyncImage(
+        model = imageRequest,
+        contentDescription = contentDescription,
+        imageLoader = imageLoader,
+        modifier = modifier,
+        contentScale = ContentScale.Fit
+    )
 }
