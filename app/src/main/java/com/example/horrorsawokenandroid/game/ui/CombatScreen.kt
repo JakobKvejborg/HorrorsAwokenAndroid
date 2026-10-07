@@ -782,7 +782,7 @@ internal fun CombatButtonLayout(
     val pressX by animateDpAsState(
         targetValue = if (isPressed) 3.dp else 0.dp,
         animationSpec = spring(
-            dampingRatio = 0.65f,
+            dampingRatio = 1f,
             stiffness = 800f
         ),
         label = "pressX"
@@ -791,7 +791,7 @@ internal fun CombatButtonLayout(
     val pressY by animateDpAsState(
         targetValue = if (isPressed) 3.dp else 0.dp,
         animationSpec = spring(
-            dampingRatio = 0.65f,
+            dampingRatio = 1f,
             stiffness = 800f
         ),
         label = "pressY"

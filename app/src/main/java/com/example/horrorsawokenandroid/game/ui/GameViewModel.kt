@@ -269,6 +269,7 @@ class GameViewModel(
 
     }
 
+    // Reset game
     fun restartGame() {
         sounds.muteAllMusic()
 
@@ -278,7 +279,7 @@ class GameViewModel(
         )
     }
 
-    // Function to tech the player the different techniques based on which ones he already knows
+    // Function to teach the player the different techniques based on which ones he already knows
     internal fun playerLearnTechniques() {
         val player = _uiState.value.player
         val isSkilled = player.hasSkilledModifier

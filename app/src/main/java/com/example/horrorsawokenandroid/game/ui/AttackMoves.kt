@@ -49,7 +49,7 @@ class AttackMoves(
         sounds.playBloodLustAttack()
 
         val damage = (state.player.calculateTotalDamage() * 1.6).toInt()
-        val healthCost = (state.player.maxHealth * 0.06).toInt()
+        val healthCost = (state.player.maxHealth * 0.04).toInt().coerceAtMost(50) // This caps the maximum cost of life to use Blood Lust to 50hp
 
         updateState {
             val player = it.player.copy(
@@ -151,12 +151,12 @@ class AttackMoves(
                     player.maxHealth
 
         val damageAtFullHp = 0.2
-        val damageAtLowHp = 3.1
+        val damageAtLowHp = 3.5
 
         val multiplier =
             damageAtFullHp +
                     (damageAtLowHp - damageAtFullHp) *
-                    missingHpPct.pow(1.5)
+                    missingHpPct.pow(0.9)
 
         val damage =
             (player.calculateTotalDamage() * multiplier).toInt()

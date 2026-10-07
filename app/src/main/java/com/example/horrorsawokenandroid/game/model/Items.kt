@@ -164,32 +164,32 @@ class Items {
             )
 
             2 -> listOf(
-                Quality.Damaged to 30.0,
-                Quality.Normal to 55.0,
-                Quality.Magic to 10.0,
-                Quality.Strong to 4.0,
+                Quality.Damaged to 28.0,
+                Quality.Normal to 56.0,
+                Quality.Magic to 10.5,
+                Quality.Strong to 4.5,
                 Quality.Rare to 0.8,
                 Quality.Unique to 0.2,
             )
 
             3 -> listOf(
-                Quality.Damaged to 15.0,
-                Quality.Normal to 45.0,
-                Quality.Magic to 15.0,
-                Quality.Strong to 10.0,
-                Quality.Rare to 8.0,
+                Quality.Damaged to 12.0,
+                Quality.Normal to 44.0,
+                Quality.Magic to 16.0,
+                Quality.Strong to 12.0,
+                Quality.Rare to 9.0,
                 Quality.Unique to 4.0,
                 Quality.Epic to 2.0,
                 Quality.Legendary to 1.0
             )
 
             4 -> listOf(
-                Quality.Damaged to 7.0,
+                Quality.Damaged to 3.0,
                 Quality.Normal to 32.0,
-                Quality.Magic to 22.0,
-                Quality.Strong to 16.0,
-                Quality.Rare to 11.1,
-                Quality.Unique to 6.6,
+                Quality.Magic to 23.0,
+                Quality.Strong to 17.0,
+                Quality.Rare to 12.1,
+                Quality.Unique to 7.6,
                 Quality.Epic to 3.5,
                 Quality.Legendary to 1.5,
                 Quality.Godly to 0.3
@@ -221,12 +221,10 @@ class Items {
         return Quality.Normal
     }
 
-    // ============================================================
-    // ITEM TYPE DISTRIBUTION
-    // ============================================================
+    // ITEM TYPE DISTRIBUTION - Which types of weapons can be found in which act
     private fun generateItemType(act: Int, direction: String): ItemType {
 
-        if (act == 5) {
+        if (act == 5) { // Act 5
             val eastPool = listOf(
                 ItemType.Weapon,
                 ItemType.Amulet,
@@ -235,6 +233,7 @@ class Items {
                 ItemType.Gloves,
             )
             val westPool = listOf(
+                ItemType.Weapon,
                 ItemType.Boots,
                 ItemType.Hook,
                 ItemType.Leggings,
@@ -630,6 +629,13 @@ class Items {
                 ).roundToInt()
             .coerceAtLeast(1)
 
+        if (random.nextInt(100) < 31) {
+            item.dodgeChance = (
+                    random.nextInt(0, 2) *
+                            quality
+                    ).roundToInt()
+        }
+
         item.strengthRequirement = (
                 random.nextInt(0, 6) *
                         quality +
@@ -643,12 +649,13 @@ class Items {
                         quality * 4 +
                         requirementBonus(actNumber)
                 ).roundToInt()
+
+
     }
 
     // ============================================================
     // BOOTS
     // ============================================================
-
     private fun generateBoots(
         item: Item,
         quality: Double,
@@ -689,7 +696,6 @@ class Items {
     // ============================================================
     // GLOVES
     // ============================================================
-
     private fun generateGloves(
         item: Item,
         quality: Double,
@@ -698,7 +704,7 @@ class Items {
     ) {
 
         val critDamageValues =
-            intArrayOf(0, 3, 8)
+            intArrayOf(0, 3, 8, 10)
 
         item.critDamage = (
                 critDamageValues[
@@ -744,7 +750,6 @@ class Items {
     // ============================================================
     // LEGGINGS
     // ============================================================
-
     private fun generateLeggings(
         item: Item,
         quality: Double,
@@ -782,7 +787,7 @@ class Items {
          */
         if (random.nextInt(100) < 35) {
             item.dodgeChance = (
-                    random.nextInt(1, 5) *
+                    random.nextInt(1, 4) *
                             quality *
                             act
                     ).roundToInt()
@@ -803,7 +808,6 @@ class Items {
     // ============================================================
     // HELMET
     // ============================================================
-
     private fun generateHelmet(
         item: Item,
         quality: Double,
@@ -868,7 +872,6 @@ class Items {
     // ============================================================
     // BELT
     // ============================================================
-
     private fun generateBelt(
         item: Item,
         quality: Double,
@@ -897,6 +900,20 @@ class Items {
                         act
                 ).roundToInt()
 
+        if (random.nextInt(100) < 35) {
+            item.critChance = (
+                    random.nextInt(1, 3) *
+                            quality
+                    ).roundToInt()
+        }
+
+        if (random.nextInt(100) < 35) {
+            item.dodgeChance = (
+                    random.nextInt(0, 2) *
+                            quality
+                    ).roundToInt()
+        }
+
         item.strengthRequirement = (
                 random.nextInt(0, 6) *
                         quality
@@ -907,12 +924,12 @@ class Items {
                         quality * 2 +
                         requirementBonus(actNumber)
                 ).roundToInt()
+
     }
 
     // ============================================================
     // SHOULDERS
     // ============================================================
-
     private fun generateShoulders(
         item: Item,
         quality: Double,
@@ -928,7 +945,7 @@ class Items {
                 ).roundToInt()
 
         item.health = (
-                random.nextInt(0, 46) *
+                random.nextInt(0, 48) *
                         quality *
                         act
                 ).roundToInt()
@@ -955,7 +972,6 @@ class Items {
     // ============================================================
     // AMULET
     // ============================================================
-
     private fun generateAmulet(
         item: Item,
         quality: Double,
@@ -1009,7 +1025,6 @@ class Items {
     // ============================================================
     // NAME GENERATION
     // ============================================================
-
     private fun generateName(
         type: ItemType,
         quality: Quality,
@@ -1283,9 +1298,9 @@ class Items {
 
                     else -> listOf(
                         "Doom Boots",
-                        "Abyss Walker",
+                        "Abyss Walkers",
                         "Soulforged Boots",
-                        "Boots of the End"
+                        "Water Walkers"
                     ).random(random)
                 }
             }
@@ -1404,7 +1419,8 @@ class Items {
                     else -> listOf(
                         "Abyssal Helm",
                         "Doom Helm",
-                        "Helm of the Fallen"
+                        "Helm of the Fallen",
+                        "Soulforged Helm"
                     ).random(random)
                 }
             }
@@ -1443,7 +1459,7 @@ class Items {
                     else -> listOf(
                         "Abyssal Belt",
                         "Doom Belt",
-                        "Belt of the End"
+                        "Soulforged Belt"
                     ).random(random)
                 }
             }
@@ -1514,7 +1530,7 @@ class Items {
                     else -> listOf(
                         "Abyssal Amulet",
                         "Doom Amulet",
-                        "End Amulet"
+                        "Soulforged Amulet"
                     ).random(random)
                 }
             }
@@ -1553,7 +1569,8 @@ class Items {
 
     private val godlyPrefixes = listOf(
         "Divine",
-        "Godly"
+        "Godly",
+        "Sacred"
     )
 
     // ============================================================
@@ -1613,7 +1630,6 @@ class Items {
         "of Shadows",
         "of Light",
         "of the Void",
-        "of Eternity",
         "of Oblivion"
     )
 
@@ -1627,6 +1643,8 @@ class Items {
 
     private val godlySuffixes = listOf(
         "of Horrors",
-        "of Death"
+        "of Death",
+        "of Terror",
+        "of Eternity",
     )
 }
