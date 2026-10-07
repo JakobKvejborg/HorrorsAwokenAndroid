@@ -4,6 +4,8 @@ import com.example.horrorsawokenandroid.game.model.Items
 import com.example.horrorsawokenandroid.game.model.Monster
 import com.example.horrorsawokenandroid.game.model.Player
 
+// Ths class keeps track of all the progress in the game - like the current act, prices and quests
+
 data class GameUiState(
     val player: Player,
     val monster: Monster? = null,
@@ -74,4 +76,13 @@ data class GameUiState(
     var justDefeatedHungryBeast: Boolean = false,
     var act3LilyHasBeenGivenToFrog: Boolean = false,
 
-    )
+    // Upgrades
+    var costToUpgradeItem: Int = 40,
+    var smithUpgradeMultiplication: Int = 1,
+
+    // Reforge frog
+    var priceToReforgeFrog: Int = 100,
+    var reforgeModifier: Double = 0.0,
+    var lilyReforgeModifier: Double = 0.0
+
+)

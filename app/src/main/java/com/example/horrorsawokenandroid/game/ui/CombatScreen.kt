@@ -642,7 +642,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-//                        .offset(y = 25.dp) // Sets the height of the CONTINUE button
                     .padding(start = 3.dp, bottom = 3.dp)
             ) {
                 Box(
@@ -651,10 +650,10 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                     Image(
                         painter = painterResource(id = R.drawable.dragonegg),
                         contentDescription = "Dragon Egg Button Background",
-                        modifier = Modifier.size(64.dp) // Adjust sizing to fit your text comfortably
+                        modifier = Modifier.size(100.dp) // Adjust sizing to fit your text comfortably
                     )
 
-                    Text(
+                    Text( // Number of dragon eggs in inventory
                         text = "${state.player.numberOfDragonEggsInInventory}",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,

@@ -42,10 +42,10 @@ class Modifiers(
 
         val isActive = id in player.activeModifiers
 
-        val updatedPlayer = if (isActive) {
-            removeEffect(id, player) // Disable modifier
+        val updatedState = if (isActive) {
+            removeEffect(id, state) // Disable modifier
         } else {
-            applyEffect(id, player) // Enable modifier
+            applyEffect(id, state) // Enable modifier
         }
 
         val newActive = if (isActive) {
@@ -55,8 +55,8 @@ class Modifiers(
         }
 
         updateState {
-            it.copy(
-                player = updatedPlayer.copy(
+            updatedState.copy(
+                player = updatedState.player.copy(
                     activeModifiers = newActive,
                     numberOfUnlockedModifiers = state.player.numberOfUnlockedModifiers + 1
                 )
@@ -127,34 +127,33 @@ class Modifiers(
         else -> "Unknown modifier."
     }
 
-    private fun applyEffect(id: String, player: Player): Player =
-        when (id) {
-            "crit" -> player.copy(critChance = player.critChance + 5)
-            "healthy" -> player.copy(maxHealth = player.maxHealth + 20)
-            "juggernaut" -> player.copy(armor = player.armor + 1)
-            "intuitive" -> player.copy(priceToLearnTechnique = player.priceToLearnTechnique / 2)
-            "vampire" -> player.copy(lifesteal = player.lifesteal + 5)
-            "thief" -> player.copy(goldInPocket = player.goldInPocket + 50)
-            "rich" -> player.copy(goldInPocket = player.goldInPocket + 250)
-            "immortal" -> player.copy(regeneration = player.regeneration + 4)
-            "dangerous" -> player.copy(critDamage = player.critDamage + 20)
-            "strong" -> player.copy(strength = player.strength + 2)
-            "soldier" -> player.copy(damage = player.damage + 1)
-            "veteran" -> player.copy(damage = player.damage + 2)
-            "reflexes" -> player.copy(dodgeChance = player.dodgeChance + 3)
-            "looter" -> player.copy(goldFind = player.goldFind + 1)
-            "skilled" -> player.copy(
-                techniqueBloodLustIsLearned = true,
-                numberOfTechniquesLearned = 1,
-                hasSkilledModifier = true
+    private fun applyEffect(id: String, state: GameUiState): GameUiState {
+        val player = state.player
+        return when (id) {
+            "crit" -> state.copy(player = player.copy(critChance = player.critChance + 5))
+            "healthy" -> state.copy(player = player.copy(maxHealth = player.maxHealth + 20))
+            "juggernaut" -> state.copy(player = player.copy(armor = player.armor + 1))
+            "intuitive" -> state.copy(player = player.copy(priceToLearnTechnique = player.priceToLearnTechnique / 2))
+            "vampire" -> state.copy(player = player.copy(lifesteal = player.lifesteal + 5))
+            "thief" -> state.copy(player = player.copy(goldInPocket = player.goldInPocket + 50))
+            "rich" -> state.copy(player = player.copy(goldInPocket = player.goldInPocket + 250))
+            "immortal" -> state.copy(player = player.copy(regeneration = player.regeneration + 4))
+            "dangerous" -> state.copy(player = player.copy(critDamage = player.critDamage + 20))
+            "strong" -> state.copy(player = player.copy(strength = player.strength + 2))
+            "soldier" -> state.copy(player = player.copy(damage = player.damage + 1))
+            "veteran" -> state.copy(player = player.copy(damage = player.damage + 2))
+            "reflexes" -> state.copy(player = player.copy(dodgeChance = player.dodgeChance + 3))
+            "looter" -> state.copy(player = player.copy(goldFind = player.goldFind + 1))
+            "skilled" -> state.copy(
+                player = player.copy(
+                    techniqueBloodLustIsLearned = true,
+                    numberOfTechniquesLearned = 1,
+                    hasSkilledModifier = true
+                )
             )
 
-            "upgrader" -> {
-                itemUpgrader.costToUpgradeItem /= 2
-                player
-            }
-
-            "healer" -> player.copy(healingCostModifier = 2)
+            "upgrader" -> state.copy(costToUpgradeItem = state.costToUpgradeItem / 2)
+            "healer" -> state.copy(player = player.copy(healingCostModifier = 2))
             "smuggler" -> {
                 val dagger = Items.Item(
                     name = "Soldier's Dagger",
@@ -164,85 +163,58 @@ class Modifiers(
                     levelRequirement = 1
                 )
                 player.inventory.add(dagger)
-                player
+                state
             }
 
-            "smithing" -> {
-                itemUpgrader.smithUpgradeMultiplication = 2
-                player
-            }
+            "smithing" -> state.copy(smithUpgradeMultiplication = 2)
+            "pirate" -> state.copy(priceToReforgeFrog = state.priceToReforgeFrog / 2)
+            "cheapsmith" -> state.copy(costToUpgradeItem = state.costToUpgradeItem - 10)
 
-            "pirate" -> {
-                reforgeFrogStat.priceToReforgeFrog /= 2
-                player
-            }
-
-            "cheapsmith" -> {
-                itemUpgrader.costToUpgradeItem -= 10
-                player
-            }
-
-            else -> player
+            else -> state
         }
+    }
 
-    private fun removeEffect(id: String, player: Player): Player =
-        when (id) {
-            "crit" -> player.copy(critChance = player.critChance - 5)
-            "healthy" -> player.copy(maxHealth = player.maxHealth - 20)
-            "juggernaut" -> player.copy(armor = player.armor - 1)
-            "intuitive" -> player.copy(priceToLearnTechnique = player.priceToLearnTechnique * 2)
-            "vampire" -> player.copy(lifesteal = player.lifesteal - 5)
-            "thief" -> player.copy(goldInPocket = player.goldInPocket - 50)
-            "rich" -> player.copy(goldInPocket = player.goldInPocket - 250)
-            "immortal" -> player.copy(regeneration = player.regeneration - 4)
-            "dangerous" -> player.copy(critDamage = player.critDamage - 20)
-            "strong" -> player.copy(strength = player.strength - 2)
-            "soldier" -> player.copy(damage = player.damage - 1)
-            "veteran" -> player.copy(damage = player.damage - 2)
-            "reflexes" -> player.copy(dodgeChance = player.dodgeChance - 3)
-            "looter" -> player.copy(goldFind = player.goldFind - 1)
-            "skilled" -> player.copy(
-                techniqueBloodLustIsLearned = false,
-                numberOfTechniquesLearned = 0,
-                hasSkilledModifier = false
+    private fun removeEffect(id: String, state: GameUiState): GameUiState {
+        val player = state.player
+        return when (id) {
+            "crit" -> state.copy(player = player.copy(critChance = player.critChance - 5))
+            "healthy" -> state.copy(player = player.copy(maxHealth = player.maxHealth - 20))
+            "juggernaut" -> state.copy(player = player.copy(armor = player.armor - 1))
+            "intuitive" -> state.copy(player = player.copy(priceToLearnTechnique = player.priceToLearnTechnique * 2))
+            "vampire" -> state.copy(player = player.copy(lifesteal = player.lifesteal - 5))
+            "thief" -> state.copy(player = player.copy(goldInPocket = player.goldInPocket - 50))
+            "rich" -> state.copy(player = player.copy(goldInPocket = player.goldInPocket - 250))
+            "immortal" -> state.copy(player = player.copy(regeneration = player.regeneration - 4))
+            "dangerous" -> state.copy(player = player.copy(critDamage = player.critDamage - 20))
+            "strong" -> state.copy(player = player.copy(strength = player.strength - 2))
+            "soldier" -> state.copy(player = player.copy(damage = player.damage - 1))
+            "veteran" -> state.copy(player = player.copy(damage = player.damage - 2))
+            "reflexes" -> state.copy(player = player.copy(dodgeChance = player.dodgeChance - 3))
+            "looter" -> state.copy(player = player.copy(goldFind = player.goldFind - 1))
+            "skilled" -> state.copy(
+                player = player.copy(
+                    techniqueBloodLustIsLearned = false,
+                    numberOfTechniquesLearned = 0,
+                    hasSkilledModifier = false
+                )
             )
 
-            "upgrader" -> {
-                itemUpgrader.costToUpgradeItem *= 2
-                player
-            }
-
-            "healer" -> player.copy(healingCostModifier = 1)
-
+            "upgrader" -> state.copy(costToUpgradeItem = state.costToUpgradeItem * 2)
+            "healer" -> state.copy(player = player.copy(healingCostModifier = 1))
             "smuggler" -> {
                 player.inventory.removeIf { it.name == "Soldier's Dagger" }
-                player
+                state
             }
 
-            "smithing" -> {
-                itemUpgrader.smithUpgradeMultiplication = 1
-                player
-            }
+            "smithing" -> state.copy(smithUpgradeMultiplication = 1)
+            "pirate" -> state.copy(priceToReforgeFrog = state.priceToReforgeFrog * 2)
+            "cheapsmith" -> state.copy(costToUpgradeItem = state.costToUpgradeItem + 10)
+            "friendly" -> state.copy(reforgeModifier = state.reforgeModifier - 0.15)
+            "phoenix" -> state.copy(player = player.copy(hasPhoenixModifier = false))
 
-            "pirate" -> {
-                reforgeFrogStat.priceToReforgeFrog *= 2
-                player
-            }
-
-            "cheapsmith" -> {
-                itemUpgrader.costToUpgradeItem += 10
-                player
-            }
-
-            "friendly" -> {
-                reforgeFrogStat.reforgeModifier -= 0.15
-                player
-            }
-
-            "phoenix" -> player.copy(hasPhoenixModifier = false)
-
-            else -> player
+            else -> state
         }
+    }
 
     // This resets all modifiers, only to be used for testing. Can be called via viewModel.modifiers.resetModifiers()
     fun resetModifiers() {
@@ -254,7 +226,7 @@ class Modifiers(
                 )
             )
         }
-
         storage.save(emptySet())
     }
+
 }

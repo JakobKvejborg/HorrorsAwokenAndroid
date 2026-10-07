@@ -7,8 +7,6 @@ class ItemUpgrader(
     private val getState: () -> GameUiState,
     private val updateState: ((GameUiState) -> GameUiState) -> Unit,
     private val sounds: SoundPlayer,
-    var costToUpgradeItem: Int = 40,
-    var smithUpgradeMultiplication: Int = 1,
     ) {
 
     fun upgradeItem(
@@ -16,10 +14,11 @@ class ItemUpgrader(
         onEquipItem: (Items.Item) -> Unit,
         onUpgradeApplied: () -> Unit,
     ) {
+        val currentState = getState()
         val item = itemToBeUpgraded ?: return
         val player = getState().player
 
-        if (player.goldInPocket < costToUpgradeItem || item.name.contains("Upg.") || item.type == Items.ItemType.Amulet ) {
+        if (player.goldInPocket < currentState.costToUpgradeItem || item.name.contains("Upg.") || item.type == Items.ItemType.Amulet ) {
             sounds.playAct2SmithNo()
             return
         }
@@ -31,18 +30,18 @@ class ItemUpgrader(
         updateState {
             it.copy(
                 player = it.player.copy(
-                    goldInPocket = it.player.goldInPocket - costToUpgradeItem
-                )
+                    goldInPocket = it.player.goldInPocket - currentState.costToUpgradeItem
+                ),
+                costToUpgradeItem = it.costToUpgradeItem + 25
             )
         }
 
-        costToUpgradeItem += 25
         onUpgradeApplied()
         onEquipItem(upgradedItem)
     }
 
     private fun applySmithUpgrade(item: Items.Item): Items.Item {
-        val m = smithUpgradeMultiplication
+        val m = getState().smithUpgradeMultiplication
 
         return when (item.type) {
             Items.ItemType.Weapon -> when (Random.nextInt(1, 5)) {

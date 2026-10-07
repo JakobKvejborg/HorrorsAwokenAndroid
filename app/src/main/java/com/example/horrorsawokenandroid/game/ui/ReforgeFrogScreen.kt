@@ -521,7 +521,7 @@ fun ReforgeFrogScreen(
                                 selectedStat != null &&
                                 !selectedItem!!.isItemReforged &&
                                 player.goldInPocket >=
-                                viewModel.reforgeFrogStat.priceToReforgeFrog,
+                                state.priceToReforgeFrog,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RectangleShape
                 ) {
@@ -541,7 +541,7 @@ fun ReforgeFrogScreen(
                                     color = Color(0xFFFFD700)
                                 )
                             ) {
-                                append("${viewModel.reforgeFrogStat.priceToReforgeFrog}G")
+                                append("${state.priceToReforgeFrog}G")
                             }
                         }
                     )

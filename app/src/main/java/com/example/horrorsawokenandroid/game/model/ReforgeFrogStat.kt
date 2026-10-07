@@ -8,9 +8,6 @@ class ReforgeFrogStat(
     private val updateState: ((GameUiState) -> GameUiState) -> Unit,
     private val sounds: SoundPlayer,
 ) {
-    var priceToReforgeFrog: Int = 100
-    var reforgeModifier: Double = 0.0
-    var lilyReforgeModifier: Double = 0.0
 
     enum class ReforgeableStat {
         Health, Damage, DodgeChance, Strength, Armor,
@@ -19,7 +16,8 @@ class ReforgeFrogStat(
 
     private fun rollMultiplier(): Double {
         // Random value between 0.90 and 1.50, plus modifiers
-        return Random.nextDouble() * (1.50 - 0.90) + 0.90 + reforgeModifier + lilyReforgeModifier
+        val currentState = getState()
+        return Random.nextDouble() * (1.50 - 0.90) + 0.90 + currentState.reforgeModifier + currentState.lilyReforgeModifier
     }
 
     private fun reforgeStat(statValue: Int): Int {
@@ -46,7 +44,8 @@ class ReforgeFrogStat(
         item: Items.Item,
         stat: ReforgeableStat,
     ): Items.Item? {
-        println("lilymodifier number: " + lilyReforgeModifier) // TODO delete debug
+
+        val currentState = getState()
         val player = getState().player
 
         if (player.hasFrozenLily) {
@@ -54,15 +53,15 @@ class ReforgeFrogStat(
                 it.copy(
                     player = it.player.copy(hasFrozenLily = false),
                     act3LilyHasBeenGivenToFrog = true,
+                    lilyReforgeModifier = it.lilyReforgeModifier + 0.15
                 )
             }
             sounds.playAct3FrozenLilyFrogSound()
-            lilyReforgeModifier += 0.15
             return null
         }
 
         if (
-            player.goldInPocket < priceToReforgeFrog || item.isItemReforged
+            player.goldInPocket < currentState.priceToReforgeFrog || item.isItemReforged
         ) {
             sounds.playAct3ReforgeFroggy()
             return null
@@ -86,7 +85,7 @@ class ReforgeFrogStat(
             it.copy(
                 player = player.copy(
                     goldInPocket =
-                        player.goldInPocket - priceToReforgeFrog
+                        player.goldInPocket - currentState.priceToReforgeFrog
                 )
             )
         }

@@ -730,7 +730,7 @@ fun InventoryOverlay(
                                             append("UPGRADE ")
                                         }
                                         withStyle(style = SpanStyle(color = Color(0xFFFFD700))) {
-                                            append("${viewModel.itemUpgrader.costToUpgradeItem}G")
+                                            append("${state.costToUpgradeItem}G")
                                         }
                                     } else {
                                         // This creates the multi-colored text when an item exists
@@ -743,7 +743,7 @@ fun InventoryOverlay(
                                             append("UPGRADE ")
                                         }
                                         withStyle(style = SpanStyle(color = Color(0xFFFFD700))) {
-                                            append("${viewModel.itemUpgrader.costToUpgradeItem}G")
+                                            append("${state.costToUpgradeItem}G")
                                         }
                                     }
 

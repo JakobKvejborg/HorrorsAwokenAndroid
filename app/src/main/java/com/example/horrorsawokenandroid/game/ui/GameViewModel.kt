@@ -397,9 +397,9 @@ class GameViewModel(
             it.copy(
                 player = it.player.copy(hasDragonRuby = false),
                 act4DragonRubyHasBeenGivenToSmith = true,
+                smithUpgradeMultiplication = it.smithUpgradeMultiplication + 1
             )
         }
-        itemUpgrader.smithUpgradeMultiplication++
         sounds.playSmithUpgradeRubySound()
     }
 
