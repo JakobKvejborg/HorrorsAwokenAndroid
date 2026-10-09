@@ -284,7 +284,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Helmet],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Helmet],
-                                iconRes = R.drawable.helmeticon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Helmet, itemName = player.equippedItems[Items.ItemType.Helmet]?.name) ?: R.drawable.helmeticon,
                                 label = "",
                                 slotType = Items.ItemType.Helmet,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Helmet,
@@ -309,7 +309,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Amulet],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Amulet],
-                                iconRes = R.drawable.amuleticon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Amulet, itemName = player.equippedItems[Items.ItemType.Amulet]?.name) ?: R.drawable.amuleticon,
                                 label = "",
                                 slotType = Items.ItemType.Amulet,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Amulet,
@@ -331,7 +331,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Shoulders],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Shoulders],
-                                iconRes = R.drawable.shouldersicon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Shoulders, itemName = player.equippedItems[Items.ItemType.Shoulders]?.name) ?: R.drawable.shouldersicon,
                                 label = "",
                                 slotType = Items.ItemType.Shoulders,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Shoulders,
@@ -364,7 +364,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Hook],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Hook],
-                                iconRes = R.drawable.hookicon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Hook, itemName = player.equippedItems[Items.ItemType.Hook]?.name) ?: R.drawable.hookicon,
                                 label = "",
                                 slotType = Items.ItemType.Hook,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Hook,
@@ -386,7 +386,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Armor],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Armor],
-                                iconRes = R.drawable.armoricon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Armor, itemName = player.equippedItems[Items.ItemType.Armor]?.name) ?: R.drawable.armoricon,
                                 label = "",
                                 slotType = Items.ItemType.Armor,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Armor,
@@ -408,7 +408,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Weapon],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Weapon],
-                                iconRes = R.drawable.swordicon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Weapon, itemName = player.equippedItems[Items.ItemType.Weapon]?.name) ?: R.drawable.swordicon,
                                 label = "",
                                 slotType = Items.ItemType.Weapon,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Weapon,
@@ -441,7 +441,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Boots],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Boots],
-                                iconRes = R.drawable.bootsicon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Boots, itemName = player.equippedItems[Items.ItemType.Boots]?.name) ?: R.drawable.bootsicon,
                                 label = "",
                                 slotType = Items.ItemType.Boots,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Boots,
@@ -463,7 +463,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Leggings],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Leggings],
-                                iconRes = R.drawable.leggingsicon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Leggings, itemName = player.equippedItems[Items.ItemType.Leggings]?.name) ?: R.drawable.leggingsicon,
                                 label = "",
                                 slotType = Items.ItemType.Leggings,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Leggings,
@@ -485,7 +485,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Gloves],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Gloves],
-                                iconRes = R.drawable.glovesicon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Gloves, itemName = player.equippedItems[Items.ItemType.Gloves]?.name) ?: R.drawable.glovesicon,
                                 label = "",
                                 slotType = Items.ItemType.Gloves,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Gloves,
@@ -507,7 +507,7 @@ fun InventoryOverlay(
                             EquipmentSlot(
                                 item = player.equippedItems[Items.ItemType.Belt],
                                 isHeld = heldItem != null && heldItem == player.equippedItems[Items.ItemType.Belt],
-                                iconRes = R.drawable.belticon,
+                                iconRes = getItemTypeIcon(type = Items.ItemType.Belt, itemName = player.equippedItems[Items.ItemType.Belt]?.name) ?: R.drawable.belticon,
                                 label = "",
                                 slotType = Items.ItemType.Belt,
                                 isDropTarget = draggedItem?.type == Items.ItemType.Belt,
@@ -686,7 +686,7 @@ fun InventoryOverlay(
                         ) {
                             // Render the item icon if one is placed inside
                             if (itemToBeUpgraded != null) {
-                                val icon = getItemTypeIcon(itemToBeUpgraded!!.type)
+                                val icon = getItemTypeIcon(type = itemToBeUpgraded!!.type, itemName = itemToBeUpgraded!!.name)
 
                                 if (icon != null) {
                                     Image(
@@ -906,7 +906,7 @@ fun InventoryOverlay(
 
         val itemBeingDragged = draggedItem
         if (itemBeingDragged != null) {
-            val icon = getItemTypeIcon(draggedItem!!.type)
+            val icon = getItemTypeIcon(type = draggedItem!!.type, itemName = draggedItem!!.name)
 
             if (icon != null) {
                 // Force this wrapper box to fill the entire screen layout area
@@ -1050,7 +1050,7 @@ internal fun ItemInfoPanel(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
 ) {
-    val itemTypeIcon = getItemTypeIcon(item.type)
+    val itemTypeIcon = getItemTypeIcon(type = item.type, itemName = item.name)
     val nameSize = if (compact) 14.sp else 17.sp
     val typeSize = if (compact) 11.sp else 12.sp
     val statSize = if (compact) 12.sp else 15.sp
@@ -1157,8 +1157,27 @@ internal fun ItemInfoPanel(
 // ITEM TYPE ICONS
 // ================================================================
 internal fun getItemTypeIcon(
-    type: Items.ItemType
+    type: Items.ItemType,
+    itemName: String? = null
 ): Int? {
+
+    val cleanName = itemName
+        ?.removePrefix("Upg.")
+        ?.trim()
+
+    // Unique item icons
+    when (cleanName) {
+        "Jester's Hat" -> return R.drawable.jestershat
+        "Chain Belt" -> return R.drawable.chainbelt
+        "Fish' Tooth" -> return R.drawable.fishtooth
+        "Spiked Bashing Shield" -> return R.drawable.spikedbashingshield
+        "Trinket of Life" -> return R.drawable.trinketoflife
+        "Dragonhide Mail" -> return R.drawable.dragonhidemail
+        "Illusion Mask" -> return R.drawable.illusionmask
+        "Ball and Chain" -> return R.drawable.ballandchain
+        "Tower Shield" -> return R.drawable.towershield
+    }
+
     return when (type) {
         Items.ItemType.Helmet -> R.drawable.helmeticon
         Items.ItemType.Amulet -> R.drawable.amuleticon
@@ -1173,7 +1192,6 @@ internal fun getItemTypeIcon(
         else -> null
     }
 }
-
 
 // ================================================================
 // INVENTORY ROW
@@ -1190,7 +1208,8 @@ internal fun InventoryItemRow(
     onDragEnd: () -> Unit
 ) {
     var rowBounds by remember { mutableStateOf<Rect?>(null) }
-    val interactionSource = remember { MutableInteractionSource() } // This makes the things clicked on not flicker
+    val interactionSource =
+        remember { MutableInteractionSource() } // This makes the things clicked on not flicker
 
     Box(
         modifier = Modifier
@@ -1199,7 +1218,11 @@ internal fun InventoryItemRow(
                 rowBounds = it.boundsInRoot()
             }
             .background(
-                Color.White.copy(alpha = 0.06f),
+                color = if (item.isMythic) {
+                    Color(0xFFCD7F32).copy(alpha = 0.4f)
+                } else {
+                Color.White.copy(alpha = 0.06f)
+                    },
                 RoundedCornerShape(6.dp)
             )
             .border(

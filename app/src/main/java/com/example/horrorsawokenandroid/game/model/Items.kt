@@ -1,6 +1,5 @@
 package com.example.horrorsawokenandroid.game.model
 
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -26,6 +25,7 @@ class Items {
         var levelRequirement: Int = 0,
         var critChance: Int = 0,
         var critDamage: Int = 0,
+        val isMythic: Boolean = false,
 
         // Upgrade/reforge items
         var isItemUpgraded: Boolean = false,
@@ -108,12 +108,17 @@ class Items {
     fun generateLoot(act: Int, direction: String): Item? {
 
         val lootRoll = Random.nextInt(100)
+        val safeAct = act.coerceIn(1, 5)
+
 
         if (lootRoll >= 34) { // This is the % chance of an item dropping. Higher number = higher chance
             return null
         }
 
-        val safeAct = act.coerceIn(1, 5)
+        // Mythic item drop, if there's an item dropping
+        if (Random.nextInt(100) < 1) { // 1% chance of mythic drop
+            return generateMythicItem(safeAct)
+        }
 
         val type = generateItemType(safeAct, direction)
         val quality = generateQuality(safeAct, direction)
@@ -141,6 +146,117 @@ class Items {
             type = type,
             quality = quality
         )
+    }
+
+    // Helper function to roll +/- 10% on mythic items
+    fun applyVariance(base: Int): Int {
+        if (base == 0) return 0
+        val roll = Random.nextDouble(0.90, 1.10)
+        val result = (base * roll).roundToInt()
+
+        if (result == base) {
+            if (roll > 1.0) return base + 1
+            if (roll < 1.0) return (base - 1).coerceAtLeast(1)
+        }
+        return result
+    }
+
+    fun generateMythicItem(act: Int): Item {
+        val uniqueItems = when (act) {
+            1 -> listOf(
+                Item(
+                    name = "Jester's Hat",
+                    type = ItemType.Helmet,
+                    damage = applyVariance(3),
+                    armor = 2,
+                    strengthRequirement = 1,
+                    levelRequirement = 5,
+                    isMythic = true,
+                ),
+            )
+            2 -> listOf(
+                Item(
+                    name = "Chain Belt",
+                    type = ItemType.Belt,
+                    damage = 2,
+                    armor = applyVariance(4),
+                    strengthRequirement = 10,
+                    levelRequirement = 8,
+                    isMythic = true,
+                ),
+            )
+            3 -> listOf(
+                Item(
+                    name = "Fish' Tooth",
+                    type = ItemType.Weapon,
+                    damage = 5,
+                    critDamage = applyVariance(50),
+                    strengthRequirement = 13,
+                    levelRequirement = 10,
+                    isMythic = true,
+                ),
+            )
+            4 -> listOf(
+                Item(
+                    name = "Spiked Bashing Shield",
+                    type = ItemType.Weapon,
+                    damage = applyVariance(10),
+                    armor = 6,
+                    health = 50,
+                    strengthRequirement = 10,
+                    levelRequirement = 14,
+                    isMythic = true,
+                ),
+                Item(
+                    name = "Trinket of Life",
+                    type = ItemType.Amulet,
+                    regeneration = applyVariance(100),
+                    levelRequirement = 10,
+                    isMythic = true,
+                ),
+                Item(
+                    name = "Dragonhide Mail",
+                    type = ItemType.Armor,
+                    armor = applyVariance(10),
+                    strengthRequirement = 10,
+                    levelRequirement = 18,
+                    isMythic = true,
+                ),
+            )
+            5 -> listOf(
+                Item(
+                    name = "Illusion Mask",
+                    type = ItemType.Helmet,
+                    dodgeChance = applyVariance(10),
+                    health = 150,
+                    levelRequirement = 20,
+                    isMythic = true,
+                ),
+                Item(
+                    name = "Ball and Chain",
+                    type = ItemType.Hook,
+                    damage = applyVariance(8),
+                    critDamage = 20,
+                    strengthRequirement = 22,
+                    levelRequirement = 15,
+                    isMythic = true,
+                ),
+                Item(
+                    name = "Tower Shield",
+                    type = ItemType.Hook,
+                    armor = applyVariance(6),
+                    health = 100,
+                    strengthRequirement = 25,
+                    levelRequirement = 20,
+                    isMythic = true,
+                ),
+            )
+
+            else -> emptyList()
+
+        }
+
+        return uniqueItems.random()
     }
 
     // ============================================================
@@ -1243,7 +1359,7 @@ class Items {
                     ).random(random)
 
                     4 -> listOf(
-                        "Dragon Armor",
+                        "Dragon Scales",
                         "Infernal Plate",
                         "Dread Armor",
                         "Blacksteel Armor",
