@@ -127,7 +127,7 @@ fun MenuScreen(
 
         // CREDITS
         Text(
-            text = "Made by Jakob Kvejborg 2026 - v0.91",
+            text = "Made by Jakob Kvejborg 2026 - v0.92",
             color = Color.LightGray,
             fontSize = 12.sp,
             modifier = Modifier

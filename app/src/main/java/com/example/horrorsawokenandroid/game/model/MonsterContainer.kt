@@ -562,7 +562,7 @@ class MonsterContainer {
         )
     )
 
-// ------------------------------------------------------------
+    // ------------------------------------------------------------
 // ACT 4 DRAGONS
 // ------------------------------------------------------------
     val listOfDragonsAct4East = listOf(
@@ -575,7 +575,7 @@ class MonsterContainer {
             randomDamageModifier = 0,
             monsterExperience = 93,
             monsterGold = 48,
-            imageRes = R.raw.dragonmage // .gif is placed in raw
+            imageRes = R.drawable.casterdragon // .gif is placed in raw
         ),
         Monster(
             name = "Dragon King",
@@ -587,6 +587,17 @@ class MonsterContainer {
             monsterExperience = 100,
             monsterGold = 30,
             imageRes = R.drawable.dragonking
+        ),
+        Monster(
+            name = "Dragon Tyrant",
+            maxHealth = 360,
+            currentHealth = 360,
+            minDamage = 17,
+            maxDamage = 0,
+            randomDamageModifier = 20,
+            monsterExperience = 120,
+            monsterGold = 40,
+            imageRes = R.raw.dragonmage
         ),
         Monster(
             name = "Silver Dragon",

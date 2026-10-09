@@ -58,7 +58,6 @@ class Modifiers(
             updatedState.copy(
                 player = updatedState.player.copy(
                     activeModifiers = newActive,
-                    numberOfUnlockedModifiers = state.player.numberOfUnlockedModifiers + 1
                 )
             )
         }
@@ -129,7 +128,8 @@ class Modifiers(
 
     private fun applyEffect(id: String, state: GameUiState): GameUiState {
         val player = state.player
-        return when (id) {
+
+        val updatedState = when (id) {
             "crit" -> state.copy(player = player.copy(critChance = player.critChance + 5))
             "healthy" -> state.copy(player = player.copy(maxHealth = player.maxHealth + 20))
             "juggernaut" -> state.copy(player = player.copy(armor = player.armor + 1))
@@ -172,11 +172,18 @@ class Modifiers(
 
             else -> state
         }
+        return updatedState.copy(
+            player = updatedState.player.copy(
+                numberOfUnlockedModifiers =
+                    state.player.numberOfUnlockedModifiers + 1
+            )
+        )
     }
 
     private fun removeEffect(id: String, state: GameUiState): GameUiState {
         val player = state.player
-        return when (id) {
+
+        val updatedState = when (id) {
             "crit" -> state.copy(player = player.copy(critChance = player.critChance - 5))
             "healthy" -> state.copy(player = player.copy(maxHealth = player.maxHealth - 20))
             "juggernaut" -> state.copy(player = player.copy(armor = player.armor - 1))
@@ -214,6 +221,12 @@ class Modifiers(
 
             else -> state
         }
+        return updatedState.copy(
+            player = updatedState.player.copy(
+                numberOfUnlockedModifiers =
+                    state.player.numberOfUnlockedModifiers - 1
+            )
+        )
     }
 
     // This resets all modifiers, only to be used for testing. Can be called via viewModel.modifiers.resetModifiers()

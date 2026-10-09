@@ -29,7 +29,11 @@ fun Act1Quest1Screen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clickable { }, // blocks clicks from reaching anything underneath
+            .clickable { // blocks clicks from reaching anything underneath
+                if (state.act1Quest1BoyIsSaved && !state.act1Quest1ThankYouShown) {
+                viewModel.markAct1Quest1ThankYouShown()
+            }
+                onClose() },
     ) {
         // BACKGROUND
         Image(
@@ -71,6 +75,7 @@ fun Act1Quest1Screen(
             ),
             modifier = Modifier
                 .align(Alignment.Center)
+                .offset(y = 80.dp)
                 .padding(horizontal = 24.dp)
         )
 
@@ -88,7 +93,10 @@ fun Act1Quest1Screen(
             ),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .padding(
+                    end = 16.dp,   // Distance from right
+                    bottom = 46.dp // Distance from bottom
+                )
                 .clickable { // Back to town "CLOSE" button
                     if (state.act1Quest1BoyIsSaved && !state.act1Quest1ThankYouShown) {
                         viewModel.markAct1Quest1ThankYouShown()
