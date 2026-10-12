@@ -667,10 +667,35 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
         attackAnimations.BloodLustGlow(
             trigger = state.bloodLustAnimation
         )
-
         attackAnimations.GuardHealGlow(
             trigger = state.guardAnimation
         )
+
+        // Dragon Wings
+        if (false) {
+            Image(
+                painter = painterResource(R.drawable.dragonwings1),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    //.fillMaxSize()
+                    .offset(y = 70.dp, x = 2.dp + heroDodgeShake.dp)
+                    .size(480.dp)
+            )
+        }
+
+        // Sheleton Dragon Wings
+        if (false) {
+            Image(
+                painter = painterResource(R.drawable.skeletonwings2),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    //.fillMaxSize()
+                    .offset(y = 160.dp, x = 40.dp + heroDodgeShake.dp)
+                    .size(320.dp)
+            )
+        }
 
         // Guard attack animation image — fullscreen, top of z-order, independent of all other layout
         Image(
@@ -701,7 +726,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
                 .fillMaxSize()
                 .alpha(swiftAttackEffect * 0.7f) // 0.5f = 50% as visible
         )
-
 
         // Blood splatter on critical hit crit image — fullscreen, top of z-order, independent of all other layout
         Image(

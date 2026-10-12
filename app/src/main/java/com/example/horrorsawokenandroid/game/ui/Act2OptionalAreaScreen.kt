@@ -82,7 +82,10 @@ fun Act2OptionalAreaScreen(
             ),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .padding(
+                    end = 16.dp,   // Distance from right
+                    bottom = 76.dp // Distance from bottom
+                )
                 .clickable {
                     onClose()
                 }

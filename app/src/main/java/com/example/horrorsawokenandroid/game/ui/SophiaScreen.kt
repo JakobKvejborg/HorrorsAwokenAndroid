@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -62,7 +63,7 @@ fun SophiaScreen(
                     color = Color.White,
                     modifier = Modifier.padding(horizontal = 32.dp),
                     holdMs = 100000,
-                    letterDelayMs= 10,
+                    letterDelayMs = 10,
                 )
             } else {
                 TypewriterText(
@@ -73,7 +74,7 @@ fun SophiaScreen(
                     color = Color.White,
                     modifier = Modifier.padding(horizontal = 32.dp),
                     holdMs = 100000,
-                    letterDelayMs= 10,
+                    letterDelayMs = 10,
                 )
             }
         }
@@ -82,8 +83,8 @@ fun SophiaScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(androidx.compose.ui.Alignment.BottomCenter)
-                .padding(16.dp)
+                .align(Alignment.BottomEnd)
+                .padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 76.dp)
         ) {
             Spacer(modifier = Modifier.weight(1f))
 
@@ -96,7 +97,7 @@ fun SophiaScreen(
                         viewModel.setCurrentScreen(GameScreen.TownAct5)
                     }
                 },
-                contentPadding = PaddingValues(vertical = 2.dp)
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = if (state.sophiaIsDead)
@@ -111,7 +112,8 @@ fun SophiaScreen(
                             offset = Offset(0f, 0f),
                             blurRadius = 8f
                         )
-                    )
+                    ),
+                    softWrap = false
                 )
             }
         }

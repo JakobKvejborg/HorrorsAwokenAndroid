@@ -31,9 +31,10 @@ fun Act1Quest1Screen(
             .fillMaxSize()
             .clickable { // blocks clicks from reaching anything underneath
                 if (state.act1Quest1BoyIsSaved && !state.act1Quest1ThankYouShown) {
-                viewModel.markAct1Quest1ThankYouShown()
-            }
-                onClose() },
+                    viewModel.markAct1Quest1ThankYouShown()
+                }
+                onClose()
+            },
     ) {
         // BACKGROUND
         Image(

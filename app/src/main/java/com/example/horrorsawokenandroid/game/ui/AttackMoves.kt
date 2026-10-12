@@ -156,7 +156,7 @@ class AttackMoves(
         val multiplier =
             damageAtFullHp +
                     (damageAtLowHp - damageAtFullHp) *
-                    missingHpPct.pow(0.9)
+                    missingHpPct.pow(1.1) // How steep the curve is - lower number = higher damage at full hp
 
         val damage =
             (player.calculateTotalDamage() * multiplier).toInt()

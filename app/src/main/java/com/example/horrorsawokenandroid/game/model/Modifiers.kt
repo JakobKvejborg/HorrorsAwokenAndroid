@@ -123,6 +123,8 @@ class Modifiers(
         "smithing" -> "Improves smithing upgrades."
         "pirate" -> "Reduces reforge costs (Frog)."
         "cheapsmith" -> "Reduces smithing costs slightly."
+        "friendly" -> "Improves reforging."
+        "phoenix" -> "Cheat death once."
         else -> "Unknown modifier."
     }
 
@@ -169,6 +171,8 @@ class Modifiers(
             "smithing" -> state.copy(smithUpgradeMultiplication = 2)
             "pirate" -> state.copy(priceToReforgeFrog = state.priceToReforgeFrog / 2)
             "cheapsmith" -> state.copy(costToUpgradeItem = state.costToUpgradeItem - 10)
+            "friendly" -> state.copy(reforgeModifier = state.reforgeModifier + 0.15)
+            "phoenix" -> state.copy(player = player.copy(hasPhoenixModifier = true))
 
             else -> state
         }

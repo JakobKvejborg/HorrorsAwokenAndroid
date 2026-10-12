@@ -567,7 +567,7 @@ fun ReforgeFrogScreen(
                             )
                         ),
                         modifier = Modifier
-                            .padding(vertical = 5.dp)
+                            .padding(top = 5.dp, bottom = 60.dp)
                             .clickable {
                                 onClose()
                             }

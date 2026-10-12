@@ -443,7 +443,7 @@ class MonsterContainer {
             currentHealth = 115,
             minDamage = 24,
             maxDamage = 0,
-            randomDamageModifier = 3,
+            randomDamageModifier = 2,
             monsterExperience = 38,
             monsterGold = 20,
             imageRes = R.drawable.seamonster
@@ -592,7 +592,7 @@ class MonsterContainer {
             name = "Dragon Tyrant",
             maxHealth = 360,
             currentHealth = 360,
-            minDamage = 17,
+            minDamage = 18,
             maxDamage = 0,
             randomDamageModifier = 20,
             monsterExperience = 120,
