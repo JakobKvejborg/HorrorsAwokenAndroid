@@ -637,32 +637,6 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
 
         }
 
-        // DRAGON EGGS
-        if (state.player.numberOfDragonEggsInInventory > 0 && !state.act4QuestIsFinished) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(start = 3.dp, bottom = 3.dp)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center // Centers the text over the image
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.dragonegg),
-                        contentDescription = "Dragon Egg Button Background",
-                        modifier = Modifier.size(100.dp) // Adjust sizing to fit your text comfortably
-                    )
-
-                    Text( // Number of dragon eggs in inventory
-                        text = "${state.player.numberOfDragonEggsInInventory}",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-        }
-
         // ANIMATIONS
         attackAnimations.BloodLustGlow(
             trigger = state.bloodLustAnimation
@@ -671,70 +645,15 @@ fun CombatScreen(viewModel: GameViewModel = viewModel()) {
             trigger = state.guardAnimation
         )
 
-        // Dragon Wings
-        if (false) {
-            Image(
-                painter = painterResource(R.drawable.dragonwings1),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    //.fillMaxSize()
-                    .offset(y = 70.dp, x = 2.dp + heroDodgeShake.dp)
-                    .size(480.dp)
-            )
-        }
-
-        // Sheleton Dragon Wings
-        if (false) {
-            Image(
-                painter = painterResource(R.drawable.skeletonwings2),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    //.fillMaxSize()
-                    .offset(y = 160.dp, x = 40.dp + heroDodgeShake.dp)
-                    .size(320.dp)
-            )
-        }
-
-        // Guard attack animation image — fullscreen, top of z-order, independent of all other layout
-        Image(
-            painter = painterResource(R.drawable.guardshield3),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(guardAttackEffect * 0.7f) // 0.5f = 50% as visible
-        )
-
-        // Divine light image — fullscreen, top of z-order, independent of all other layout
-        Image(
-            painter = painterResource(R.drawable.divinelight),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(divineAttackEffect * 0.4f) // 0.5f = 50% as visible
-        )
-
-        // Swift attack image on Dodge — fullscreen, top of z-order, independent of all other layout
-        Image(
-            painter = painterResource(R.drawable.swiftattacksword4),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(swiftAttackEffect * 0.7f) // 0.5f = 50% as visible
-        )
-
-        // Blood splatter on critical hit crit image — fullscreen, top of z-order, independent of all other layout
-        Image(
-            painter = painterResource(R.drawable.bloodsplatter2),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(bloodSplatterCritEffect * 0.6f) // 0.5f = 50% as visible
+        // Images like AttackEffects (divine, guard, swift etc.), Dragon eggs and Wings
+        CombatScreenImages(
+            heroDodgeShake = heroDodgeShake,
+            guardAttackEffect = guardAttackEffect,
+            divineAttackEffect = divineAttackEffect,
+            swiftAttackEffect = swiftAttackEffect,
+            bloodSplatterCritEffect = bloodSplatterCritEffect,
+            numberOfDragonEggsInInventory = state.player.numberOfDragonEggsInInventory,
+            act4QuestIsFinished = state.act4QuestIsFinished,
         )
 
         // Inventory overlay
@@ -920,7 +839,7 @@ internal fun CombatButtonLayout(
             )
         }
 
-        // IMAGE ON THE TOP FACE (behind text)
+        // IMAGE ON THE TOP FACE (behind text) for combat buttons
         if (imageRes != null) {
             Image(
                 painter = painterResource(id = imageRes),

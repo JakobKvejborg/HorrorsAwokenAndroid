@@ -1176,6 +1176,12 @@ internal fun getItemTypeIcon(
         "Illusion Mask" -> return R.drawable.illusionmask
         "Ball and Chain" -> return R.drawable.ballandchain
         "Tower Shield" -> return R.drawable.towershield
+        "Red Hands" -> return R.drawable.redhands
+        "Phantom Steps" -> return R.drawable.phantomsteps
+        "Skullcrushers" -> return R.drawable.skullcrushers
+        "Dragon's Heart Shoulders" -> return R.drawable.dragonheartshoulders
+        "Prisoner's Oath" -> return R.drawable.prisonersoath
+        "Non-existing Trousers" -> return R.drawable.nonexistingtrousers
     }
 
     return when (type) {

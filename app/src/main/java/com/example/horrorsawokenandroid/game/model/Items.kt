@@ -42,18 +42,18 @@ class Items {
 
             val stats = mutableListOf<String>()
 
-            if (damage > 0) stats += "Damage: $damage"
-            if (health > 0) stats += "Health: $health"
-            if (lifesteal > 0) stats += "Lifesteal: $lifesteal"
-            if (critChance > 0) stats += "Crit chance: $critChance"
-            if (critDamage > 0) stats += "Crit damage: $critDamage"
-            if (armor > 0) stats += "Armor: $armor"
-            if (dodgeChance > 0) stats += "Dodge: $dodgeChance"
-            if (strength > 0) stats += "Strength: $strength"
-            if (regeneration > 0) stats += "Regen: $regeneration"
-            if (skillLevel > 0) stats += "Skilllevel: $skillLevel"
-            if (strengthRequirement > 0) stats += "Str req: $strengthRequirement"
-            if (levelRequirement > 0) stats += "Level req: $levelRequirement"
+            if (damage != 0) stats += "Damage: $damage"
+            if (health != 0) stats += "Health: $health"
+            if (lifesteal != 0) stats += "Lifesteal: $lifesteal"
+            if (critChance != 0) stats += "Crit chance: $critChance"
+            if (critDamage != 0) stats += "Crit damage: $critDamage"
+            if (armor != 0) stats += "Armor: $armor"
+            if (dodgeChance != 0) stats += "Dodge: $dodgeChance"
+            if (strength != 0) stats += "Strength: $strength"
+            if (regeneration != 0) stats += "Regen: $regeneration"
+            if (skillLevel != 0) stats += "Skilllevel: $skillLevel"
+            if (strengthRequirement != 0) stats += "Str req: $strengthRequirement"
+            if (levelRequirement != 0) stats += "Level req: $levelRequirement"
 
             return stats.joinToString("\n")
         }
@@ -173,7 +173,16 @@ class Items {
                     levelRequirement = 5,
                     isMythic = true,
                 ),
+                Item(
+                    name = "Red Hands",
+                    type = ItemType.Gloves,
+                    lifesteal = 15,
+                    strengthRequirement = 8,
+                    levelRequirement = 9,
+                    isMythic = true,
+                ),
             )
+
             2 -> listOf(
                 Item(
                     name = "Chain Belt",
@@ -184,18 +193,39 @@ class Items {
                     levelRequirement = 8,
                     isMythic = true,
                 ),
+                Item(
+                    name = "Phantom Steps",
+                    type = ItemType.Boots,
+                    damage = - 2,
+                    dodgeChance = applyVariance(12),
+                    critChance = 7,
+                    strengthRequirement = 1,
+                    levelRequirement = 10,
+                    isMythic = true,
+                ),
             )
+
             3 -> listOf(
                 Item(
                     name = "Fish' Tooth",
                     type = ItemType.Weapon,
-                    damage = 5,
+                    damage = 6,
                     critDamage = applyVariance(50),
                     strengthRequirement = 13,
                     levelRequirement = 10,
                     isMythic = true,
                 ),
+                Item(
+                    name = "Skullcrushers",
+                    type = ItemType.Boots,
+                    damage = 4,
+                    armor = 3,
+                    strengthRequirement = 18,
+                    levelRequirement = 14,
+                    isMythic = true,
+                ),
             )
+
             4 -> listOf(
                 Item(
                     name = "Spiked Bashing Shield",
@@ -222,7 +252,17 @@ class Items {
                     levelRequirement = 18,
                     isMythic = true,
                 ),
+                Item(
+                    name = "Dragon's Heart Shoulders",
+                    type = ItemType.Shoulders,
+                    health = applyVariance(360),
+                    regeneration = 10,
+                    strengthRequirement = 10,
+                    levelRequirement = 13,
+                    isMythic = true,
+                ),
             )
+
             5 -> listOf(
                 Item(
                     name = "Illusion Mask",
@@ -237,6 +277,7 @@ class Items {
                     type = ItemType.Hook,
                     damage = applyVariance(8),
                     critDamage = 20,
+                    strength = 2,
                     strengthRequirement = 22,
                     levelRequirement = 15,
                     isMythic = true,
@@ -248,6 +289,24 @@ class Items {
                     health = 100,
                     strengthRequirement = 25,
                     levelRequirement = 20,
+                    isMythic = true,
+                ),
+                Item(
+                    name = "Prisoner's Oath",
+                    type = ItemType.Belt,
+                    armor = applyVariance(10),
+                    dodgeChance = - 50,
+                    strengthRequirement = 15,
+                    levelRequirement = 15,
+                    isMythic = true,
+                ),
+                Item(
+                    name = "Non-existing Trousers",
+                    type = ItemType.Leggings,
+                    health = 1000,
+                    armor = applyVariance(5),
+                    strengthRequirement = 5,
+                    levelRequirement = 25,
                     isMythic = true,
                 ),
             )
@@ -266,7 +325,10 @@ class Items {
 
         val safeAct = act.coerceIn(1, 5)
         val eastBadDrops = if (direction == "EAST" && act != 5 && act != 3) 15.0 else 0.0
-        val roll = (random.nextDouble(0.0, 100.0) - eastBadDrops).coerceAtLeast(0.0) // coerceAtLeast forces negative results to be 0.0
+        val roll = (random.nextDouble(
+            0.0,
+            100.0
+        ) - eastBadDrops).coerceAtLeast(0.0) // coerceAtLeast forces negative results to be 0.0
 
         val chances = when (safeAct) {
 
@@ -464,7 +526,6 @@ class Items {
     // ============================================================
     // GENERATE ITEM
     // ============================================================
-
     private fun generateItem(
         act: Int,
         type: ItemType,
@@ -663,7 +724,6 @@ class Items {
     // ============================================================
     // LEFT HAND / HOOK
     // ============================================================
-
     private fun generateLeftHandWeapon(
         item: Item,
         quality: Double,
@@ -717,7 +777,6 @@ class Items {
     // ============================================================
     // ARMOR
     // ============================================================
-
     private fun generateArmor(
         item: Item,
         quality: Double,
@@ -780,9 +839,12 @@ class Items {
     ) {
 
         item.dodgeChance = (
-                random.nextInt(0, 7) +
+                random.nextInt(0, 6) +
                         quality * act
                 ).roundToInt()
+        if (quality < 1) {
+            item.dodgeChance = random.nextInt(4, 9)
+        }
 
         item.armor = (
                 random.nextInt(0, 3) +
@@ -790,6 +852,9 @@ class Items {
                         1
                 ).roundToInt()
             .coerceAtLeast(0)
+        if (quality < 1) {
+            item.armor -= 1
+        }
 
         item.health = (
                 random.nextInt(1, 22) *
@@ -879,6 +944,9 @@ class Items {
                         1
                 ).roundToInt()
             .coerceAtLeast(0)
+        if (quality < 1) {
+            item.armor -= 1
+        }
 
         item.strength = (
                 random.nextInt(0, 3) *
@@ -901,12 +969,15 @@ class Items {
         /*
          * Small chance of additional defensive utility.
          */
-        if (random.nextInt(100) < 35) {
+        if (random.nextInt(100) < 38) {
             item.dodgeChance = (
-                    random.nextInt(1, 4) *
+                    random.nextInt(1, 3) *
                             quality *
                             act
                     ).roundToInt()
+        }
+        if (quality < 1) {
+            item.dodgeChance = random.nextInt(2, 8)
         }
 
         item.strengthRequirement = (
